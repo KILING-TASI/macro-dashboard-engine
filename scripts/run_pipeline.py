@@ -6,7 +6,7 @@ run_pipeline.py — 宏观看板一键流水线
 流程: 抓取(东财+FRED) → 周期研判 → 生成单文件 HTML 看板
 
 用法:
-    python3 run_pipeline.py                          # 默认输出 /workspace/macro-dashboard.html
+    python3 run_pipeline.py                          # 默认输出独立运行目录
     python3 run_pipeline.py --out /tmp/dash.html
     python3 run_pipeline.py --workdir /tmp/macro     # 中间文件目录
 
@@ -23,36 +23,65 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 SKILL_DIR = os.path.dirname(HERE)
 
 
-def run(cmd):
-    """运行子命令，返回 (ok, output_path)。"""
+def run(cmd, overwrite=False):
+    """Stage in destination directory; publish only successful nonempty output."""
+    cmd = list(cmd)
+    output = staged = None
     if "--out" in cmd:
         output = cmd[cmd.index("--out") + 1]
-        if os.path.isfile(output):
-            os.remove(output)
+        if os.path.exists(output) and not overwrite:
+            print(f"[warn] 输出已存在，保留旧结果；如需覆盖请显式指定 --overwrite: {output}", file=sys.stderr)
+            return False
+        os.makedirs(os.path.dirname(os.path.abspath(output)), exist_ok=True)
+        fd, staged = tempfile.mkstemp(prefix=".macro-stage-", suffix=os.path.splitext(output)[1],
+                                     dir=os.path.dirname(os.path.abspath(output)))
+        os.close(fd)
+        cmd[cmd.index("--out") + 1] = staged
     env = dict(os.environ, PYTHONIOENCODING="utf-8")
-    r = subprocess.run([sys.executable] + cmd, capture_output=True, text=True,
-                       encoding="utf-8", env=env)
-    for line in (r.stdout or "").splitlines():
-        print("  " + line)
-    for line in (r.stderr or "").splitlines():
-        print("  [warn]", line, file=sys.stderr)
-    return r.returncode == 0
+    try:
+        r = subprocess.run([sys.executable] + cmd, capture_output=True, text=True,
+                           encoding="utf-8", env=env)
+        for line in (r.stdout or "").splitlines():
+            print("  " + line)
+        for line in (r.stderr or "").splitlines():
+            print("  [warn]", line, file=sys.stderr)
+        if r.returncode != 0 or (staged and os.path.getsize(staged) == 0):
+            return False
+        if staged:
+            if overwrite:
+                os.replace(staged, output)
+            else:
+                # Atomic no-clobber publication, including concurrent writers.
+                os.link(staged, output)
+        return True
+    except OSError as error:
+        print(f"[warn] 子任务/保存失败，旧结果保留: {error}", file=sys.stderr)
+        return False
+    finally:
+        if staged and os.path.exists(staged):
+            os.remove(staged)
 
 
 def main():
     ap = argparse.ArgumentParser(description="宏观看板一键流水线")
-    ap.add_argument("--out", default="/workspace/macro-dashboard.html")
-    ap.add_argument("--workdir", default=None, help="中间 JSON 目录，默认临时目录")
+    ap.add_argument("--out", default=None)
+    ap.add_argument("--workdir", default=None, help="归档父目录；每次在其下创建独立run目录")
     ap.add_argument("--title", default="宏观全景看板")
     ap.add_argument("--demo", action="store_true", help="离线演示，不抓取真实数据")
+    ap.add_argument("--overwrite", action="store_true", help="成功后替换指定HTML；失败保留旧结果")
     args = ap.parse_args()
+    base = args.workdir or tempfile.mkdtemp(prefix="macro_")
+    os.makedirs(base, exist_ok=True)
+    workdir = tempfile.mkdtemp(prefix="run_", dir=base)
+    args.out = args.out or os.path.join(workdir, "macro-dashboard.html")
+    if os.path.exists(args.out) and not args.overwrite:
+        raise SystemExit("输出已存在；请指定新路径或显式使用 --overwrite")
     if args.demo:
-        if not run([os.path.join(HERE, "build_dashboard.py"), "--demo", "--out", args.out, "--title", args.title]):
+        if not run([os.path.join(HERE, "build_dashboard.py"), "--demo", "--out", args.out, "--title", args.title], overwrite=args.overwrite):
             raise SystemExit(1)
+        print(f"[pipeline] 演示完成 → {args.out}")
         return
 
-    workdir = args.workdir or tempfile.mkdtemp(prefix="macro_")
-    os.makedirs(workdir, exist_ok=True)
     em_json = os.path.join(workdir, "eastmoney_data.json")
     fr_json = os.path.join(workdir, "fred_data.json")
     cycle_json = os.path.join(workdir, "cycle.json")
@@ -60,9 +89,6 @@ def main():
     ind_json = os.path.join(workdir, "industry_data.json")
     attr_json = os.path.join(workdir, "attribution.json")
     credit_json = os.path.join(workdir, "credit_data.json")
-    for path in (cycle_json, lc_json, attr_json):
-        if os.path.isfile(path):
-            os.remove(path)
 
     print("[1/5] 抓取国内宏观数据（东方财富）...")
     ok_em = run([os.path.join(HERE, "fetch_eastmoney.py"), "--out", em_json])
@@ -100,7 +126,7 @@ def main():
                   "--eastmoney", em_json, "--fred", fr_json, "--cycle", cycle_json,
                   "--longcycle", lc_json, "--attribution", attr_json,
                   "--credit", credit_json,
-                  "--out", args.out, "--title", args.title])
+                  "--out", args.out, "--title", args.title], overwrite=args.overwrite)
     else:
         print("[pipeline] 数据源不完整，只展示可用真实数据，缺项留空")
         ok = run([os.path.join(HERE, "build_dashboard.py"),
@@ -110,7 +136,7 @@ def main():
                   "--longcycle", lc_json if os.path.exists(lc_json) else "/nonexistent",
                   "--attribution", attr_json if os.path.exists(attr_json) else "/nonexistent",
                   "--credit", credit_json,
-                  "--out", args.out, "--title", args.title])
+                  "--out", args.out, "--title", args.title], overwrite=args.overwrite)
 
     if ok and os.path.exists(args.out):
         print(f"[pipeline] 完成 → {args.out}")

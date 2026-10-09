@@ -30,6 +30,7 @@ import argparse
 import json
 import math
 import sys
+from dated_series import paired
 
 # 因子定义：key -> (来源, 字段, 中文名, 单位)
 # 来源 em=东财数据, fred=FRED 数据
@@ -60,7 +61,7 @@ def _em_monthly_series(em, key):
     series = ind.get("series") or {}
     vals = series.get("yoy") or series.get("value") or ind.get("values") or []
     out = {}
-    for d, v in zip(dates[-len(vals):], vals):
+    for d, v in paired(dates, vals):
         if v is not None and len(d) >= 7:
             out[d[:7]] = v
     return out
@@ -72,7 +73,7 @@ def _fred_monthly_series(fr, key):
     dates = ind.get("dates") or []
     vals = ind.get("values") or []
     out = {}
-    for d, v in zip(dates, vals):
+    for d, v in paired(dates, vals):
         if v is None:
             continue
         m = d[:7]
@@ -229,6 +230,8 @@ def compute(industry, em, fr, use_excess=True):
         "sectors": [],
         "n_obs": 0,
         "use_excess": use_excess,
+        "point_in_time": False,
+        "timing_note": "未取得逐期首次发布日期与修订版本；仅作事后历史关联，不能解释为当时可用预测。",
         "note": ("行业超额收益对宏观因子月度变化的 OLS 回归；"
                  "beta 为标准ized 系数，正值=因子上行利好该行业"),
     }
