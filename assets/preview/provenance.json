@@ -1,0 +1,15 @@
+{
+  "generated_date": "2026-10-09",
+  "page_generated_at": "2026-10-09 19:00",
+  "observed_through": "2026-08 (fictional)",
+  "calculation_version": "2.0.0",
+  "kind": "original_synthetic_teaching",
+  "input_generator": "scripts/demo_preview.py:teaching_input",
+  "command": "python scripts/demo_preview.py --out-dir local-data/public-demo",
+  "capture": "Actual in-app browser screenshot, default viewport, no image editing",
+  "sha256": {
+    "screenshot": "add054f9f7e26e0dfebecbbff03a455b4d73f2701fbe412376806315f7674bd1",
+    "input": "df642705d1920695d7e96e45a401c5e665a023b9851de4bf523f337cbc9ea778",
+    "generator": "5dc524e8e0433c14f4066488984c65fac3afaad878884eaf4f383c382b136316"
+  }
+}

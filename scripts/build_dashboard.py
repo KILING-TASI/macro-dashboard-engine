@@ -8,15 +8,16 @@ build_dashboard.py — 组装单文件宏观看板 HTML
 
 用法:
     python3 build_dashboard.py --eastmoney em.json --fred fr.json --cycle cycle.json \
-        --out /workspace/macro-dashboard.html
+        --out local-data/macro-dashboard.html
 
-若任一输入缺失，自动回退到 assets/sample_data.json。
+正式数据缺项留空；演示样本仅由 --demo 显式启用。
 """
 import argparse
 import json
 import os
 import sys
 import datetime
+from html import escape
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SKILL_DIR = os.path.dirname(HERE)
@@ -278,7 +279,7 @@ def render(payload, out_path, title="宏观全景看板"):
     partial = (payload.get("data_quality", {}).get("status") == "partial"
                or payload.get("credit", {}).get("status") == "partial")
     badge_text = "示例数据" if offline else ("数据不完整" if partial else "实时数据")
-    src_text = "东方财富 + FRED（离线示例快照）" if offline else (
+    src_text = escape(str(payload.get("demo_source") or "东方财富 + FRED（离线示例快照）")) if offline else (
         "东方财富 + FRED；信用模块另含商务部数据（部分数据，见逐项来源）" if partial
         else "东方财富 + FRED（实时抓取）")
 
@@ -286,6 +287,7 @@ def render(payload, out_path, title="宏观全景看板"):
     html = html.replace("__BADGE__", badge_text)
     html = html.replace("__ASOF__", str((payload.get("cycle") or {}).get("as_of") or "—"))
     html = html.replace("__GENTIME__", datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
+    html = html.replace("__CALC_VERSION__", escape(str((payload.get("cycle") or {}).get("calculation_version") or "未登记")))
     html = html.replace("__SRCTEXT__", src_text)
     html = html.replace("__ECHARTS__", echarts_js)
     html = html.replace("__DATA__", json.dumps(payload, ensure_ascii=False))

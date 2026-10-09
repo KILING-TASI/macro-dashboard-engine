@@ -15,6 +15,8 @@ REQUIRED = ["README.md", "DISCLAIMER.md", "LICENSE", "THIRD_PARTY_NOTICES.md",
             "scripts/run_pipeline.py", "scripts/dated_series.py", "scripts/macro_contract.py",
             "references/macro_contract.md", "references/source_catalog.json",
             "references/examples/contract-input.json"]
+REQUIRED += ["scripts/demo_preview.py", "assets/preview/macro-demo.png",
+             "assets/preview/README.md", "assets/preview/provenance.json"]
 
 
 def check():
@@ -57,6 +59,10 @@ def check_archive():
                        cwd=source, check=True)
         if not list((source / "local-data/demo").glob("run_*/macro-dashboard.html")):
             raise ValueError("解压后演示未生成HTML")
+        subprocess.run([sys.executable, "scripts/demo_preview.py", "--out-dir", "local-data/public-demo"],
+                       cwd=source, check=True)
+        if not (source / "local-data/public-demo/macro-demo.html").is_file():
+            raise ValueError("解压后公开教学演示未生成HTML")
     print("Committed source archive includes notices/resources and runs the offline demo.")
 
 
