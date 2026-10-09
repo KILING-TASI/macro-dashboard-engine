@@ -1,0 +1,24 @@
+{
+  "checked_at": "2026-10-09",
+  "kind": "original_synthetic_teaching",
+  "report_generated_at": "2026-10-09 19:56",
+  "controls_version": "1.0.0",
+  "method_version": "2.0.0",
+  "parameters": {
+    "query": "",
+    "source": "未取得",
+    "state": "missing",
+    "window": "custom",
+    "from": "2026-03",
+    "to": "2026-08",
+    "sort": "absolute"
+  },
+  "resolved_window": {
+    "from": "2026-03",
+    "to": "2026-08"
+  },
+  "display_payload_sha256": "ec2f15488df75c3eb0b2035cee74a92a55768ceacc17a92043be1ba9aad5aced",
+  "command": "python scripts/demo_preview.py --out-dir local-data/new-interactive-demo",
+  "capture": "Actual browser screenshot, default viewport, no image editing",
+  "screenshot_sha256": "12256b1fd5b232d27a1da8a6a4e1685985441be84df0145578e5f0fa1c5889e8"
+}

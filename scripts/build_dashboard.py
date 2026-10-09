@@ -274,6 +274,8 @@ def render(payload, out_path, title="宏观全景看板"):
         echarts_js = f.read()
     with open(os.path.join(ASSETS, "template.html"), encoding="utf-8") as f:
         html = f.read()
+    with open(os.path.join(ASSETS, "dashboard_controls.js"), encoding="utf-8") as f:
+        controls_js = f.read()
 
     offline = payload.get("offline")
     partial = (payload.get("data_quality", {}).get("status") == "partial"
@@ -298,6 +300,7 @@ def render(payload, out_path, title="宏观全景看板"):
     html = html.replace("__THIRD_PARTY_NOTICES__", escape("\n\n".join(notices)))
     html = html.replace("__ECHARTS__", echarts_js)
     html = html.replace("__DATA__", json.dumps(payload, ensure_ascii=False))
+    html = html.replace("__DASHBOARD_CONTROLS__", controls_js)
 
     os.makedirs(os.path.dirname(os.path.abspath(out_path)), exist_ok=True)
     with open(out_path, "w", encoding="utf-8") as f:

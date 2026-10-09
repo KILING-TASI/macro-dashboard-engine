@@ -5,6 +5,7 @@
 | 材料 | 许可范围及核对状态 |
 |---|---|
 | 原创 Python、工作流、HTML/CSS/JS 及有权授权的原创说明 | 按现有 MIT；其中第三方库、引文及外部资料单独处理 |
+| `assets/dashboard_controls.js` | 本次原创显示逻辑，按现有 MIT；导出的展示数据仍保留各自数据权利，不变成 MIT 数据 |
 | `assets/echarts.min.js` | Apache ECharts 5.5.1，统一换行后与上游分发文件一致；Apache-2.0、D3 BSD-3-Clause 及内嵌 Microsoft 声明原样保留，不改为 MIT |
 | `scripts/teaching_data.py` 和原创模拟输入 | 本次原创、无外部观测；按项目 MIT。模拟数值没有现实经济含义 |
 | `assets/preview/macro-demo.png` | 实际生成的教学界面；数值原创。截图不把 ECharts、字体或商标的权利整体转授为 MIT；无外部照片、账户或原文全文 |

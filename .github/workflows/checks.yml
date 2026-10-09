@@ -27,6 +27,11 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Tests
         run: python -m unittest discover -s tests -v
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: View controls contract
+        run: node tests/test_dashboard_controls.js
       - name: Syntax, documentation and source archive
         run: python scripts/check_repository.py --archive
       - name: README offline example

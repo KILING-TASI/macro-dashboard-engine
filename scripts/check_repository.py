@@ -22,6 +22,8 @@ REQUIRED += ["scripts/demo_preview.py", "assets/preview/macro-demo.png",
              "LICENSE_SCOPE.md", "assets/SAMPLE_DATA_RIGHTS.md", ".gitattributes",
              "third_party/echarts-5.5.1/LICENSE", "third_party/echarts-5.5.1/NOTICE",
              "third_party/echarts-5.5.1/LICENSE-d3", "third_party/echarts-5.5.1/provenance.json"]
+REQUIRED += ["assets/dashboard_controls.js", "references/view_controls.md", "tests/test_dashboard_controls.js"]
+REQUIRED += ["assets/preview/macro-controls.png", "assets/preview/controls-provenance.json"]
 
 
 def check():

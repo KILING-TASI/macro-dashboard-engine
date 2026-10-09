@@ -16,6 +16,8 @@ python scripts/demo_preview.py --out-dir local-data/public-demo
 
 预期输出：打开 `local-data/public-demo/macro-demo.html`，查看指标、周期代理和缺口；同目录保存 `demo-input.json` 与 `cycle.json` 供复查。目录已存在时拒绝覆盖，请另选新目录。此新入口属于 PR #1 待审分支，主分支尚未包含。
 
+看板支持指标、来源及状态筛选，日期图表窗口、已有贡献与尺度观察排序，以及带参数、方法版本和展示快照的新 JSON 留档。窗口不重算主指标或周期结论，没有在线刷新；详见[显示交互与留档](references/view_controls.md)及[实际交互截图](assets/preview/macro-controls.png)。
+
 ## 其他运行入口
 
 在仓库根目录运行。最低支持目标为 Python 3.8，脚本使用标准库；实际运行验收为 Python 3.12.10，未逐版本验收。Windows 使用 python，如仅配置了 Python 启动器可换成 py -3；其他系统可按环境换成 python3。ECharts 随源码内置，无需安装 Python 第三方包。
@@ -82,9 +84,12 @@ HTML 内联图表库，可离线打开；输入和中间 JSON 保存在本次独
 ```text
 python -m unittest discover -s tests -v
 python scripts/check_repository.py --archive
+node tests/test_dashboard_controls.js
 ```
 
 2026-10-09：27 项测试通过，覆盖缺月、空值、日期错位、评分贡献、安全保存与同版本转换。此前真实归档重建成功，5 个行业、33 个月回归的因子和行业数值保持一致。教学演示通过不代表联网取数通过；此次未重新获取全部网络数据、逐项核验官方原文或完成跨包等价验收。
+
+Node 仅用于上述开发/CI 检查，生成和浏览看板不需要安装 Node。
 
 PR 新增 GitHub Actions 自动检查，覆盖 Windows/Linux、Python 3.8/3.12 的离线测试、文档和源码归档演示。运行结果以 PR 的检查记录为准；不把离线 CI 当作数据渠道可用性或经济判断验收。
 
@@ -96,7 +101,7 @@ PR 新增 GitHub Actions 自动检查，覆盖 Windows/Linux、Python 3.8/3.12 �
 |---|---|
 | main | 已入主分支：国内及海外取数、周期看板、行业回归；Skill 元数据为 1.4.0。旧分支仍有自动样本兜底及日期处理问题 |
 | [PR #1](https://github.com/KILING-TASI/macro-dashboard-engine/pull/1) | 待审，未合并：数据质量、显式演示、信用传导、证据表、日期连续性及安全保存 |
-| PR 的版本标识 | Skill 1.6.1；周期计算 2.0.0；有限观测接口 1.0.0。这是不同组件版本，不是已发布产品版本 |
+| PR 的版本标识 | Skill 1.6.2；周期计算 2.0.0；有限观测接口 1.0.0。这是不同组件版本，不是已发布产品版本 |
 
 下面示例对应 PR 分支 fix/macro-data-quality。主分支不保证支持新增参数。
 

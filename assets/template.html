@@ -80,6 +80,14 @@
 #creditTable td:nth-child(2) {min-width:230px;}
 #creditTable td:nth-child(3),#creditTable td:nth-child(4) {white-space:nowrap;}
 #creditTable td:nth-child(6) {min-width:300px;}
+  #viewControls label{display:inline-flex;flex-direction:column;gap:5px;margin:6px 12px 6px 0;color:var(--sub);font-size:12px}
+  #viewControls input,#viewControls select,#viewControls button{background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:6px;padding:8px;font:inherit}
+  #viewControls button{cursor:pointer;margin:6px 8px 6px 0}
+  #viewControls .hint{line-height:1.7}
+  #viewArchive{width:100%;height:120px;background:var(--bg);color:var(--sub)}
+  #evidenceTable td,#evidenceTable th{padding:8px;text-align:left;vertical-align:top}
+  .chart{position:relative}
+  .view-empty{position:absolute;inset:0;z-index:5;background:var(--panel);display:flex;align-items:center;justify-content:center;color:var(--sub)}
 </style>
 </head>
 <body>
@@ -91,11 +99,26 @@
     </div>
     <div class="meta">
       数据截止：<b id="asof">__ASOF__</b><br>
-      生成时间：__GENTIME__<br>
+      生成时间：<time id="reportGeneratedAt">__GENTIME__</time><br>
       计算版本：__CALC_VERSION__<br>
       数据来源：__SRCTEXT__
     </div>
   </header>
+
+  <section id="viewControls" class="card" aria-label="看板显示筛选">
+    <h3>查看已载入的观测</h3>
+    <p class="hint">指标、来源和状态筛选仅作用于证据及信用明细；时间窗口只调整日期图表显示，不重算当前指标和周期结论。不连接接口，不更新历史快照。</p>
+    <label>指标关键词<input id="viewQuery" type="search" placeholder="名称、代码或口径"></label>
+    <label>来源<select id="viewSource"><option value="">全部来源</option></select></label>
+    <label>数据状态<select id="viewState"><option value="">全部状态</option><option value="acquired">已取得真实输入</option><option value="missing">未取得</option><option value="stale">滞后</option><option value="sample">教学样本</option><option value="verified">原文已核验</option><option value="unverified">原文未核验</option></select></label>
+    <label>时间窗口<select id="viewWindow"><option value="all">全部历史</option><option value="12">最近12个月</option><option value="36">最近36个月</option><option value="custom">自定义月份</option></select></label>
+    <label>起始月份<input id="viewFrom" type="month"></label>
+    <label>结束月份<input id="viewTo" type="month"></label>
+    <label>已有观察排序<select id="viewSort"><option value="name">按指标/尺度名称</option><option value="absolute">按贡献/尺度偏移绝对值</option></select></label>
+    <div><button id="viewApply" type="button">应用显示参数</button><button id="viewReset" type="button">重置筛选和窗口</button><button id="viewExport" type="button">生成留档参数</button><a id="viewDownload" hidden>下载新JSON留档</a></div>
+    <p id="viewError" role="alert"></p><p id="viewCount" class="hint"></p><p id="viewWindowNote" class="hint"></p>
+    <details><summary>已有增长贡献、尺度观察与留档内容</summary><p class="hint">表格显示4位小数，留档保留原值；未知不填零。尺度观察只读取原报告已计算的敏感性，不应用假设、不切换主结论，不是预测。留档包含已载入展示数据，不是原始响应文件。</p><div style="overflow-x:auto"><table id="viewContributions" class="data"></table><table id="viewScenarios" class="data"></table></div><textarea id="viewArchive" aria-label="留档JSON" readonly></textarea></details>
+  </section>
 
   <!-- 1. KPI -->
   <section>
@@ -863,5 +886,6 @@ function lineOpt(dates,seriesList,opts={}){
 document.getElementById('disclaimer').textContent=DATA.cycle.disclaimer;
 document.getElementById('asof').textContent=DATA.cycle.as_of||'—';
 </script>
+<script>__DASHBOARD_CONTROLS__</script>
 </body>
 </html>

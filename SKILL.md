@@ -2,7 +2,7 @@
 name: macro-dashboard
 description: 生成宏观研究看板，观察增长、通胀、货币与银行信用传导、金融周期及行业历史关联；按研究问题选择资料，保留来源、口径、日期与缺口。
 metadata:
-  version: "1.6.1"
+  version: "1.6.2"
   author: "CodeBuddy AI"
   created: "2026-10-09"
 ---
@@ -54,6 +54,8 @@ python <skill-directory>/scripts/run_pipeline.py --demo --out <demo.html>
 现有自动连接器：东方财富国内宏观、FRED海外与长周期、新浪行业行情、商务部转载社融及新增信用序列。登记了其他来源不表示已经实现连接器。历史抓取成功不保证接口持续可用。FRED保留现有请求头策略，东方财富保留Referer。
 
 ## 解释与交付
+
+已有 HTML 的[显示交互与留档](references/view_controls.md)只筛选、缩放及排序已有观察，保留日期与空值，不重算当前结论。导出新 JSON 包含显示快照、参数和版本，不是原始响应或在线刷新；不能声称已支持回读恢复。
 
 与研究工作台衔接时读[有限宏观版本契约](references/macro_contract.md)。仅可选导出观测与有限周期观察；工作台保留研究解释，双方无强制依赖，不直接替换其官方观测/资产窗口模块。计算2.0.0严格配对日期、缺期截断，增长评分统一尺度并披露贡献和敏感性，不能与旧评分或实时预测混用。
 
