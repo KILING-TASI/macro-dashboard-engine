@@ -11,6 +11,8 @@ fetch_fred.py — FRED（圣路易斯联储）宏观数据抓取
 
 输出: JSON 结构同 fetch_eastmoney.py
 """
+from dated_series import paired, period_number
+import math
 import argparse
 import csv
 import io
@@ -98,24 +100,29 @@ def fetch_series(series_id, timeout=30, retries=2):
     return out
 
 
-def _yoy(series):
-    """把指数型月度序列转成同比 %（12 期前比较）。"""
+def _calendar_yoy(series, frequency):
+    points = paired([d for d, _ in series], [v for _, v in series])
+    periods = [period_number(d, frequency) for d, _ in points]
+    if len(set(periods)) != len(periods):
+        raise ValueError("同比输入存在重复观测期")
+    lookup = dict(zip(periods, [v for _, v in points]))
+    lag = 12 if frequency == "M" else 4
     out = []
-    for i in range(len(series)):
-        if i >= 12 and series[i - 12][1]:
-            yoy = (series[i][1] / series[i - 12][1] - 1) * 100
-            out.append((series[i][0], round(yoy, 3)))
+    for (d, v), period in zip(points, periods):
+        base = lookup.get(period - lag)
+        if v is not None and base is not None and base != 0 and math.isfinite(v) and math.isfinite(base):
+            out.append((d, round((v / base - 1) * 100, 3)))
     return out
+
+
+def _yoy(series):
+    """与上年同月配对；缺失或零基期不生成同比。"""
+    return _calendar_yoy(series, "M")
 
 
 def _yoy_quarterly(series):
-    """把指数型季度序列转成同比 %（4 期前比较）。"""
-    out = []
-    for i in range(len(series)):
-        if i >= 4 and series[i - 4][1]:
-            yoy = (series[i][1] / series[i - 4][1] - 1) * 100
-            out.append((series[i][0], round(yoy, 3)))
-    return out
+    """与上年同季配对；不以记录位置替代日历。"""
+    return _calendar_yoy(series, "Q")
 
 
 def build(key, limit=None):
@@ -137,6 +144,7 @@ def build(key, limit=None):
         "series_id": series_id,
         "unit": unit,
         "freq": freq,
+        "transformation": "calendar-yoy-1.0.0" if to_yoy else "identity",
         "dates": dates,
         "values": values,
         "latest": values[-1] if values else None,

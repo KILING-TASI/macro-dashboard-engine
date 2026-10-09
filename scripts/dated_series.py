@@ -1,6 +1,7 @@
 """Strict pairing and native-frequency continuity; no filling missing observations."""
 from datetime import date, timedelta
 import math
+import re
 
 
 def paired(dates, values):
@@ -12,13 +13,27 @@ def paired(dates, values):
 
 
 def period_number(d, frequency):
-    if frequency == "Q" and "Q" in d:
-        year, quarter = d.split("-Q")
-        return int(year) * 4 + int(quarter) - 1
+    if frequency not in ("M", "Q"):
+        raise ValueError("仅月季频可转换为日历期")
+    if re.fullmatch(r"\d{4}-Q[1-4]", d) and frequency == "Q":
+        year, quarter = int(d[:4]), int(d[-1])
+        date(year, 1, 1)
+        return year * 4 + quarter - 1
+    if not re.fullmatch(r"\d{4}-\d{2}(?:-\d{2})?", d):
+        raise ValueError("日期或季度格式无效")
     year, month = map(int, d[:7].split("-"))
-    if not 1 <= month <= 12:
-        raise ValueError("月份无效")
+    date.fromisoformat(d if len(d) == 10 else d + "-01")
     return year * 4 + (month - 1) // 3 if frequency == "Q" else year * 12 + month - 1
+
+
+def validate_frequency(indicator, expected=None):
+    declared = [indicator[k] for k in ("frequency", "freq") if indicator.get(k)]
+    if len(set(declared)) > 1:
+        raise ValueError("频率字段互相冲突")
+    freq = declared[0] if declared else expected or "M"
+    if freq not in ("M", "Q", "D", "W") or (expected and freq != expected):
+        raise ValueError("指标频率不符合计算要求: " + str(freq))
+    return freq
 
 
 def adjacent(previous, current, frequency="M"):
@@ -42,7 +57,10 @@ def trailing(indicator, key="value", frequency=None):
     if not values:
         return []
     points = paired(indicator.get("dates", []), values)
-    freq = indicator.get("frequency", indicator.get("freq", frequency or "M"))
+    freq = validate_frequency(indicator, frequency)
+    periods = [period_number(d, freq) if freq in ("M", "Q") else date.fromisoformat(d) for d, _ in points]
+    if len(set(periods)) != len(periods):
+        raise ValueError("同一原生观测期重复")
     tail = []
     for d, v in points:
         if v is None or not math.isfinite(v):

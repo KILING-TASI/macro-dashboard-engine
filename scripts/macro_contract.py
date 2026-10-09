@@ -5,12 +5,11 @@ import hashlib
 import json
 from pathlib import Path
 
-from compute_cycle import growth_score, inflation_score, classify_quadrant, inventory_cycle, credit_cycle
+from compute_cycle import growth_score, inflation_score, classify_quadrant, inventory_cycle, credit_cycle, CALCULATION_VERSION
 from data_evidence import build_evidence
 from dated_series import paired
 
 CONTRACT_VERSION = "1.0.0"
-CALCULATION_VERSION = "2.0.0"
 SELECTED = {"eastmoney": ("pmi", "retail", "gdp", "cpi", "ppi", "m1", "m2"), "fred": ("us_cpi",)}
 
 
