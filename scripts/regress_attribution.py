@@ -85,6 +85,8 @@ def _diff(series):
     months = sorted(series)
     out = {}
     for i in range(1, len(months)):
+        if not _adjacent_months(months[i - 1], months[i]):
+            continue
         out[months[i]] = series[months[i]] - series[months[i - 1]]
     return out
 
@@ -94,10 +96,19 @@ def _pct_change(series):
     months = sorted(series)
     out = {}
     for i in range(1, len(months)):
+        if not _adjacent_months(months[i - 1], months[i]):
+            continue
         prev = series[months[i - 1]]
         if prev:
             out[months[i]] = (series[months[i]] / prev - 1) * 100
     return out
+
+
+def _adjacent_months(previous, current):
+    def number(month):
+        year, month_number = map(int, month.split("-"))
+        return year * 12 + month_number
+    return number(current) - number(previous) == 1
 
 
 # ---------------------------------------------------------------- 因子构造
@@ -115,7 +126,7 @@ def build_factors(em, fr):
     for fk, (src, key) in raw.items():
         s = _em_monthly_series(em, key) if src == "em" else _fred_monthly_series(fr, key)
         if len(s) >= 6:
-            factors[fk] = _diff(s)     # 宏观因子用「变化」而非水平
+            factors[fk] = _pct_change(s) if fk == "fx" else _diff(s)
 
     # 铜金比：FRED 派生指标（已按月），直接取变化
     cg = _fred_monthly_series(fr, "copper_gold")
@@ -233,6 +244,8 @@ def compute(industry, em, fr, use_excess=True):
         for k in factor_keys:
             common &= set(factors[k])
         y_months = sorted(common)
+        if use_excess:
+            y_months = sorted(common & set(bench_rets))
         if len(y_months) < 12:
             continue
         y = []
@@ -242,6 +255,18 @@ def compute(industry, em, fr, use_excess=True):
                 r = r - bench_rets[m]
             y.append(r)
         X = [[factors[k][m] for k in factor_keys] for m in y_months]
+
+        # 同时标准化收益和因子，得到无量纲 beta；常量列无法估计。
+        def standardize(values):
+            mean = sum(values) / len(values)
+            sd = math.sqrt(sum((v - mean) ** 2 for v in values) / len(values))
+            return [(v - mean) / sd for v in values] if sd > 1e-12 else None
+
+        columns = [standardize([row[i] for row in X]) for i in range(len(factor_keys))]
+        y = standardize(y)
+        if y is None or any(column is None for column in columns):
+            continue
+        X = [list(row) for row in zip(*columns)]
 
         beta, r2, tvals = ols(y, X)
         if beta is None:
@@ -253,6 +278,8 @@ def compute(industry, em, fr, use_excess=True):
             "t": {k: round(tvals[i + 1], 2) for i, k in enumerate(factor_keys)},
             "r2": round(r2, 4),
             "n": len(y_months),
+            "start_month": y_months[0],
+            "end_month": y_months[-1],
         })
         result["n_obs"] = len(y_months)
 

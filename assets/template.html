@@ -151,12 +151,12 @@
     <!-- P2 扩展周期 -->
     <div class="grid3" style="margin-top:14px">
       <div class="v-card">
-        <div class="v-label">盈利周期</div>
+        <div class="v-label">盈利周期（宏观代理）</div>
         <div class="v-val" style="font-size:17px" id="earnVal">—</div>
         <ul id="earnEv"></ul>
       </div>
       <div class="v-card">
-        <div class="v-label">市场情绪周期</div>
+        <div class="v-label">市场情绪周期（全球代理）</div>
         <div class="v-val" style="font-size:17px" id="sentiVal">—</div>
         <ul id="sentiEv"></ul>
       </div>
@@ -170,7 +170,7 @@
 
   <!-- 2b. 多周期时间轴 -->
   <section>
-    <h2 class="sec-title">多周期共振时间轴 <span class="tag">红=改善 · 绿=恶化 · 灰=持平/无数据</span></h2>
+    <p class="hint">口径说明：库存以 PPI/PMI 代理；信用以 M1−M2 代理；估值环境以利率分位代理，未直接测量股票估值。回归反映历史关联，不代表因果或未来收益预测。</p><h2 class="sec-title">多周期共振时间轴 <span class="tag">红=改善 · 绿=恶化 · 灰=持平/无数据</span></h2>
     <div class="card"><div class="chart tall" id="timelineChart"></div></div>
   </section>
 
@@ -180,7 +180,7 @@
     <div class="grid2">
       <div class="card"><h3>美元指数 / 10Y美债实际利率</h3><div class="hint">全球流动性松紧的核心变量</div><div class="chart" id="liqChart"></div></div>
       <div class="card"><h3>铜金比</h3><div class="hint">上行=增长预期改善（顺周期）；下行=避险</div><div class="chart" id="cgChart"></div></div>
-      <div class="card"><h3>中美利差（中国利率 − 美国利率）</h3><div class="hint">影响汇率与外资流向</div><div class="chart" id="spreadChart"></div></div>
+      <div class="card"><h3>中美利差（中国利率 − 美国利率）</h3><div class="hint">中国3个月银行间利率 − 美国联邦基金利率，单位：百分点</div><div class="chart" id="spreadChart"></div></div>
       <div class="card"><h3>VIX 恐慌指数 / 美债10Y-2Y利差</h3><div class="hint">风险偏好与衰退信号</div><div class="chart" id="riskChart"></div></div>
       <div class="card"><h3>70城房价指数（新房/二手，100=持平）</h3><div class="hint">地产周期与居民资产负债表</div><div class="chart" id="propChart"></div></div>
       <div class="card"><h3>盈利代理：工业生产 / 零售销售同比</h3><div class="hint">企业盈利的宏观领先代理</div><div class="chart" id="earnChart"></div></div>
@@ -243,14 +243,14 @@
 
   <!-- 6. 宏观→行业量化归因 -->
   <section>
-    <h2 class="sec-title">宏观→行业量化归因 <span class="tag">历史回归 · 真实 beta 替代经验矩阵</span></h2>
+    <h2 class="sec-title">宏观→行业量化归因 <span class="tag">历史回归 · 历史关联估计</span></h2>
     <div class="card">
       <div class="hint" id="attribNote"></div>
       <div class="chart tall" id="attribChart" style="height:360px"></div>
     </div>
     <div class="card" style="margin-top:14px">
       <h3>归因明细（beta / t 值 / R²）</h3>
-      <div class="hint">beta 为标准化系数，|t|&gt;2 近似显著；R² 为因子对行业超额收益的解释力</div>
+      <div class="hint">beta 为收益与因子均标准化后的无量纲系数，|t|&gt;2 近似显著；R² 为因子对行业超额收益的解释力</div>
       <div class="scroll"><table class="data" id="attribTable"></table></div>
     </div>
   </section>

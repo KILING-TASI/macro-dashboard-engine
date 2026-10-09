@@ -169,7 +169,11 @@ def fetch_all(indicators=None):
     result = {"source": "eastmoney", "as_of": None, "indicators": {}, "errors": []}
     for key in indicators:
         try:
-            result["indicators"][key] = fetch_indicator(key)
+            indicator = fetch_indicator(key)
+            if not indicator.get("dates") or not any(
+                    v is not None for values in indicator.get("series", {}).values() for v in values):
+                raise ValueError("指标没有有效数据")
+            result["indicators"][key] = indicator
         except Exception as e:  # noqa: BLE001
             result["errors"].append(f"{key}: {e}")
     # as_of = CPI 最新日期
@@ -196,6 +200,8 @@ def main():
         for e in data["errors"]:
             print("  -", e, file=sys.stderr)
     print(f"[eastmoney] 已写入 {args.out} (as_of={data['as_of']})")
+    if not data["indicators"]:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

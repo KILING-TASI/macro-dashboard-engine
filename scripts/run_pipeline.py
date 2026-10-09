@@ -25,7 +25,13 @@ SKILL_DIR = os.path.dirname(HERE)
 
 def run(cmd):
     """运行子命令，返回 (ok, output_path)。"""
-    r = subprocess.run([sys.executable] + cmd, capture_output=True, text=True)
+    if "--out" in cmd:
+        output = cmd[cmd.index("--out") + 1]
+        if os.path.isfile(output):
+            os.remove(output)
+    env = dict(os.environ, PYTHONIOENCODING="utf-8")
+    r = subprocess.run([sys.executable] + cmd, capture_output=True, text=True,
+                       encoding="utf-8", env=env)
     for line in (r.stdout or "").splitlines():
         print("  " + line)
     for line in (r.stderr or "").splitlines():
@@ -48,6 +54,9 @@ def main():
     lc_json = os.path.join(workdir, "long_cycle.json")
     ind_json = os.path.join(workdir, "industry_data.json")
     attr_json = os.path.join(workdir, "attribution.json")
+    for path in (cycle_json, lc_json, attr_json):
+        if os.path.isfile(path):
+            os.remove(path)
 
     print("[1/5] 抓取国内宏观数据（东方财富）...")
     ok_em = run([os.path.join(HERE, "fetch_eastmoney.py"), "--out", em_json])

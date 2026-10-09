@@ -113,6 +113,8 @@ def fetch_all(months=36):
         try:
             daily = fetch_kline(code, datalen=datalen)
             m, closes = to_monthly(daily)
+            if len(m) < 2:
+                raise ValueError("有效月度数据不足")
             # 只保留最近 months+1 个月（多留 1 个月用于算首月收益率）
             keep = months + 1
             m, closes = m[-keep:], closes[-keep:]
@@ -148,6 +150,8 @@ def main():
     for e in data["errors"]:
         print("  [err]", e, file=sys.stderr)
     print(f"[industry] 已写入 {args.out}")
+    if not data["indices"]:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

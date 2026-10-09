@@ -17,6 +17,7 @@ import json
 import os
 import sys
 import datetime
+import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SKILL_DIR = os.path.dirname(HERE)
@@ -47,7 +48,8 @@ CHAINS = [
 
 def _load(path):
     if path and os.path.exists(path):
-        return json.load(open(path, encoding="utf-8"))
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
     return None
 
 
@@ -185,13 +187,13 @@ def build_payload(em_raw, fr_raw, cycle, long_cycle=None, long_wave=None,
 
     # ---------- P1 扩展周期数据 ----------
     xd2, xv2 = fr_take("usd_index", 260)
-    _, rv = fr_take("us10y_real", 260)
-    rv_al = _align(xd2, rv, xd2)  # 两者同为日频，直接对齐
+    rd, rv = fr_take("us10y_real", 260)
+    rv_al = _align(rd, rv, xd2)
     cgd, cgv = fr_take("copper_gold", 60)
     spd, spv = fr_take("cn_us_spread", 60)
     vd, vv = fr_take("vix", 260)
-    _, cv2 = fr_take("us_curve", 260)
-    cv2_al = _align(vd, cv2, vd)
+    curve_dates, cv2 = fr_take("us_curve", 260)
+    cv2_al = _align(curve_dates, cv2, vd)
 
     p1 = {
         "liquidity": {"dates": xd2, "usdindex": xv2, "real": rv_al},
@@ -254,6 +256,12 @@ def build_payload(em_raw, fr_raw, cycle, long_cycle=None, long_wave=None,
         "transmission": {"chains": CHAINS, "heatmap": HEATMAP},
         "table": {"header": header, "body": body},
         "offline": offline,
+        "data_quality": {
+            "status": "sample" if offline else (
+                "partial" if any((source or {}).get("errors") for source in (em_raw, fr_raw)) else "live"),
+            "errors": [error for source in (em_raw, fr_raw)
+                       for error in (source or {}).get("errors", [])],
+        },
     }
 
 
@@ -264,12 +272,13 @@ def render(payload, out_path, title="宏观全景看板"):
         html = f.read()
 
     offline = payload.get("offline")
-    badge = ('<span class="badge demo">示例数据</span>' if offline
-             else '<span class="badge live">实时数据</span>')
-    src_text = "东方财富 + FRED（离线示例快照）" if offline else "东方财富 + FRED（实时抓取）"
+    partial = payload.get("data_quality", {}).get("status") == "partial"
+    badge_text = "示例数据" if offline else ("数据不完整" if partial else "实时数据")
+    src_text = "东方财富 + FRED（离线示例快照）" if offline else (
+        "东方财富 + FRED（部分指标抓取失败）" if partial else "东方财富 + FRED（实时抓取）")
 
     html = html.replace("__TITLE__", title)
-    html = html.replace("__BADGE__", "实时数据" if not offline else "示例数据")
+    html = html.replace("__BADGE__", badge_text)
     html = html.replace("__ASOF__", str((payload.get("cycle") or {}).get("as_of") or "—"))
     html = html.replace("__GENTIME__", datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
     html = html.replace("__SRCTEXT__", src_text)
@@ -302,26 +311,31 @@ def main():
     policy = _load(os.path.join(ASSETS, "policy_calendar.json")) or {}
     offline = False
 
-    if em is None or fr is None or cycle is None:
+    if not (em or {}).get("indicators") or not (fr or {}).get("indicators") or cycle is None:
         sample = _load(os.path.join(ASSETS, "sample_data.json")) or {}
-        em = em or sample.get("eastmoney")
-        fr = fr or sample.get("fred")
+        if not (em or {}).get("indicators"):
+            em = sample.get("eastmoney")
+        if not (fr or {}).get("indicators"):
+            fr = sample.get("fred")
+        if not (em or {}).get("indicators") or not (fr or {}).get("indicators"):
+            raise SystemExit("缺少可用输入和离线示例数据，无法生成看板")
         offline = True
         import subprocess, sys
-        # 用样本数据现算周期结论
-        tmp_em, tmp_fr = "/tmp/_em.json", "/tmp/_fr.json"
-        json.dump(em, open(tmp_em, "w", encoding="utf-8"), ensure_ascii=False)
-        json.dump(fr, open(tmp_fr, "w", encoding="utf-8"), ensure_ascii=False)
-        tmp_cy = "/tmp/_cycle.json"
-        subprocess.run([sys.executable, os.path.join(HERE, "compute_cycle.py"),
-                        "--eastmoney", tmp_em, "--fred", tmp_fr, "--out", tmp_cy], check=False)
-        cycle = _load(tmp_cy) or {"as_of": "—"}
-        # 长周期：样本数据也可能含长历史序列，尝试现算
-        if long_cycle is None:
-            tmp_lc = "/tmp/_longcycle.json"
+        # 每次运行独立目录，避免 Windows 路径问题及并发读取旧结果。
+        with tempfile.TemporaryDirectory(prefix="macro_fallback_") as temp_dir:
+            tmp_em, tmp_fr = [os.path.join(temp_dir, name) for name in ("em.json", "fr.json")]
+            for path, data in ((tmp_em, em), (tmp_fr, fr)):
+                with open(path, "w", encoding="utf-8") as f:
+                    json.dump(data, f, ensure_ascii=False)
+            tmp_cy = os.path.join(temp_dir, "cycle.json")
+            subprocess.run([sys.executable, os.path.join(HERE, "compute_cycle.py"),
+                            "--eastmoney", tmp_em, "--fred", tmp_fr, "--out", tmp_cy], check=True)
+            cycle = _load(tmp_cy)
+            tmp_lc = os.path.join(temp_dir, "longcycle.json")
             subprocess.run([sys.executable, os.path.join(HERE, "compute_long_cycle.py"),
-                            "--fred", tmp_fr, "--out", tmp_lc], check=False)
+                            "--fred", tmp_fr, "--out", tmp_lc], check=True)
             long_cycle = _load(tmp_lc)
+        attribution = None  # 实时归因不能搭配示例宏观数据。
 
     payload = build_payload(em, fr, cycle, long_cycle=long_cycle,
                             long_wave=long_wave, attribution=attribution,

@@ -144,19 +144,20 @@ def build(key, limit=None):
     }
 
 
-def _derive_ratio(num_key, den_key, name, unit, limit=60):
+def _derive_ratio(num_key, den_key, name, unit, limit=60, operation="ratio"):
     """由两条序列按日期对齐计算比值（如铜金比 = 铜价 / 金价）。"""
     a = {d[:7] if len(d) > 7 else d: v for d, v in fetch_series(SERIES[num_key][0])}
     b = {d[:7] if len(d) > 7 else d: v for d, v in fetch_series(SERIES[den_key][0])}
     common = sorted(set(a) & set(b))
-    raw = [(d, a[d] / b[d]) for d in common if b[d]]
+    raw = ([(d, a[d] - b[d]) for d in common] if operation == "spread"
+           else [(d, a[d] / b[d]) for d in common if b[d]])
     raw = raw[-limit:]
     dates = [d for d, _ in raw]
     values = [round(v, 4) for _, v in raw]
     latest = values[-1] if values else None
     prev = values[-2] if len(values) >= 2 else None
     return {
-        "name": name, "series_id": f"{SERIES[num_key][0]}/{SERIES[den_key][0]}",
+        "name": name, "series_id": f"{SERIES[num_key][0]}{'-' if operation == 'spread' else '/'}{SERIES[den_key][0]}",
         "unit": unit, "freq": "M", "dates": dates, "values": values,
         "latest": latest, "prev": prev,
         "mom": round(latest - prev, 4) if (latest is not None and prev is not None) else None,
@@ -177,7 +178,10 @@ def fetch_all(keys=None):
         if key in DERIVED:
             continue          # 派生指标单独处理，跳过 SERIES 查询
         try:
-            result["indicators"][key] = build(key)
+            indicator = build(key)
+            if not indicator["dates"]:
+                raise ValueError("序列没有有效数据")
+            result["indicators"][key] = indicator
         except Exception as e:  # noqa: BLE001
             result["errors"].append(f"{key}: {e}")
     # 派生指标：默认全部计算；若显式指定 keys，则只算被请求的那些
@@ -186,7 +190,11 @@ def fetch_all(keys=None):
     for key in derived_keys:
         nk, dk, name, unit = DERIVED[key]
         try:
-            result["indicators"][key] = _derive_ratio(nk, dk, name, unit)
+            indicator = _derive_ratio(nk, dk, name, unit,
+                                      operation="spread" if key == "cn_us_spread" else "ratio")
+            if not indicator["dates"]:
+                raise ValueError("派生序列没有共同日期")
+            result["indicators"][key] = indicator
         except Exception as e:  # noqa: BLE001
             result["errors"].append(f"{key}(派生): {e}")
     us10y = result["indicators"].get("us10y")
@@ -215,6 +223,8 @@ def main():
     for e in data["errors"]:
         print("  [err]", e, file=sys.stderr)
     print(f"[fred] 已写入 {args.out} (as_of={data['as_of']})")
+    if not data["indicators"]:
+        sys.exit(1)
 
 
 if __name__ == "__main__":
