@@ -5,7 +5,7 @@ def teaching_input():
     def indicator(name, values, unit="%", field="value", period_dates=None, frequency="M"):
         return {"name": name, "dates": period_dates or dates, "series": {field: values},
                 "unit": unit, "frequency": frequency, "latest": values[-1], "prev": values[-2]}
-    em = {"source": "sample", "as_of": "2026-08", "fetched_at": None,
+    em = {"source": "sample", "data_origin": "original_synthetic", "as_of": "2026-08", "fetched_at": None,
           "provenance": "Original synthetic teaching numbers; not official observations.",
           "indicators": {
               "pmi": indicator("制造业PMI", [49.0,49.2,49.4,49.5,49.6,49.8,50.0,50.1,50.3,50.4,50.5,50.6], "指数"),

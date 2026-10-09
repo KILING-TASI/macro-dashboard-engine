@@ -36,5 +36,9 @@ def build_evidence(sources):
                 "breaks": definition.get("breaks", []),
                 "revision": indicator.get("revision", "历史版本未取得"),
                 "sample": (payload or {}).get("source") == "sample"})
+            if (payload or {}).get("data_origin") == "original_synthetic":
+                rows[-1].update(provider="原创模拟", producer="本仓库原创模拟",
+                    source_url=None, definition_status="模拟指标模板，不是官方观测",
+                    verification_status="原创模拟，无官方原文", verification=None)
     return {"rows": rows, "catalog_reviewed_at": catalog["reviewed_at"],
             "note": "取得数据不等于原文核验；空白发布日期不以观测期或抓取时间代替。"}

@@ -32,6 +32,7 @@ class DemoPreviewTests(unittest.TestCase):
             page = (folder / "macro-demo.html").read_text(encoding="utf-8")
             self.assertIn("示例数据", page)
             self.assertIn("原创模拟数值", page)
+            self.assertIn('"producer": "本仓库原创模拟"', page)
             self.assertIn("计算版本：2.0.0", page)
             self.assertIn('id="asof">2026-08', page)
             self.assertIn('"us10y": null', page)
