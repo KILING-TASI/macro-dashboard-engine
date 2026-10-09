@@ -1,0 +1,35 @@
+name: Repository checks
+
+on:
+  pull_request:
+  push:
+    branches: [main, fix/macro-data-quality]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-checks:
+    name: Offline checks (${{ matrix.os }}, Python ${{ matrix.python }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ['3.8', '3.12']
+    runs-on: ${{ matrix.os }}
+    env:
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Tests
+        run: python -m unittest discover -s tests -v
+      - name: Syntax, documentation and source archive
+        run: python scripts/check_repository.py --archive
+      - name: README offline example
+        run: python scripts/run_pipeline.py --demo --workdir local-data/ci-demo
+      - name: Check whitespace
+        run: git diff --check
