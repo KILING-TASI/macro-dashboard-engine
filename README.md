@@ -113,7 +113,7 @@ PR 新增 GitHub Actions 自动检查，覆盖 Windows/Linux、Python 3.8/3.12 �
 
 ## 许可与第三方数据
 
-项目原创代码及有权授权的原创说明采用现有 [MIT](LICENSE)，本次未更换。内置 ECharts、D3 和其他声明保留原许可；字体、截图、外部数据及未明权利分界见[许可范围清单](LICENSE_SCOPE.md)和[第三方说明](THIRD_PARTY_NOTICES.md)。仓库许可不表示获得第三方数据或原文附件的再分发授权。
+项目原创代码及有权授权的原创说明采用标准 [MIT](LICENSE)，版权标注 KILING-TASI，并保留已有 contributors 声明。内置 ECharts、D3 和其他声明保留原许可；字体、截图、外部数据及未明权利分界见[许可范围清单](LICENSE_SCOPE.md)和[第三方说明](THIRD_PARTY_NOTICES.md)。仓库许可不表示获得第三方数据或原文附件的再分发授权。
 
 本仓库以源码分发，尚无专用安装包；源码归档需包含 README、许可声明、Skill、脚本、模板、图表库和方法资源，不附个人研究缓存。
 

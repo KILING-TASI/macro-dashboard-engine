@@ -1,8 +1,8 @@
 # 第三方组件与数据边界
 
-更新日期：2026-10-09。
+更新日期：2026-10-10。
 
-项目已有 [MIT 许可](LICENSE)，此次整理未修改该文件。
+项目原创代码及有权授权的原创说明采用 [MIT 许可](LICENSE)，版权标注 KILING-TASI，并保留已有 contributors 声明。以下第三方材料不改授项目 MIT。
 
 `assets/echarts.min.js` 为 Apache ECharts 5.5.1，统一换行后与该版本上游分发文件一致。保留 Apache-2.0 及内嵌 Microsoft 版权声明，不改称项目自有 MIT 代码。完整上游 [LICENSE](third_party/echarts-5.5.1/LICENSE)、[NOTICE](third_party/echarts-5.5.1/NOTICE) 和 [D3 BSD-3-Clause 许可](third_party/echarts-5.5.1/LICENSE-d3)随源码收录；来源和哈希见该目录的 provenance.json。生成 HTML 同时内嵌上述项目/第三方声明。
 

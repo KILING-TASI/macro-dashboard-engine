@@ -1,6 +1,6 @@
 # 许可范围清单
 
-核对日期：2026-10-09。根 [LICENSE](LICENSE) 保持现有 MIT 文本及 `macro-dashboard-engine contributors` 权利人表述，不新增或推定第三方权利人。
+核对日期：2026-10-10。根 [LICENSE](LICENSE) 采用标准 MIT 文本，版权标注 KILING-TASI，同时保留已有 `macro-dashboard-engine contributors` 声明；第三方版权及许可原样保留。
 
 | 材料 | 许可范围及核对状态 |
 |---|---|
