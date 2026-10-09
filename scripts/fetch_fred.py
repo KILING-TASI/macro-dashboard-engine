@@ -28,10 +28,10 @@ SERIES = {
     "us_cpi":     ("CPIAUCSL",  "美国CPI",      "指数", True,  60,  "M"),
     "us_unrate":  ("UNRATE",    "美国失业率",    "%",    False, 60,  "M"),
     "fedfunds":   ("FEDFUNDS",  "联邦基金利率",  "%",    False, 60,  "M"),
-    "us10y":      ("DGS10",     "10Y美债收益率", "%",    False, 260, "D"),
-    "usdcny":     ("DEXCHUS",   "美元兑人民币",  "汇率",  False, 260, "D"),
-    "usd_index":  ("DTWEXBGS",  "美元指数(广义)", "指数", False, 260, "D"),
-    "wti":        ("DCOILWTICO", "WTI原油",     "美元/桶", False, 260, "D"),
+    "us10y":      ("DGS10",     "10Y美债收益率", "%",    False, 1300, "D"),
+    "usdcny":     ("DEXCHUS",   "美元兑人民币",  "汇率",  False, 1300, "D"),
+    "usd_index":  ("DTWEXBGS",  "美元指数(广义)", "指数", False, 1300, "D"),
+    "wti":        ("DCOILWTICO", "WTI原油",     "美元/桶", False, 1300, "D"),
     # ---- P1 新增 ----
     "cn_rate":    ("IR3TIB01CNM156N", "中国3月期银行间利率", "%", False, 60, "M"),
     "copper":     ("PCOPPUSDM", "铜价(月)",     "美元/吨", False, 60,  "M"),
@@ -174,12 +174,17 @@ def fetch_all(keys=None):
     keys = keys or list(SERIES.keys())
     result = {"source": "fred", "as_of": None, "indicators": {}, "errors": []}
     for key in keys:
+        if key in DERIVED:
+            continue          # 派生指标单独处理，跳过 SERIES 查询
         try:
             result["indicators"][key] = build(key)
         except Exception as e:  # noqa: BLE001
             result["errors"].append(f"{key}: {e}")
-    # 派生指标
-    for key, (nk, dk, name, unit) in DERIVED.items():
+    # 派生指标：默认全部计算；若显式指定 keys，则只算被请求的那些
+    explicit = set(keys) & set(DERIVED)
+    derived_keys = explicit if explicit else set(DERIVED)
+    for key in derived_keys:
+        nk, dk, name, unit = DERIVED[key]
         try:
             result["indicators"][key] = _derive_ratio(nk, dk, name, unit)
         except Exception as e:  # noqa: BLE001
@@ -187,6 +192,12 @@ def fetch_all(keys=None):
     us10y = result["indicators"].get("us10y")
     if us10y and us10y.get("dates"):
         result["as_of"] = us10y["dates"][-1]
+    # 单指标/派生模式下，as_of 可能仍为空 → 用任一序列兜底
+    if not result["as_of"]:
+        for v in result["indicators"].values():
+            if v.get("dates"):
+                result["as_of"] = v["dates"][-1]
+                break
     return result
 
 

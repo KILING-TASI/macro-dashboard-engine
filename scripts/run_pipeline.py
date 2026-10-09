@@ -46,30 +46,42 @@ def main():
     fr_json = os.path.join(workdir, "fred_data.json")
     cycle_json = os.path.join(workdir, "cycle.json")
     lc_json = os.path.join(workdir, "long_cycle.json")
+    ind_json = os.path.join(workdir, "industry_data.json")
+    attr_json = os.path.join(workdir, "attribution.json")
 
-    print("[1/4] 抓取国内宏观数据（东方财富）...")
+    print("[1/5] 抓取国内宏观数据（东方财富）...")
     ok_em = run([os.path.join(HERE, "fetch_eastmoney.py"), "--out", em_json])
 
-    print("[2/4] 抓取海外宏观数据（FRED，含长周期全历史序列）...")
+    print("[2/5] 抓取海外宏观数据（FRED，含长周期全历史序列）...")
     ok_fr = run([os.path.join(HERE, "fetch_fred.py"), "--out", fr_json])
 
-    print("[3/4] 周期研判（短周期 + 长周期梯队）...")
+    print("[3/5] 抓取行业指数行情（新浪）...")
+    ok_ind = run([os.path.join(HERE, "fetch_industry.py"),
+                  "--months", "36", "--out", ind_json])
+
+    print("[4/5] 周期研判（短周期 + 长周期梯队）+ 量化归因...")
     ok_cycle = ok_em and ok_fr and run(
         [os.path.join(HERE, "compute_cycle.py"),
          "--eastmoney", em_json, "--fred", fr_json, "--out", cycle_json])
 
-    # 长周期计算：即使短周期数据不全也尝试（长周期只依赖 FRED 长历史序列）
     if ok_fr:
         run([os.path.join(HERE, "compute_long_cycle.py"),
              "--fred", fr_json, "--out", lc_json])
     else:
         print("  [warn] FRED 数据缺失，长周期梯队将回退示例快照", file=sys.stderr)
 
-    print("[4/4] 生成看板...")
+    if ok_ind and ok_em and ok_fr:
+        run([os.path.join(HERE, "regress_attribution.py"),
+             "--industry", ind_json, "--eastmoney", em_json,
+             "--fred", fr_json, "--out", attr_json])
+    else:
+        print("  [warn] 行业数据不全，量化归因将回退示例快照", file=sys.stderr)
+
+    print("[5/5] 生成看板...")
     if ok_cycle:
         ok = run([os.path.join(HERE, "build_dashboard.py"),
                   "--eastmoney", em_json, "--fred", fr_json, "--cycle", cycle_json,
-                  "--longcycle", lc_json,
+                  "--longcycle", lc_json, "--attribution", attr_json,
                   "--out", args.out, "--title", args.title])
     else:
         print("[pipeline] 数据源不完整，使用离线示例数据兜底生成看板")
@@ -78,6 +90,7 @@ def main():
                   "--fred", fr_json if ok_fr else "/nonexistent",
                   "--cycle", cycle_json if os.path.exists(cycle_json) else "/nonexistent",
                   "--longcycle", lc_json if os.path.exists(lc_json) else "/nonexistent",
+                  "--attribution", attr_json if os.path.exists(attr_json) else "/nonexistent",
                   "--out", args.out, "--title", args.title])
 
     if ok and os.path.exists(args.out):

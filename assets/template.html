@@ -221,7 +221,41 @@
     </div>
   </section>
 
-  <!-- 4. 配置建议 -->
+  <!-- 5. 政策事件库 -->
+  <section>
+    <h2 class="sec-title">政策事件日历 <span class="tag">会议窗口 · 历史规律 · 季节性</span></h2>
+    <div class="grid2">
+      <div class="card">
+        <h3>关键会议与政策窗口</h3>
+        <div class="hint">★ 为重要性；时间为历史规律，具体以官方公告为准</div>
+        <div id="policyList" style="font-size:12.5px;line-height:1.9;max-height:420px;overflow:auto"></div>
+      </div>
+      <div class="card">
+        <h3>季节性规律</h3>
+        <div class="hint">A 股常见的季节性模式</div>
+        <div id="seasonalList" style="font-size:12.5px;line-height:1.9"></div>
+        <h3 style="margin-top:16px">历史重要事件</h3>
+        <div class="hint">近年影响较大的政策节点</div>
+        <div id="pastEvents" style="font-size:12.5px;line-height:1.9;max-height:280px;overflow:auto"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. 宏观→行业量化归因 -->
+  <section>
+    <h2 class="sec-title">宏观→行业量化归因 <span class="tag">历史回归 · 真实 beta 替代经验矩阵</span></h2>
+    <div class="card">
+      <div class="hint" id="attribNote"></div>
+      <div class="chart tall" id="attribChart" style="height:360px"></div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <h3>归因明细（beta / t 值 / R²）</h3>
+      <div class="hint">beta 为标准化系数，|t|&gt;2 近似显著；R² 为因子对行业超额收益的解释力</div>
+      <div class="scroll"><table class="data" id="attribTable"></table></div>
+    </div>
+  </section>
+
+  <!-- 7. 配置建议 -->
   <section>
     <h2 class="sec-title">股市传导与配置建议 <span class="tag">因子 → 中间变量 → 股市影响</span></h2>
     <div class="grid2">
@@ -638,6 +672,98 @@ function lineOpt(dates,seriesList,opts={}){
       <ul style="margin:6px 0 0;padding-left:20px">${imp['要点'].map(e=>`<li>${e}</li>`).join('')}</ul></div>`;
     if(imp.caveat) html+=`<div style="margin-top:10px;color:var(--warn);font-size:12px">⚠ ${imp.caveat}</div>`;
     box.innerHTML=html||'<span style="color:var(--muted)">长波框架数据缺失</span>';
+  }
+})();
+
+/* ---------- 6e. 政策事件日历 ---------- */
+(function(){
+  const P=DATA.policy||{};
+  const star={ '极高':'★★★','高':'★★','中':'★' };
+  const list=document.getElementById('policyList');
+  if(list){
+    const rec=P.recurring_annual||{};
+    let html='';
+    const render=(arr,region)=>{
+      if(!arr) return '';
+      return arr.map(e=>`<div style="padding:7px 0;border-bottom:1px solid var(--line)">
+        <b style="color:var(--txt)">${e.name}</b>
+        <span style="color:var(--gold)">${star[e.importance]||''}</span>
+        <span class="pill" style="margin-left:6px;font-size:10px">${region}</span>
+        <span style="color:var(--muted)"> · ${e.window||''}</span>
+        <div style="color:var(--sub);margin-top:3px">${e.focus||''}</div>
+        <div style="color:var(--muted);margin-top:2px">→ ${e.market_impact||''}</div></div>`).join('');
+    };
+    html+='<div style="color:var(--accent);font-weight:600;margin:4px 0 6px">国内</div>';
+    html+=render(rec.cn,'CN');
+    html+='<div style="color:var(--accent);font-weight:600;margin:12px 0 6px">海外</div>';
+    html+=render(rec.us,'US');
+    list.innerHTML=html||'<span style="color:var(--muted)">无数据</span>';
+  }
+  const sl=document.getElementById('seasonalList');
+  if(sl){
+    sl.innerHTML=(P.seasonal_patterns||[]).map(s=>`<div style="padding:6px 0;border-bottom:1px solid var(--line)">
+      <b style="color:var(--gold)">${s.pattern}</b>
+      <span style="color:var(--muted)"> ${s.window}</span>
+      <div style="color:var(--sub);margin-top:3px">${s.desc}</div>
+      <div style="color:var(--muted);margin-top:2px">触发：${s.trigger||''}</div></div>`).join('')
+      ||'<span style="color:var(--muted)">无数据</span>';
+  }
+  const pe=document.getElementById('pastEvents');
+  if(pe){
+    pe.innerHTML=(P.past_events||[]).map(e=>`<div style="padding:6px 0;border-bottom:1px solid var(--line)">
+      <span class="pill" style="font-size:10px">${e.date}</span>
+      <b style="color:var(--txt);margin-left:6px">${e.name}</b>
+      <span style="color:var(--gold)">${star[e.importance]||''}</span>
+      <div style="color:var(--sub);margin-top:3px">${e.content||''}</div>
+      <div style="color:var(--muted);margin-top:2px">→ ${e.market_impact||''}</div></div>`).join('')
+      ||'<span style="color:var(--muted)">无数据</span>';
+  }
+})();
+
+/* ---------- 6f. 宏观→行业量化归因 ---------- */
+(function(){
+  const A=DATA.attribution||{};
+  const note=document.getElementById('attribNote');
+  const secs=A.sectors||[], facs=A.factors||[];
+  if(note){
+    note.innerHTML = secs.length
+      ? `${A.note||''}（样本 ${A.n_obs} 个月，${secs.length} 个行业；${A.use_excess?'已做超额收益处理':'未做超额'}）`
+      : '量化归因数据不可用（行业行情或宏观数据不足），已跳过。';
+  }
+  // 热力图：行业 × 因子
+  if(secs.length && facs.length){
+    const fnames=facs.map(f=>f.name.replace(/\(.*?\)/,''));
+    const snames=secs.map(s=>s.name);
+    const data=[];
+    secs.forEach((s,si)=>{facs.forEach((f,fi)=>{
+      data.push([fi,si, s.beta[f.key]!=null?s.beta[f.key]:0]);});});
+    const opt={
+      grid:{left:80,right:20,top:20,bottom:70},
+      tooltip:{formatter:p=>`${snames[p.value[1]]} × ${fnames[p.value[0]]}: β=${p.value[2].toFixed(2)}`},
+      xAxis:{type:'category',data:fnames,...AX,axisLabel:{color:THEME.sub,rotate:25,fontSize:11}},
+      yAxis:{type:'category',data:snames,...AX},
+      visualMap:{min:-20,max:20,calculable:false,orient:'horizontal',left:'center',bottom:0,
+        textStyle:{color:THEME.sub},inRange:{color:['#22c55e','#1b2740','#ff4d4f']}},
+      series:[{type:'heatmap',data:data,label:{show:true,color:'#e6ecff',fontSize:9,
+        formatter:p=>p.value[2].toFixed(1)},
+        itemStyle:{borderColor:'#0b1020',borderWidth:1}}]
+    };
+    c('attribChart').setOption(opt);
+  }
+  // 明细表
+  const tb=document.getElementById('attribTable');
+  if(tb){
+    if(!secs.length){ tb.innerHTML='<tr><td>无数据</td></tr>'; return; }
+    const head=`<thead><tr><th>行业</th>${facs.map(f=>`<th>${f.name.replace(/\(.*?\)/,'')}</th>`).join('')}<th>R²</th><th>n</th></tr></thead>`;
+    const rows=secs.map(s=>{
+      const tds=facs.map(f=>{
+        const b=s.beta[f.key], t=s.t[s.key]||s.t[f.key];
+        const sig=(t!=null&&Math.abs(t)>2)?'font-weight:700':'';
+        return `<td style="${sig}">${b!=null?b.toFixed(2):'—'}</td>`;
+      }).join('');
+      return `<tr><td>${s.name}</td>${tds}<td>${s.r2.toFixed(2)}</td><td>${s.n}</td></tr>`;
+    }).join('');
+    tb.innerHTML=head+`<tbody>${rows}</tbody>`;
   }
 })();
 

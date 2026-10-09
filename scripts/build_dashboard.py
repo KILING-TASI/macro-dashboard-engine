@@ -71,7 +71,8 @@ def _tail(lst, n):
     return lst[-n:] if lst else []
 
 
-def build_payload(em_raw, fr_raw, cycle, long_cycle=None, long_wave=None, offline=False):
+def build_payload(em_raw, fr_raw, cycle, long_cycle=None, long_wave=None,
+                  attribution=None, policy=None, offline=False):
     em = (em_raw or {}).get("indicators", {})
     fr = (fr_raw or {}).get("indicators", {})
 
@@ -248,6 +249,8 @@ def build_payload(em_raw, fr_raw, cycle, long_cycle=None, long_wave=None, offlin
         "p1": p1,
         "long_cycle": long_cycle or {},
         "long_wave": long_wave or {},
+        "attribution": attribution or {},
+        "policy": policy or {},
         "transmission": {"chains": CHAINS, "heatmap": HEATMAP},
         "table": {"header": header, "body": body},
         "offline": offline,
@@ -285,6 +288,7 @@ def main():
     ap.add_argument("--fred", default="fred_data.json")
     ap.add_argument("--cycle", default="cycle.json")
     ap.add_argument("--longcycle", default="long_cycle.json")
+    ap.add_argument("--attribution", default="attribution.json")
     ap.add_argument("--out", default="/workspace/macro-dashboard.html")
     ap.add_argument("--title", default="宏观全景看板")
     args = ap.parse_args()
@@ -293,7 +297,9 @@ def main():
     fr = _load(args.fred)
     cycle = _load(args.cycle)
     long_cycle = _load(args.longcycle)
+    attribution = _load(args.attribution)
     long_wave = _load(os.path.join(ASSETS, "long_wave.json")) or {}
+    policy = _load(os.path.join(ASSETS, "policy_calendar.json")) or {}
     offline = False
 
     if em is None or fr is None or cycle is None:
@@ -318,7 +324,8 @@ def main():
             long_cycle = _load(tmp_lc)
 
     payload = build_payload(em, fr, cycle, long_cycle=long_cycle,
-                            long_wave=long_wave, offline=offline)
+                            long_wave=long_wave, attribution=attribution,
+                            policy=policy, offline=offline)
     path = render(payload, args.out, args.title)
     flag = "示例数据(离线兜底)" if offline else "实时抓取"
     print(f"[dashboard] 已生成 {path} ({flag})")

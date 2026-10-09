@@ -1,0 +1,80 @@
+{
+  "_note": "中国 + 海外重要政策/会议事件库。用于在看板时间轴上标注关键政策节点，并给出「临近事件」提示与历史规律参考。事件为公开日历规律，非预测。",
+  "_version": "1.0",
+  "updated": "2026-10-09",
+
+  "recurring_annual": {
+    "_desc": "每年固定召开的会议（月份为规律性时间，具体日期以官方公告为准）",
+    "cn": [
+      {"name": "全国两会", "month": [3], "window": "3月上旬", "importance": "高",
+       "focus": "政府工作报告：GDP目标、赤字率、专项债额度、货币政策基调",
+       "market_impact": "定调全年政策，影响基建/消费/科技板块预期"},
+      {"name": "中央经济工作会议", "month": [12], "window": "12月中旬", "importance": "极高",
+       "focus": "定调次年经济工作基调（稳增长/防风险/扩内需优先级）",
+       "market_impact": "年度最重要的政策定调，直接影响次年春季行情方向"},
+      {"name": "政治局会议（季度经济）", "month": [4, 7, 12], "window": "4/7/12月底", "importance": "高",
+       "focus": "分析经济形势，调整政策力度表述",
+       "market_impact": "措辞变化（如「加力」「适度宽松」）常引发市场预期修正"},
+      {"name": "政治局会议（12月定调）", "month": [12], "window": "12月初", "importance": "高",
+       "focus": "为中央经济工作会议定调",
+       "market_impact": "先导信号，市场提前反应"}
+    ],
+    "us": [
+      {"name": "FOMC 议息会议", "month": [1, 3, 5, 6, 7, 9, 11, 12],
+       "window": "每年8次，约每6周一次", "importance": "极高",
+       "focus": "联邦基金利率决议、点阵图、缩表节奏、鲍威尔发布会",
+       "market_impact": "全球流动性总闸门，直接影响美债/美元/新兴市场"},
+      {"name": "杰克逊霍尔央行年会", "month": [8], "window": "8月下旬", "importance": "高",
+       "focus": "美联储主席政策信号",
+       "market_impact": "常释放重要政策转向信号"},
+      {"name": "美国非农就业", "month": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+       "window": "每月第一个周五", "importance": "高",
+       "focus": "新增就业、失业率、时薪",
+       "market_impact": "影响美联储路径定价"},
+      {"name": "美国 CPI", "month": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+       "window": "每月中旬", "importance": "高",
+       "focus": "通胀走势",
+       "market_impact": "通胀超预期→加息预期→全球风险资产承压"}
+    ]
+  },
+
+  "past_events": [
+    {"date": "2024-09-24", "region": "cn", "name": "央行一揽子金融政策", "importance": "极高",
+     "content": "降准50bp+降息+LPR下调+存量房贷利率下调+创设股市支持工具",
+     "market_impact": "A股大幅反弹，开启新一轮政策驱动的行情"},
+    {"date": "2024-09-26", "region": "cn", "name": "政治局会议（9月）", "importance": "极高",
+     "content": "强调「努力完成全年经济社会发展目标」，释放强刺激信号",
+     "market_impact": "确认政策转向，市场情绪显著修复"},
+    {"date": "2024-12-09", "region": "cn", "name": "政治局会议（12月）", "importance": "极高",
+     "content": "货币政策定调14年来首次转向「适度宽松」",
+     "market_impact": "力度超预期，跨年行情预期升温"},
+    {"date": "2025-03-05", "region": "cn", "name": "全国两会", "importance": "高",
+     "content": "政府工作报告：赤字率提高至4%，GDP目标5%左右",
+     "market_impact": "财政加力确认，基建与消费预期改善"},
+    {"date": "2024-09-18", "region": "us", "name": "美联储降息50bp", "importance": "极高",
+     "content": "开启降息周期，首次降息50bp",
+     "market_impact": "全球流动性转向宽松，利好新兴市场"},
+    {"date": "2025-09-17", "region": "us", "name": "美联储降息", "importance": "高",
+     "content": "延续降息节奏",
+     "market_impact": "美元走弱，人民币压力缓解"}
+  ],
+
+  "upcoming_2026": {
+    "_desc": "2026 年主要会议窗口（按规律推算，具体以官方公告为准）",
+    "events": [
+      {"name": "中央经济工作会议", "window": "2026-12中旬", "region": "cn", "importance": "极高",
+       "focus": "定调 2027 年经济政策基调"},
+      {"name": "政治局会议", "window": "2026-12初", "region": "cn", "importance": "高",
+       "focus": "为中央经济工作会议定调"}
+    ]
+  },
+
+  "seasonal_patterns": [
+    {"pattern": "春季躁动", "window": "1-3月", "desc": "政策预期+流动性宽松+两会临近，A股常有春季行情",
+     "trigger": "中央经济工作会议定调 + 两会政策预期"},
+    {"pattern": "五穷六绝七翻身", "window": "5-7月", "desc": "5-6月业绩真空+流动性扰动，7月政治局会议后常有转折",
+     "trigger": "半年报预告 + 政治局会议"},
+    {"pattern": "跨年行情", "window": "12-1月", "desc": "中央经济工作会议后至次年初，常出现跨年上涨",
+     "trigger": "政策定调 + 年初流动性投放"}
+  ]
+}
