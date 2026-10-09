@@ -166,7 +166,7 @@ def fetch_indicator(key, limit=36):
 
 def fetch_all(indicators=None):
     indicators = indicators or list(INDICATORS.keys())
-    result = {"source": "eastmoney", "as_of": None, "indicators": {}, "errors": []}
+    result = {"source": "eastmoney", "fetched_at": datetime.now().astimezone().isoformat(), "as_of": None, "indicators": {}, "errors": []}
     for key in indicators:
         try:
             indicator = fetch_indicator(key)

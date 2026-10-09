@@ -50,11 +50,11 @@ python3 <skill>/scripts/build_dashboard.py --eastmoney eastmoney_data.json --fre
 
 ## 降级与容错
 
-三级兜底，保证看板永远能出图：
+正式数据缺项留空；离线演示显式启用：
 
 1. **实时抓取**（东财 + FRED）
 2. **用户自定义数据**（构造同构 JSON 传入）
-3. **离线快照**（`assets/sample_data.json`，顶部标注「示例数据」角标）
+3. **显式演示快照**（`assets/sample_data.json`，顶部标注「示例数据」角标）
 
 ## 目录结构
 
@@ -66,7 +66,7 @@ python3 <skill>/scripts/build_dashboard.py --eastmoney eastmoney_data.json --fre
 │   ├── template.html         # 单文件看板模板（22 张 ECharts 图表）
 │   ├── echarts.min.js        # 内联用 ECharts 5.5.1
 │   ├── long_wave.json        # 康波 / 熊彼特定性知识库
-│   └── sample_data.json      # 离线兜底快照
+│   └── sample_data.json      # 演示快照
 ├── scripts/
 │   ├── run_pipeline.py       # 一键编排
 │   ├── fetch_eastmoney.py    # 国内数据连接器
@@ -100,9 +100,15 @@ python3 <skill>/scripts/build_dashboard.py --eastmoney eastmoney_data.json --fre
 
 一键流水线自动抓取并接入。已有基础数据时可运行 `python scripts/fetch_credit.py --out credit_data.json`，再向组装器传入 `--credit credit_data.json`。详细口径、扩展字段和阅读资料见 [信用传导说明](references/credit_transmission.md)。
 
-- 部分宏观指标抓取失败时，看板标注“数据不完整”；整个数据源无有效指标时返回失败，由流水线启用示例兜底。
+- 部分宏观指标抓取失败时，看板标注“数据不完整”；整个数据源无有效指标时返回失败，其他真实数据仍可展示；全部无数据则停止。
 - 中美利差为中国3个月银行间利率减美国联邦基金利率（百分点），并非同期限国债利差。
 - 行业回归同时标准化因子和收益，beta 无量纲；超额收益模式仅使用基准、行业、全部因子均齐全的月份。常量序列不做回归。
 - 库存、信用、估值和盈利部分使用代理指标；回归仅描述历史关联。
-- Windows/Linux 离线兜底使用独立临时目录，避免并发和旧文件污染。
+- 演示直接从快照现算结论，不读取共享临时结果。
 - 验证：`python -m unittest discover -s tests -v`。
+
+## 正式研究与演示
+
+默认正式模式禁止示例兜底：部分真实数据出部分看板，全部无有效输入则失败。离线演示需显式 `python scripts/run_pipeline.py --demo --out demo.html`，仅使用样本，不混合实时数据。
+
+来源登记见 `references/source_catalog.json`；问题路由与原文核验记录见 `references/research_routing.md`。网页证据表把“仅取得数据”与“原文已核验”分开。现有历史观测没有被追认为原文核验，未接入渠道只登记为计划来源。

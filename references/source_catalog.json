@@ -1,0 +1,638 @@
+{
+  "version": "1.0",
+  "reviewed_at": "2026-10-09",
+  "review_scope": "现有字段与来源角色登记，不代表历史观测原文核验",
+  "indicators": {
+    "eastmoney:gdp": {
+      "producer": "国家统计局",
+      "retrieval_url": "https://data.eastmoney.com/cjsj/",
+      "unit": "亿元",
+      "frequency": "Q",
+      "seasonality": "未经核验",
+      "stock_flow": "按字段区分水平/同比",
+      "breaks": [],
+      "license": "公开可读；批量获取与再分发条款未核验"
+    },
+    "eastmoney:cpi": {
+      "producer": "国家统计局",
+      "retrieval_url": "https://data.eastmoney.com/cjsj/",
+      "unit": "%",
+      "frequency": "M",
+      "seasonality": "未经核验",
+      "stock_flow": "按字段区分水平/同比",
+      "breaks": [],
+      "license": "公开可读；批量获取与再分发条款未核验"
+    },
+    "eastmoney:ppi": {
+      "producer": "国家统计局",
+      "retrieval_url": "https://data.eastmoney.com/cjsj/",
+      "unit": "%",
+      "frequency": "M",
+      "seasonality": "未经核验",
+      "stock_flow": "按字段区分水平/同比",
+      "breaks": [],
+      "license": "公开可读；批量获取与再分发条款未核验"
+    },
+    "eastmoney:pmi": {
+      "producer": "国家统计局",
+      "retrieval_url": "https://data.eastmoney.com/cjsj/",
+      "unit": "指数",
+      "frequency": "M",
+      "seasonality": "未经核验",
+      "stock_flow": "按字段区分水平/同比",
+      "breaks": [],
+      "license": "公开可读；批量获取与再分发条款未核验"
+    },
+    "eastmoney:retail": {
+      "producer": "国家统计局",
+      "retrieval_url": "https://data.eastmoney.com/cjsj/",
+      "unit": "亿元",
+      "frequency": "M",
+      "seasonality": "未经核验",
+      "stock_flow": "按字段区分水平/同比",
+      "breaks": [],
+      "license": "公开可读；批量获取与再分发条款未核验"
+    },
+    "eastmoney:m0": {
+      "producer": "中国人民银行",
+      "retrieval_url": "https://data.eastmoney.com/cjsj/",
+      "unit": "亿元",
+      "frequency": "M",
+      "seasonality": "未经核验",
+      "stock_flow": "存量及同比",
+      "breaks": [],
+      "license": "公开可读；批量获取与再分发条款未核验"
+    },
+    "eastmoney:m1": {
+      "producer": "中国人民银行",
+      "retrieval_url": "https://data.eastmoney.com/cjsj/",
+      "unit": "亿元",
+      "frequency": "M",
+      "seasonality": "未经核验",
+      "stock_flow": "存量及同比",
+      "breaks": [
+        "2025-01 M1统计口径修订；回溯可比性未核验"
+      ],
+      "license": "公开可读；批量获取与再分发条款未核验"
+    },
+    "eastmoney:m2": {
+      "producer": "中国人民银行",
+      "retrieval_url": "https://data.eastmoney.com/cjsj/",
+      "unit": "亿元",
+      "frequency": "M",
+      "seasonality": "未经核验",
+      "stock_flow": "存量及同比",
+      "breaks": [],
+      "license": "公开可读；批量获取与再分发条款未核验"
+    },
+    "eastmoney:house": {
+      "producer": "国家统计局",
+      "retrieval_url": "https://data.eastmoney.com/cjsj/",
+      "unit": "指数",
+      "frequency": "M",
+      "seasonality": "未经核验",
+      "stock_flow": "按字段区分水平/同比",
+      "breaks": [],
+      "license": "公开可读；批量获取与再分发条款未核验"
+    },
+    "fred:us_cpi": {
+      "producer": "美国劳工统计局",
+      "retrieval_url": "https://fred.stlouisfed.org/series/CPIAUCSL",
+      "series_id": "CPIAUCSL",
+      "unit": "指数",
+      "frequency": "M",
+      "seasonality": "未核验",
+      "stock_flow": "未核验",
+      "transformation": "脚本同比转换",
+      "license": "逐系列核验，不假定FRED全库许可相同"
+    },
+    "fred:us_unrate": {
+      "producer": "美国劳工统计局",
+      "retrieval_url": "https://fred.stlouisfed.org/series/UNRATE",
+      "series_id": "UNRATE",
+      "unit": "%",
+      "frequency": "M",
+      "seasonality": "未核验",
+      "stock_flow": "未核验",
+      "transformation": "原序列水平",
+      "license": "逐系列核验，不假定FRED全库许可相同"
+    },
+    "fred:fedfunds": {
+      "producer": "以FRED系列source字段为准，尚未逐系列核验",
+      "retrieval_url": "https://fred.stlouisfed.org/series/FEDFUNDS",
+      "series_id": "FEDFUNDS",
+      "unit": "%",
+      "frequency": "M",
+      "seasonality": "未核验",
+      "stock_flow": "未核验",
+      "transformation": "原序列水平",
+      "license": "逐系列核验，不假定FRED全库许可相同"
+    },
+    "fred:us10y": {
+      "producer": "以FRED系列source字段为准，尚未逐系列核验",
+      "retrieval_url": "https://fred.stlouisfed.org/series/DGS10",
+      "series_id": "DGS10",
+      "unit": "%",
+      "frequency": "D",
+      "seasonality": "未核验",
+      "stock_flow": "未核验",
+      "transformation": "原序列水平",
+      "license": "逐系列核验，不假定FRED全库许可相同"
+    },
+    "fred:usdcny": {
+      "producer": "以FRED系列source字段为准，尚未逐系列核验",
+      "retrieval_url": "https://fred.stlouisfed.org/series/DEXCHUS",
+      "series_id": "DEXCHUS",
+      "unit": "汇率",
+      "frequency": "D",
+      "seasonality": "未核验",
+      "stock_flow": "未核验",
+      "transformation": "原序列水平",
+      "license": "逐系列核验，不假定FRED全库许可相同"
+    },
+    "fred:usd_index": {
+      "producer": "以FRED系列source字段为准，尚未逐系列核验",
+      "retrieval_url": "https://fred.stlouisfed.org/series/DTWEXBGS",
+      "series_id": "DTWEXBGS",
+      "unit": "指数",
+      "frequency": "D",
+      "seasonality": "未核验",
+      "stock_flow": "未核验",
+      "transformation": "原序列水平",
+      "license": "逐系列核验，不假定FRED全库许可相同"
+    },
+    "fred:wti": {
+      "producer": "以FRED系列source字段为准，尚未逐系列核验",
+      "retrieval_url": "https://fred.stlouisfed.org/series/DCOILWTICO",
+      "series_id": "DCOILWTICO",
+      "unit": "美元/桶",
+      "frequency": "D",
+      "seasonality": "未核验",
+      "stock_flow": "未核验",
+      "transformation": "原序列水平",
+      "license": "逐系列核验，不假定FRED全库许可相同"
+    },
+    "fred:cn_rate": {
+      "producer": "以FRED系列source字段为准，尚未逐系列核验",
+      "retrieval_url": "https://fred.stlouisfed.org/series/IR3TIB01CNM156N",
+      "series_id": "IR3TIB01CNM156N",
+      "unit": "%",
+      "frequency": "M",
+      "seasonality": "未核验",
+      "stock_flow": "未核验",
+      "transformation": "原序列水平",
+      "license": "逐系列核验，不假定FRED全库许可相同"
+    },
+    "fred:copper": {
+      "producer": "以FRED系列source字段为准，尚未逐系列核验",
+      "retrieval_url": "https://fred.stlouisfed.org/series/PCOPPUSDM",
+      "series_id": "PCOPPUSDM",
+      "unit": "美元/吨",
+      "frequency": "M",
+      "seasonality": "未核验",
+      "stock_flow": "未核验",
+      "transformation": "原序列水平",
+      "license": "逐系列核验，不假定FRED全库许可相同"
+    },
+    "fred:gold": {
+      "producer": "以FRED系列source字段为准，尚未逐系列核验",
+      "retrieval_url": "https://fred.stlouisfed.org/series/IQ12260",
+      "series_id": "IQ12260",
+      "unit": "指数",
+      "frequency": "M",
+      "seasonality": "未核验",
+      "stock_flow": "未核验",
+      "transformation": "原序列水平",
+      "license": "逐系列核验，不假定FRED全库许可相同"
+    },
+    "fred:us10y_real": {
+      "producer": "以FRED系列source字段为准，尚未逐系列核验",
+      "retrieval_url": "https://fred.stlouisfed.org/series/DFII10",
+      "series_id": "DFII10",
+      "unit": "%",
+      "frequency": "D",
+      "seasonality": "未核验",
+      "stock_flow": "未核验",
+      "transformation": "原序列水平",
+      "license": "逐系列核验，不假定FRED全库许可相同"
+    },
+    "fred:vix": {
+      "producer": "以FRED系列source字段为准，尚未逐系列核验",
+      "retrieval_url": "https://fred.stlouisfed.org/series/VIXCLS",
+      "series_id": "VIXCLS",
+      "unit": "指数",
+      "frequency": "D",
+      "seasonality": "未核验",
+      "stock_flow": "未核验",
+      "transformation": "原序列水平",
+      "license": "逐系列核验，不假定FRED全库许可相同"
+    },
+    "fred:us_curve": {
+      "producer": "以FRED系列source字段为准，尚未逐系列核验",
+      "retrieval_url": "https://fred.stlouisfed.org/series/T10Y2Y",
+      "series_id": "T10Y2Y",
+      "unit": "%",
+      "frequency": "D",
+      "seasonality": "未核验",
+      "stock_flow": "未核验",
+      "transformation": "原序列水平",
+      "license": "逐系列核验，不假定FRED全库许可相同"
+    },
+    "fred:us_indpro": {
+      "producer": "以FRED系列source字段为准，尚未逐系列核验",
+      "retrieval_url": "https://fred.stlouisfed.org/series/INDPRO",
+      "series_id": "INDPRO",
+      "unit": "指数",
+      "frequency": "M",
+      "seasonality": "未核验",
+      "stock_flow": "未核验",
+      "transformation": "脚本同比转换",
+      "license": "逐系列核验，不假定FRED全库许可相同"
+    },
+    "fred:us_retail": {
+      "producer": "美国人口普查局",
+      "retrieval_url": "https://fred.stlouisfed.org/series/RSAFS",
+      "series_id": "RSAFS",
+      "unit": "百万美元",
+      "frequency": "M",
+      "seasonality": "未核验",
+      "stock_flow": "未核验",
+      "transformation": "脚本同比转换",
+      "license": "逐系列核验，不假定FRED全库许可相同"
+    },
+    "fred:us_payems": {
+      "producer": "美国劳工统计局",
+      "retrieval_url": "https://fred.stlouisfed.org/series/PAYEMS",
+      "series_id": "PAYEMS",
+      "unit": "千人",
+      "frequency": "M",
+      "seasonality": "未核验",
+      "stock_flow": "未核验",
+      "transformation": "脚本同比转换",
+      "license": "逐系列核验，不假定FRED全库许可相同"
+    },
+    "fred:lj_equip": {
+      "producer": "以FRED系列source字段为准，尚未逐系列核验",
+      "retrieval_url": "https://fred.stlouisfed.org/series/Y033RC1Q027SBEA",
+      "series_id": "Y033RC1Q027SBEA",
+      "unit": "同比%",
+      "frequency": "Q",
+      "seasonality": "未核验",
+      "stock_flow": "未核验",
+      "transformation": "脚本同比转换",
+      "license": "逐系列核验，不假定FRED全库许可相同"
+    },
+    "fred:lj_gfcf": {
+      "producer": "以FRED系列source字段为准，尚未逐系列核验",
+      "retrieval_url": "https://fred.stlouisfed.org/series/GPDIC1",
+      "series_id": "GPDIC1",
+      "unit": "同比%",
+      "frequency": "Q",
+      "seasonality": "未核验",
+      "stock_flow": "未核验",
+      "transformation": "脚本同比转换",
+      "license": "逐系列核验，不假定FRED全库许可相同"
+    },
+    "fred:lj_gdp": {
+      "producer": "以FRED系列source字段为准，尚未逐系列核验",
+      "retrieval_url": "https://fred.stlouisfed.org/series/GDPC1",
+      "series_id": "GDPC1",
+      "unit": "同比%",
+      "frequency": "Q",
+      "seasonality": "未核验",
+      "stock_flow": "未核验",
+      "transformation": "脚本同比转换",
+      "license": "逐系列核验，不假定FRED全库许可相同"
+    },
+    "fred:lj_house": {
+      "producer": "以FRED系列source字段为准，尚未逐系列核验",
+      "retrieval_url": "https://fred.stlouisfed.org/series/Y033RC1Q027SBEA",
+      "series_id": "Y033RC1Q027SBEA",
+      "unit": "同比%",
+      "frequency": "Q",
+      "seasonality": "未核验",
+      "stock_flow": "未核验",
+      "transformation": "脚本同比转换",
+      "license": "逐系列核验，不假定FRED全库许可相同"
+    },
+    "fred:lj_houst": {
+      "producer": "美国人口普查局",
+      "retrieval_url": "https://fred.stlouisfed.org/series/HOUST",
+      "series_id": "HOUST",
+      "unit": "千套",
+      "frequency": "M",
+      "seasonality": "未核验",
+      "stock_flow": "未核验",
+      "transformation": "原序列水平",
+      "license": "逐系列核验，不假定FRED全库许可相同"
+    },
+    "fred:lj_cs": {
+      "producer": "以FRED系列source字段为准，尚未逐系列核验",
+      "retrieval_url": "https://fred.stlouisfed.org/series/CSUSHPINSA",
+      "series_id": "CSUSHPINSA",
+      "unit": "同比%",
+      "frequency": "M",
+      "seasonality": "未核验",
+      "stock_flow": "未核验",
+      "transformation": "脚本同比转换",
+      "license": "逐系列核验，不假定FRED全库许可相同"
+    },
+    "fred:lj_mortg": {
+      "producer": "以FRED系列source字段为准，尚未逐系列核验",
+      "retrieval_url": "https://fred.stlouisfed.org/series/MORTGAGE30US",
+      "series_id": "MORTGAGE30US",
+      "unit": "%",
+      "frequency": "W",
+      "seasonality": "未核验",
+      "stock_flow": "未核验",
+      "transformation": "原序列水平",
+      "license": "逐系列核验，不假定FRED全库许可相同"
+    },
+    "fred:lj_debtgdp": {
+      "producer": "以FRED系列source字段为准，尚未逐系列核验",
+      "retrieval_url": "https://fred.stlouisfed.org/series/GFDEGDQ188S",
+      "series_id": "GFDEGDQ188S",
+      "unit": "%",
+      "frequency": "Q",
+      "seasonality": "未核验",
+      "stock_flow": "未核验",
+      "transformation": "原序列水平",
+      "license": "逐系列核验，不假定FRED全库许可相同"
+    },
+    "fred:lj_credit": {
+      "producer": "以FRED系列source字段为准，尚未逐系列核验",
+      "retrieval_url": "https://fred.stlouisfed.org/series/TOTBKCR",
+      "series_id": "TOTBKCR",
+      "unit": "十亿美元",
+      "frequency": "W",
+      "seasonality": "未核验",
+      "stock_flow": "未核验",
+      "transformation": "原序列水平",
+      "license": "逐系列核验，不假定FRED全库许可相同"
+    },
+    "fred:lj_lev": {
+      "producer": "以FRED系列source字段为准，尚未逐系列核验",
+      "retrieval_url": "https://fred.stlouisfed.org/series/BOGZ1FL073164003Q",
+      "series_id": "BOGZ1FL073164003Q",
+      "unit": "百万美元",
+      "frequency": "Q",
+      "seasonality": "未核验",
+      "stock_flow": "未核验",
+      "transformation": "原序列水平",
+      "license": "逐系列核验，不假定FRED全库许可相同"
+    },
+    "fred:lj_rec": {
+      "producer": "以FRED系列source字段为准，尚未逐系列核验",
+      "retrieval_url": "https://fred.stlouisfed.org/series/USREC",
+      "series_id": "USREC",
+      "unit": "0/1",
+      "frequency": "M",
+      "seasonality": "未核验",
+      "stock_flow": "未核验",
+      "transformation": "原序列水平",
+      "license": "逐系列核验，不假定FRED全库许可相同"
+    },
+    "fred:cn_us_spread": {
+      "producer": "本仓库派生计算",
+      "retrieval_url": "https://fred.stlouisfed.org/",
+      "frequency": "M",
+      "unit": "百分点",
+      "stock_flow": "派生指标",
+      "seasonality": "依原始序列",
+      "breaks": [
+        "组成序列单位与期限应分别核验"
+      ]
+    },
+    "fred:copper_gold": {
+      "producer": "本仓库派生计算",
+      "retrieval_url": "https://fred.stlouisfed.org/",
+      "frequency": "M",
+      "unit": "比值",
+      "stock_flow": "派生指标",
+      "seasonality": "依原始序列",
+      "breaks": [
+        "组成序列单位与期限应分别核验"
+      ]
+    },
+    "credit:lpr1y": {
+      "producer": "中国人民银行/相关发布机构，按原文核验",
+      "retrieval_url": "https://www.pbc.gov.cn/",
+      "frequency": "M",
+      "unit": "%",
+      "seasonality": "未核验",
+      "stock_flow": "利率",
+      "definition_note": "LPR是贷款报价参考，不等于DR007或实际贷款成交利率。",
+      "implementation": "自动接入"
+    },
+    "credit:lpr5y": {
+      "producer": "中国人民银行/相关发布机构，按原文核验",
+      "retrieval_url": "https://www.pbc.gov.cn/",
+      "frequency": "M",
+      "unit": "%",
+      "seasonality": "未核验",
+      "stock_flow": "利率",
+      "definition_note": "5年期以上贷款报价参考。",
+      "implementation": "自动接入"
+    },
+    "credit:bank_loans": {
+      "producer": "中国人民银行/相关发布机构，按原文核验",
+      "retrieval_url": "https://www.pbc.gov.cn/",
+      "frequency": "M",
+      "unit": "亿元",
+      "seasonality": "未核验",
+      "stock_flow": "按指标定义",
+      "definition_note": "金融机构人民币新增贷款；与社融口径贷款范围不同，不相减。",
+      "implementation": "自动接入"
+    },
+    "credit:afre_flow": {
+      "producer": "中国人民银行/相关发布机构，按原文核验",
+      "retrieval_url": "https://www.pbc.gov.cn/",
+      "frequency": "M",
+      "unit": "亿元",
+      "seasonality": "未核验",
+      "stock_flow": "按指标定义",
+      "definition_note": "社融月度增量；含政府融资，不直接等于私人部门需求。",
+      "implementation": "自动接入"
+    },
+    "credit:afre_rmb": {
+      "producer": "中国人民银行/相关发布机构，按原文核验",
+      "retrieval_url": "https://www.pbc.gov.cn/",
+      "frequency": "M",
+      "unit": "亿元",
+      "seasonality": "未核验",
+      "stock_flow": "按指标定义",
+      "definition_note": "对实体经济发放的人民币贷款增量。",
+      "implementation": "自动接入"
+    },
+    "credit:corporate_bonds": {
+      "producer": "中国人民银行/相关发布机构，按原文核验",
+      "retrieval_url": "https://www.pbc.gov.cn/",
+      "frequency": "M",
+      "unit": "亿元",
+      "seasonality": "未核验",
+      "stock_flow": "按指标定义",
+      "definition_note": "企业债券净融资。",
+      "implementation": "自动接入"
+    },
+    "credit:equity": {
+      "producer": "中国人民银行/相关发布机构，按原文核验",
+      "retrieval_url": "https://www.pbc.gov.cn/",
+      "frequency": "M",
+      "unit": "亿元",
+      "seasonality": "未核验",
+      "stock_flow": "按指标定义",
+      "definition_note": "非金融企业境内股票融资。",
+      "implementation": "自动接入"
+    },
+    "credit:us_standards": {
+      "producer": "美联储理事会",
+      "retrieval_url": "https://fred.stlouisfed.org/series/DRTSCILM",
+      "frequency": "Q",
+      "unit": "%净占比",
+      "seasonality": "未季调",
+      "stock_flow": "调查",
+      "definition_note": "正值表示收紧标准的银行净占比；调查不是贷款增速。",
+      "implementation": "自动接入"
+    },
+    "credit:us_demand": {
+      "producer": "美联储理事会",
+      "retrieval_url": "https://fred.stlouisfed.org/series/DRSDCILM",
+      "frequency": "Q",
+      "unit": "%净占比",
+      "seasonality": "未季调",
+      "stock_flow": "调查",
+      "definition_note": "正值表示需求增强的银行净占比；不是中国需求信号。",
+      "implementation": "自动接入"
+    },
+    "credit:dr007": {
+      "producer": "中国人民银行/相关发布机构，按原文核验",
+      "retrieval_url": "https://www.pbc.gov.cn/",
+      "frequency": "D",
+      "unit": "%",
+      "seasonality": "未核验",
+      "stock_flow": "利率",
+      "definition_note": "存款类机构7天质押式回购利率。",
+      "implementation": "未接入"
+    },
+    "credit:cn_demand": {
+      "producer": "中国人民银行/相关发布机构，按原文核验",
+      "retrieval_url": "https://www.pbc.gov.cn/",
+      "frequency": "Q",
+      "unit": "%",
+      "seasonality": "未核验",
+      "stock_flow": "调查",
+      "definition_note": "人民银行贷款总体需求指数，不能与美国净占比直接比较。",
+      "implementation": "未接入"
+    },
+    "credit:cn_approval": {
+      "producer": "中国人民银行/相关发布机构，按原文核验",
+      "retrieval_url": "https://www.pbc.gov.cn/",
+      "frequency": "Q",
+      "unit": "%",
+      "seasonality": "未核验",
+      "stock_flow": "调查",
+      "definition_note": "人民银行银行贷款审批指数。",
+      "implementation": "未接入"
+    },
+    "credit:household_long": {
+      "producer": "中国人民银行/相关发布机构，按原文核验",
+      "retrieval_url": "https://www.pbc.gov.cn/",
+      "frequency": "M",
+      "unit": "亿元",
+      "seasonality": "未核验",
+      "stock_flow": "按指标定义",
+      "definition_note": "居民中长期贷款月度增量。",
+      "implementation": "未接入"
+    },
+    "credit:corporate_long": {
+      "producer": "中国人民银行/相关发布机构，按原文核验",
+      "retrieval_url": "https://www.pbc.gov.cn/",
+      "frequency": "M",
+      "unit": "亿元",
+      "seasonality": "未核验",
+      "stock_flow": "按指标定义",
+      "definition_note": "企业中长期贷款月度增量。",
+      "implementation": "未接入"
+    },
+    "credit:government_bonds": {
+      "producer": "中国人民银行/相关发布机构，按原文核验",
+      "retrieval_url": "https://www.pbc.gov.cn/",
+      "frequency": "M",
+      "unit": "亿元",
+      "seasonality": "未核验",
+      "stock_flow": "按指标定义",
+      "definition_note": "政府债券净融资；不能用社融减已知分项的残差代替。",
+      "implementation": "未接入"
+    },
+    "credit:afre_stock_yoy": {
+      "producer": "中国人民银行/相关发布机构，按原文核验",
+      "retrieval_url": "https://www.pbc.gov.cn/",
+      "frequency": "M",
+      "unit": "%",
+      "seasonality": "未核验",
+      "stock_flow": "按指标定义",
+      "definition_note": "社融存量同比。",
+      "implementation": "未接入"
+    },
+    "credit:receivable_days": {
+      "producer": "国家统计局",
+      "retrieval_url": "https://www.pbc.gov.cn/",
+      "frequency": "M",
+      "unit": "天",
+      "seasonality": "未核验",
+      "stock_flow": "按指标定义",
+      "definition_note": "工业企业应收账款平均回收期。",
+      "implementation": "未接入"
+    }
+  },
+  "planned_sources": [
+    {
+      "id": "pbc",
+      "producer": "中国人民银行",
+      "url": "https://www.pbc.gov.cn/",
+      "role": "国内货币、信贷与调查",
+      "access": "公开发布；自动接口未核验"
+    },
+    {
+      "id": "mof",
+      "producer": "财政部",
+      "url": "https://www.mof.gov.cn/",
+      "role": "财政、政府债、土地收入",
+      "access": "公开发布；未接入"
+    },
+    {
+      "id": "safe",
+      "producer": "国家外汇管理局",
+      "url": "https://www.safe.gov.cn/",
+      "role": "跨境收支与结售汇",
+      "access": "公开发布；未接入"
+    },
+    {
+      "id": "bis",
+      "producer": "BIS（含成员机构输入与BIS估计）",
+      "url": "https://data.bis.org/",
+      "role": "跨国信用、偿债与金融周期",
+      "access": "开放数据；按许可使用；未接入"
+    },
+    {
+      "id": "ecb",
+      "producer": "ECB",
+      "url": "https://data.ecb.europa.eu/",
+      "role": "欧元区金融；已替代SDW入口",
+      "access": "开放数据；未接入"
+    },
+    {
+      "id": "japan_sna",
+      "producer": "日本内阁府经济社会综合研究所",
+      "url": "https://www.esri.cao.go.jp/en/sna/kakuhou/kakuhou_top.html",
+      "role": "日本GDP与国民经济账户",
+      "access": "公开发布；未接入"
+    },
+    {
+      "id": "commercial",
+      "producer": "依原始系列登记",
+      "role": "Wind/iFinD/Choice等可选获取渠道",
+      "access": "需要用户已有授权，不自动登录或购买"
+    }
+  ]
+}

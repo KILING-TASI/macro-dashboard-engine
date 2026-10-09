@@ -10,7 +10,7 @@ run_pipeline.py — 宏观看板一键流水线
     python3 run_pipeline.py --out /tmp/dash.html
     python3 run_pipeline.py --workdir /tmp/macro     # 中间文件目录
 
-容错: 任一数据源失败 → 自动回退 assets/sample_data.json 并在看板标注「示例数据」。
+容错: 正式研究只使用真实数据，缺项留空；--demo 显式离线演示。
 """
 import argparse
 import json
@@ -44,7 +44,12 @@ def main():
     ap.add_argument("--out", default="/workspace/macro-dashboard.html")
     ap.add_argument("--workdir", default=None, help="中间 JSON 目录，默认临时目录")
     ap.add_argument("--title", default="宏观全景看板")
+    ap.add_argument("--demo", action="store_true", help="离线演示，不抓取真实数据")
     args = ap.parse_args()
+    if args.demo:
+        if not run([os.path.join(HERE, "build_dashboard.py"), "--demo", "--out", args.out, "--title", args.title]):
+            raise SystemExit(1)
+        return
 
     workdir = args.workdir or tempfile.mkdtemp(prefix="macro_")
     os.makedirs(workdir, exist_ok=True)
@@ -72,7 +77,7 @@ def main():
     run([os.path.join(HERE, "fetch_credit.py"), "--out", credit_json])
 
     print("[4/5] 周期研判（短周期 + 长周期梯队）+ 量化归因...")
-    ok_cycle = ok_em and ok_fr and run(
+    ok_cycle = (ok_em or ok_fr) and run(
         [os.path.join(HERE, "compute_cycle.py"),
          "--eastmoney", em_json, "--fred", fr_json, "--out", cycle_json])
 
@@ -80,14 +85,14 @@ def main():
         run([os.path.join(HERE, "compute_long_cycle.py"),
              "--fred", fr_json, "--out", lc_json])
     else:
-        print("  [warn] FRED 数据缺失，长周期梯队将回退示例快照", file=sys.stderr)
+        print("  [warn] FRED 数据缺失，长周期梯队留空", file=sys.stderr)
 
     if ok_ind and ok_em and ok_fr:
         run([os.path.join(HERE, "regress_attribution.py"),
              "--industry", ind_json, "--eastmoney", em_json,
              "--fred", fr_json, "--out", attr_json])
     else:
-        print("  [warn] 行业数据不全，量化归因将回退示例快照", file=sys.stderr)
+        print("  [warn] 行业数据不全，量化归因留空", file=sys.stderr)
 
     print("[5/5] 生成看板...")
     if ok_cycle:
@@ -97,7 +102,7 @@ def main():
                   "--credit", credit_json,
                   "--out", args.out, "--title", args.title])
     else:
-        print("[pipeline] 数据源不完整，使用离线示例数据兜底生成看板")
+        print("[pipeline] 数据源不完整，只展示可用真实数据，缺项留空")
         ok = run([os.path.join(HERE, "build_dashboard.py"),
                   "--eastmoney", em_json if ok_em else "/nonexistent",
                   "--fred", fr_json if ok_fr else "/nonexistent",

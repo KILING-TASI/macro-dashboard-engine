@@ -15,6 +15,7 @@ import argparse
 import csv
 import io
 import json
+from datetime import datetime
 import sys
 import urllib.request
 
@@ -173,7 +174,7 @@ DERIVED = {
 
 def fetch_all(keys=None):
     keys = keys or list(SERIES.keys())
-    result = {"source": "fred", "as_of": None, "indicators": {}, "errors": []}
+    result = {"source": "fred", "fetched_at": datetime.now().astimezone().isoformat(), "as_of": None, "indicators": {}, "errors": []}
     for key in keys:
         if key in DERIVED:
             continue          # 派生指标单独处理，跳过 SERIES 查询

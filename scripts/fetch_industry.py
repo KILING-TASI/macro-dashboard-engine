@@ -19,6 +19,7 @@ fetch_industry.py — 行业指数历史行情抓取（新浪财经）
 """
 import argparse
 import json
+from datetime import datetime
 import sys
 import time
 import urllib.request
@@ -107,7 +108,7 @@ def monthly_returns(months, closes):
 
 def fetch_all(months=36):
     """抓取全部指数，返回 {code: {name, months, closes, returns}}。"""
-    result = {"source": "sina", "as_of": None, "indices": {}, "errors": []}
+    result = {"source": "sina", "fetched_at": datetime.now().astimezone().isoformat(), "as_of": None, "indices": {}, "errors": []}
     datalen = min(1023, max(120, months * 23))
     for code, name in INDICES.items():
         try:

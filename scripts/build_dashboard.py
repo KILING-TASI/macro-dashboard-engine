@@ -17,7 +17,6 @@ import json
 import os
 import sys
 import datetime
-import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SKILL_DIR = os.path.dirname(HERE)
@@ -244,7 +243,9 @@ def build_payload(em_raw, fr_raw, cycle, long_cycle=None, long_wave=None,
                      round(vals[-1] - vals[-2], 2) if len(vals) >= 2 else None])
 
     from compute_credit import compute as compute_credit
+    from data_evidence import build_evidence
     return {
+        "evidence": build_evidence({"eastmoney": em_raw, "fred": fr_raw, "credit": credit}),
         "credit": compute_credit(credit, offline=offline),
         "kpi": kpi,
         "cycle": cycle,
@@ -303,6 +304,7 @@ def main():
     ap.add_argument("--longcycle", default="long_cycle.json")
     ap.add_argument("--attribution", default="attribution.json")
     ap.add_argument("--credit", default=None)
+    ap.add_argument("--demo", action="store_true", help="仅演示：允许使用离线示例，不作正式研究")
     ap.add_argument("--out", default="/workspace/macro-dashboard.html")
     ap.add_argument("--title", default="宏观全景看板")
     args = ap.parse_args()
@@ -316,32 +318,34 @@ def main():
     long_wave = _load(os.path.join(ASSETS, "long_wave.json")) or {}
     policy = _load(os.path.join(ASSETS, "policy_calendar.json")) or {}
     offline = False
+    if not args.demo and any((source or {}).get("source") == "sample" for source in (em, fr, credit)):
+        raise SystemExit("正式研究不能使用标记为sample的输入；演示请显式使用 --demo")
 
-    if not (em or {}).get("indicators") or not (fr or {}).get("indicators") or cycle is None:
+    if args.demo:
         sample = _load(os.path.join(ASSETS, "sample_data.json")) or {}
-        if not (em or {}).get("indicators"):
-            em = sample.get("eastmoney")
-        if not (fr or {}).get("indicators"):
-            fr = sample.get("fred")
+        em, fr = sample.get("eastmoney"), sample.get("fred")
         if not (em or {}).get("indicators") or not (fr or {}).get("indicators"):
-            raise SystemExit("缺少可用输入和离线示例数据，无法生成看板")
+            raise SystemExit("演示快照不可用")
+        em, fr = dict(em, source="sample"), dict(fr, source="sample")
+        credit, attribution = None, None
+        cycle, long_cycle = None, None
         offline = True
-        import subprocess, sys
-        # 每次运行独立目录，避免 Windows 路径问题及并发读取旧结果。
-        with tempfile.TemporaryDirectory(prefix="macro_fallback_") as temp_dir:
-            tmp_em, tmp_fr = [os.path.join(temp_dir, name) for name in ("em.json", "fr.json")]
-            for path, data in ((tmp_em, em), (tmp_fr, fr)):
-                with open(path, "w", encoding="utf-8") as f:
-                    json.dump(data, f, ensure_ascii=False)
-            tmp_cy = os.path.join(temp_dir, "cycle.json")
-            subprocess.run([sys.executable, os.path.join(HERE, "compute_cycle.py"),
-                            "--eastmoney", tmp_em, "--fred", tmp_fr, "--out", tmp_cy], check=True)
-            cycle = _load(tmp_cy)
-            tmp_lc = os.path.join(temp_dir, "longcycle.json")
-            subprocess.run([sys.executable, os.path.join(HERE, "compute_long_cycle.py"),
-                            "--fred", tmp_fr, "--out", tmp_lc], check=True)
-            long_cycle = _load(tmp_lc)
-        attribution = None  # 实时归因不能搭配示例宏观数据。
+    elif not any((source or {}).get("indicators") for source in (em, fr, credit)):
+        raise SystemExit("没有可用真实数据；正式研究禁止示例兜底。演示请显式使用 --demo")
+    em = em or {"indicators": {}, "errors": ["国内数据未取得"]}
+    fr = fr or {"indicators": {}, "errors": ["海外数据未取得"]}
+    if not em.get("indicators"):
+        em.setdefault("errors", []).append("国内数据未取得")
+    if not fr.get("indicators"):
+        fr.setdefault("errors", []).append("海外数据未取得")
+    if cycle is None:
+        sys.path.insert(0, HERE)
+        from compute_cycle import compute
+        cycle = compute(em.get("indicators", {}), fr.get("indicators", {}),
+                        as_of=em.get("as_of") or fr.get("as_of"))
+    if long_cycle is None:
+        from compute_long_cycle import compute as compute_long
+        long_cycle = compute_long(fr.get("indicators", {}))
 
     payload = build_payload(em, fr, cycle, long_cycle=long_cycle,
                             long_wave=long_wave, attribution=attribution,

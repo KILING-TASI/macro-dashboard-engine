@@ -51,7 +51,7 @@ class DataQualityTests(unittest.TestCase):
     def test_offline_generation_uses_sample(self):
         with tempfile.TemporaryDirectory() as d:
             output = Path(d) / 'offline.html'
-            with patch.object(sys, 'argv', ['build_dashboard.py', '--eastmoney', str(Path(d)/'missing-em.json'), '--fred', str(Path(d)/'missing-fr.json'), '--cycle', str(Path(d)/'missing-cycle.json'), '--out', str(output)]):
+            with patch.object(sys, 'argv', ['build_dashboard.py', '--demo', '--eastmoney', str(Path(d)/'missing-em.json'), '--fred', str(Path(d)/'missing-fr.json'), '--cycle', str(Path(d)/'missing-cycle.json'), '--out', str(output)]):
                 dashboard.main()
             html = output.read_text(encoding='utf-8')
             self.assertIn('示例数据', html)

@@ -193,6 +193,11 @@
     </details>
   </section>
 
+  <section>
+    <h2 class="sec-title">来源与核验记录 <span class="tag">获取状态与原文核验分开</span></h2>
+    <p class="hint" id="evidenceNote"></p>
+    <details><summary>展开逐指标证据表</summary><div style="overflow-x:auto"><table id="evidenceTable" style="min-width:1200px;width:100%"></table></div></details>
+  </section>
   <!-- 2b. 多周期时间轴 -->
   <section>
     <p class="hint">口径说明：库存以 PPI/PMI 代理；信用以 M1−M2 代理；估值环境以利率分位代理，未直接测量股票估值。回归反映历史关联，不代表因果或未来收益预测。</p><h2 class="sec-title">多周期共振时间轴 <span class="tag">红=改善 · 绿=恶化 · 灰=持平/无数据</span></h2>
@@ -843,6 +848,14 @@ function lineOpt(dates,seriesList,opts={}){
   plot('creditFlowChart',['afre_flow','afre_rmb','bank_loans']);
   plot('creditRateChart',['lpr1y','lpr5y']);
   plot('creditSurveyChart',['us_standards','us_demand']);
+})();
+
+
+(function(){
+ const evidence=DATA.evidence||{rows:[]};
+ const escape=(v)=>String(v==null?'未取得':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ document.getElementById('evidenceNote').textContent=evidence.note||'';
+ document.getElementById('evidenceTable').innerHTML='<thead><tr><th>指标</th><th>生产机构</th><th>获取平台</th><th>观测截至</th><th>发布日期</th><th>获取时间</th><th>口径状态</th><th>原文核验</th></tr></thead><tbody>'+evidence.rows.map(r=>'<tr>'+[r.name,r.producer,r.provider,r.observed_through,r.release_date,r.fetched_at,r.definition_status,r.sample?'演示样本':r.verification_status].map(v=>'<td style="padding:8px;vertical-align:top">'+escape(v)+'</td>').join('')+'</tr>').join('')+'</tbody>';
 })();
 
 document.getElementById('disclaimer').textContent=DATA.cycle.disclaimer;
