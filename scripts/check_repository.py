@@ -23,6 +23,7 @@ REQUIRED += ["scripts/demo_preview.py", "assets/preview/macro-demo.png",
              "third_party/echarts-5.5.1/LICENSE", "third_party/echarts-5.5.1/NOTICE",
              "third_party/echarts-5.5.1/LICENSE-d3", "third_party/echarts-5.5.1/provenance.json"]
 REQUIRED += ["assets/dashboard_controls.js", "references/view_controls.md", "tests/test_dashboard_controls.js"]
+REQUIRED += ["references/data_contract_inventory.md", "scripts/record_sidecar.py", "tests/test_record_sidecar.py", "references/examples/sidecar-bundle.json"]
 REQUIRED += ["references/macro_method_cards.md", "tests/test_method_counterexamples.py"]
 REQUIRED += ["assets/preview/macro-controls.png", "assets/preview/controls-provenance.json"]
 
