@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# 数据与输出（本地生成，不入库）
+*_data.json
+cycle.json
+long_cycle.json
+macro-dashboard*.html
+local-data/
+/tmp/macro/
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

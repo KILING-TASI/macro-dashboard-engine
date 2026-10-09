@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>__TITLE__</title>
+<style>
+  :root{
+    --bg:#0b1020; --bg2:#121a33; --panel:#161d33; --panel2:#1c2540;
+    --line:#2a3556; --txt:#e6ecff; --sub:#8fa0c8; --muted:#5f6f96;
+    --up:#ff4d4f; --down:#22c55e; --accent:#4f9dff; --gold:#f5a623;
+    --warn:#f5a623; --purple:#a78bfa;
+    --shadow:0 6px 24px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(180deg,#080c18 0%,#0b1020 40%,#0b1020 100%);
+       color:var(--txt);font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,sans-serif;
+       -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1440px;margin:0 auto;padding:24px 22px 60px;}
+  header.top{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;
+       padding-bottom:16px;border-bottom:1px solid var(--line);margin-bottom:22px;}
+  header.top h1{margin:0;font-size:24px;letter-spacing:.5px;}
+  header.top .meta{color:var(--sub);font-size:13px;line-height:1.7;text-align:right}
+  .badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;margin-left:8px;
+       border:1px solid var(--line);color:var(--sub);vertical-align:middle}
+  .badge.live{color:#7ee0a3;border-color:#2b6b45;background:#12301f}
+  .badge.demo{color:#f5c451;border-color:#7a5b18;background:#332a10}
+
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:24px}
+  .kpi{background:linear-gradient(160deg,var(--panel),var(--panel2));border:1px solid var(--line);
+       border-radius:12px;padding:14px 15px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .kpi .k-name{color:var(--sub);font-size:12px;margin-bottom:8px}
+  .kpi .k-val{font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
+  .kpi .k-val small{font-size:12px;color:var(--sub);font-weight:400;margin-left:3px}
+  .kpi .k-sub{font-size:12px;margin-top:6px;color:var(--sub)}
+  .up{color:var(--up)} .down{color:var(--down)}
+
+  section{margin-bottom:26px}
+  .sec-title{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:600;margin:0 0 14px}
+  .sec-title::before{content:"";width:4px;height:16px;border-radius:2px;background:var(--accent)}
+  .sec-title .tag{font-size:11px;color:var(--muted);font-weight:400}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media(max-width:1100px){.grid4{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:900px){.grid2,.grid3,.grid4{grid-template-columns:1fr}}
+  .card{background:linear-gradient(160deg,var(--panel),#131a30);border:1px solid var(--line);
+       border-radius:14px;padding:16px 16px 8px;box-shadow:var(--shadow)}
+  .card h3{margin:0 0 6px;font-size:14px;font-weight:600}
+  .card .hint{color:var(--muted);font-size:11px;margin-bottom:8px}
+  .chart{width:100%;height:300px}
+  .chart.tall{height:360px}
+
+  .cycle-box{display:flex;gap:16px;flex-wrap:wrap}
+  .cycle-main{flex:1;min-width:320px}
+  .verdict{flex:1;min-width:300px;display:flex;flex-direction:column;gap:12px}
+  .v-card{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .v-card .v-label{font-size:12px;color:var(--sub)}
+  .v-card .v-val{font-size:20px;font-weight:700;margin:4px 0}
+  .v-card ul{margin:8px 0 0;padding-left:18px;color:var(--sub);font-size:12px;line-height:1.8}
+  .pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;margin:3px 6px 3px 0;
+       background:#1e2c4d;border:1px solid var(--line);color:#bcd0ff}
+  .pill.hot{background:#3a1c1c;border-color:#7a3030;color:#ff9a9a}
+  .pill.ok{background:#153021;border-color:#2b6b45;color:#8be0aa}
+
+  table.data{width:100%;border-collapse:collapse;font-size:12.5px}
+  table.data th,table.data td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;
+       font-variant-numeric:tabular-nums}
+  table.data th{color:var(--sub);font-weight:500;text-align:right;position:sticky;top:0;background:var(--panel)}
+  table.data td:first-child,table.data th:first-child{text-align:left}
+  .scroll{max-height:340px;overflow:auto;border-radius:10px;border:1px solid var(--line)}
+
+  footer{margin-top:34px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:11.5px;line-height:1.9}
+  footer b{color:var(--sub)}
+  a{color:var(--accent);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>宏观全景看板 · Macro Dashboard <span id="srcBadge" class="badge">__BADGE__</span></h1>
+      <div style="color:var(--sub);font-size:13px;margin-top:6px">宏观周期研判 · 国内外核心指标 · 股市传导与资产映射</div>
+    </div>
+    <div class="meta">
+      数据截止：<b id="asof">__ASOF__</b><br>
+      生成时间：__GENTIME__<br>
+      数据来源：__SRCTEXT__
+    </div>
+  </header>
+
+  <!-- 1. KPI -->
+  <section>
+    <h2 class="sec-title">关键指标速览 <span class="tag">最新值 / 环比变化（红涨绿跌）</span></h2>
+    <div class="kpi-grid" id="kpis"></div>
+  </section>
+
+  <!-- 2. 周期研判 -->
+  <section>
+    <h2 class="sec-title">宏观周期研判 <span class="tag">美林投资时钟 + 库存周期 + 信用周期</span></h2>
+    <div class="cycle-box">
+      <div class="cycle-main card" style="padding-bottom:16px">
+        <h3>美林投资时钟（增长动能 × 通胀动能）</h3>
+        <div class="hint">X 轴＝增长动能，Y 轴＝通胀动能；原点右侧/上方为扩张。当前点高亮。</div>
+        <div class="chart tall" id="clockChart"></div>
+      </div>
+      <div class="verdict">
+        <div class="v-card">
+          <div class="v-label">当前象限</div>
+          <div class="v-val" id="quadVal">—</div>
+          <ul id="quadEv"></ul>
+        </div>
+        <div class="v-card">
+          <div class="v-label">库存周期</div>
+          <div class="v-val" style="font-size:17px" id="invVal">—</div>
+          <ul id="invEv"></ul>
+        </div>
+        <div class="v-card">
+          <div class="v-label">信用周期</div>
+          <div class="v-val" style="font-size:17px" id="credVal">—</div>
+          <ul id="credEv"></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- P1 扩展周期 -->
+    <div class="grid4" style="margin-top:18px">
+      <div class="v-card">
+        <div class="v-label">货币/流动性周期</div>
+        <div class="v-val" style="font-size:17px" id="liqVal">—</div>
+        <ul id="liqEv"></ul>
+      </div>
+      <div class="v-card">
+        <div class="v-label">估值周期（利率环境）</div>
+        <div class="v-val" style="font-size:17px" id="valVal">—</div>
+        <ul id="valEv"></ul>
+      </div>
+      <div class="v-card">
+        <div class="v-label">铜金比周期</div>
+        <div class="v-val" style="font-size:17px" id="cgVal">—</div>
+        <ul id="cgEv"></ul>
+      </div>
+      <div class="v-card">
+        <div class="v-label">中美利差周期</div>
+        <div class="v-val" style="font-size:17px" id="spVal">—</div>
+        <ul id="spEv"></ul>
+      </div>
+    </div>
+
+    <!-- P2 扩展周期 -->
+    <div class="grid3" style="margin-top:14px">
+      <div class="v-card">
+        <div class="v-label">盈利周期</div>
+        <div class="v-val" style="font-size:17px" id="earnVal">—</div>
+        <ul id="earnEv"></ul>
+      </div>
+      <div class="v-card">
+        <div class="v-label">市场情绪周期</div>
+        <div class="v-val" style="font-size:17px" id="sentiVal">—</div>
+        <ul id="sentiEv"></ul>
+      </div>
+      <div class="v-card">
+        <div class="v-label">地产周期</div>
+        <div class="v-val" style="font-size:17px" id="propVal">—</div>
+        <ul id="propEv"></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2b. 多周期时间轴 -->
+  <section>
+    <h2 class="sec-title">多周期共振时间轴 <span class="tag">红=改善 · 绿=恶化 · 灰=持平/无数据</span></h2>
+    <div class="card"><div class="chart tall" id="timelineChart"></div></div>
+  </section>
+
+  <!-- 2c. P1/P2 周期图表 -->
+  <section>
+    <h2 class="sec-title">扩展周期图表 <span class="tag">流动性 · 铜金比 · 中美利差 · 估值环境 · 地产</span></h2>
+    <div class="grid2">
+      <div class="card"><h3>美元指数 / 10Y美债实际利率</h3><div class="hint">全球流动性松紧的核心变量</div><div class="chart" id="liqChart"></div></div>
+      <div class="card"><h3>铜金比</h3><div class="hint">上行=增长预期改善（顺周期）；下行=避险</div><div class="chart" id="cgChart"></div></div>
+      <div class="card"><h3>中美利差（中国利率 − 美国利率）</h3><div class="hint">影响汇率与外资流向</div><div class="chart" id="spreadChart"></div></div>
+      <div class="card"><h3>VIX 恐慌指数 / 美债10Y-2Y利差</h3><div class="hint">风险偏好与衰退信号</div><div class="chart" id="riskChart"></div></div>
+      <div class="card"><h3>70城房价指数（新房/二手，100=持平）</h3><div class="hint">地产周期与居民资产负债表</div><div class="chart" id="propChart"></div></div>
+      <div class="card"><h3>盈利代理：工业生产 / 零售销售同比</h3><div class="hint">企业盈利的宏观领先代理</div><div class="chart" id="earnChart"></div></div>
+    </div>
+  </section>
+
+  <!-- 3. 长周期梯队 -->
+  <section>
+    <h2 class="sec-title">长周期梯队 <span class="tag">朱格拉 7-11年 · 库兹涅茨 15-25年 · 债务周期 · 康波</span></h2>
+    <div class="grid3" id="longCards"></div>
+    <div class="grid2" style="margin-top:14px">
+      <div class="card">
+        <h3>朱格拉周期（设备投资 7-11 年）</h3>
+        <div class="hint">带通滤波提取的中周期分量，z 值 &gt;0 为扩张区</div>
+        <div class="chart tall" id="juglarChart"></div>
+      </div>
+      <div class="card">
+        <h3>库兹涅茨周期（地产/建筑 15-25 年）</h3>
+        <div class="hint">住宅投资与房价的长期分量，跨越代际的地产长周期</div>
+        <div class="chart tall" id="kuznetsChart"></div>
+      </div>
+    </div>
+    <div class="grid2" style="margin-top:14px">
+      <div class="card">
+        <h3>债务周期（Dalio 长债代理）</h3>
+        <div class="hint">债务/GDP 同比变化（柱，左轴）与债务/GDP 水平（线，右轴）</div>
+        <div class="chart tall" id="debtChart"></div>
+      </div>
+      <div class="card">
+        <h3>康波周期 · 技术革命浪潮时间轴</h3>
+        <div class="hint" style="color:var(--warn)">⚠ 定性判断，非数据计算</div>
+        <div class="chart tall" id="kondratievChart"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <h3>康波 / 熊彼特当前定位 <span class="tag" style="color:var(--warn);border-color:var(--warn)">定性框架</span></h3>
+      <div id="longWaveBox" style="font-size:13px;line-height:1.95;color:var(--sub)"></div>
+    </div>
+  </section>
+
+  <!-- 4. 配置建议 -->
+  <section>
+    <h2 class="sec-title">股市传导与配置建议 <span class="tag">因子 → 中间变量 → 股市影响</span></h2>
+    <div class="grid2">
+      <div class="card">
+        <h3>宏观 → 股市传导链路</h3>
+        <div class="hint">五条主链：货币 / 信用 / 通胀 / 汇率 / 海外流动性</div>
+        <div class="chart tall" id="transChart"></div>
+      </div>
+      <div class="card">
+        <h3>当前配置倾向</h3>
+        <div class="hint" id="allocStyle"></div>
+        <div style="margin:10px 0" id="allocSectors"></div>
+        <ul id="allocLogic" style="color:var(--sub);font-size:12.5px;line-height:1.9;padding-left:18px"></ul>
+        <div style="margin-top:14px" class="chart" id="heatChart"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. 国内宏观 -->
+  <section>
+    <h2 class="sec-title">国内宏观 <span class="tag">增长 · 通胀 · 流动性</span></h2>
+    <div class="grid2">
+      <div class="card"><h3>CPI vs PPI 同比（%）</h3><div class="hint">PPI-CPI 剪刀差定企业利润分配</div><div class="chart" id="cpiPpi"></div></div>
+      <div class="card"><h3>制造业 / 非制造业 PMI</h3><div class="hint">50 为荣枯线</div><div class="chart" id="pmiChart"></div></div>
+      <div class="card"><h3>M1 / M2 同比 与剪刀差</h3><div class="hint">M1-M2 剪刀差反映资金活化程度</div><div class="chart" id="mChart"></div></div>
+      <div class="card"><h3>社零 / GDP 同比（%）</h3><div class="hint">内需消费与经济总量增长</div><div class="chart" id="demandChart"></div></div>
+    </div>
+  </section>
+
+  <!-- 5. 海外宏观 -->
+  <section>
+    <h2 class="sec-title">海外宏观 <span class="tag">美联储 · 美债 · 汇率 · 大宗</span></h2>
+    <div class="grid2">
+      <div class="card"><h3>联邦基金利率 / 10Y美债收益率（%）</h3><div class="hint">全球流动性总闸门与定价锚</div><div class="chart" id="rateChart"></div></div>
+      <div class="card"><h3>美元兑人民币 / 美元指数</h3><div class="hint">汇率影响外资流向</div><div class="chart" id="fxChart"></div></div>
+      <div class="card"><h3>美国 CPI 同比 / 失业率（%）</h3><div class="hint">美国通胀与就业</div><div class="chart" id="usChart"></div></div>
+      <div class="card"><h3>WTI 原油（美元/桶）</h3><div class="hint">输入型通胀与周期品盈利</div><div class="chart" id="oilChart"></div></div>
+    </div>
+  </section>
+
+  <!-- 6. 数据明细 -->
+  <section>
+    <h2 class="sec-title">数据明细 <span class="tag">最新 12 期</span></h2>
+    <div class="scroll"><table class="data" id="dataTable"></table></div>
+  </section>
+
+  <footer>
+    <b>风险提示：</b><span id="disclaimer"></span><br>
+    <b>数据来源：</b>__SRCTEXT__ ｜ 东方财富数据中心（国内宏观）、FRED 圣路易斯联储（海外宏观）。<br>
+    <b>方法论文档：</b>indicators.md（指标字典）、cycle_framework.md（周期框架）、transmission.md（传导方法论）。
+  </footer>
+</div>
+
+<script>__ECHARTS__</script>
+<script>
+const DATA = __DATA__;
+const THEME = {up:'#ff4d4f', down:'#22c55e', accent:'#4f9dff', gold:'#f5a623',
+  sub:'#8fa0c8', muted:'#5f6f96', line:'#2a3556', panel:'#161d33'};
+const AX = {axisLine:{lineStyle:{color:THEME.line}},axisLabel:{color:THEME.sub},splitLine:{lineStyle:{color:'#1e2740'}}};
+function c(el){return echarts.init(document.getElementById(el),null,{renderer:'canvas'});}
+window.addEventListener('resize',()=>{document.querySelectorAll('.chart').forEach(e=>{const i=echarts.getInstanceByDom(e);i&&i.resize();});});
+
+/* ---------- KPI ---------- */
+function kpi(name,val,unit,mom,extra){
+  const cls = mom>0?'up':(mom<0?'down':'');
+  const arrow = mom>0?'▲':(mom<0?'▼':'—');
+  const momTxt = (mom==null?'':`<span class="${cls}">${arrow} ${Math.abs(mom).toFixed(2)}</span>`);
+  return `<div class="kpi"><div class="k-name">${name}</div>
+    <div class="k-val">${val==null?'—':val}<small>${unit||''}</small></div>
+    <div class="k-sub">${momTxt} ${extra||''}</div></div>`;
+}
+(function(){
+  const k=DATA.kpi, out=[];
+  out.push(kpi('GDP 同比',k.gdp==null?'—':k.gdp,'%',null,'最新季度'));
+  out.push(kpi('CPI 同比',k.cpi,'%',k.cpi_mom,''));
+  out.push(kpi('PPI 同比',k.ppi,'%',k.ppi_mom,''));
+  out.push(kpi('制造业PMI',k.pmi,'',k.pmi_mom,'荣枯线50'));
+  out.push(kpi('社零同比',k.retail,'%',k.retail_mom,''));
+  out.push(kpi('M1 同比',k.m1,'%',k.m1_mom,''));
+  out.push(kpi('M2 同比',k.m2,'%',k.m2_mom,''));
+  out.push(kpi('M1-M2剪刀差',k.scissors,'pct',k.scissors_mom,'资金活化'));
+  out.push(kpi('10Y美债',k.us10y,'%',k.us10y_mom,'定价锚'));
+  out.push(kpi('联邦基金利率',k.fedfunds,'%',k.fedfunds_mom,''));
+  out.push(kpi('美元兑人民币',k.usdcny,'',k.usdcny_mom,'贬值=涨'));
+  out.push(kpi('WTI原油',k.wti,'$/桶',k.wti_mom,''));
+  document.getElementById('kpis').innerHTML=out.join('');
+})();
+
+/* ---------- 1. 美林时钟 ---------- */
+(function(){
+  const mc=DATA.cycle.merrill_clock;
+  const g=mc.growth_momentum, i=mc.inflation_momentum;
+  const scale=Math.max(Math.abs(g),Math.abs(i),0.5)*1.8;
+  const opt={
+    grid:{left:60,right:30,top:30,bottom:45},
+    tooltip:{formatter:p=>`${p.name}: 增长 ${p.value[0]}, 通胀 ${p.value[1]}`},
+    xAxis:{type:'value',min:-scale,max:scale,name:'增长动能→',nameLocation:'middle',nameGap:26,
+      ...AX,nameTextStyle:{color:THEME.sub}},
+    yAxis:{type:'value',min:-scale,max:scale,name:'通胀动能→',nameLocation:'middle',nameGap:34,
+      ...AX,nameTextStyle:{color:THEME.sub}},
+    series:[{
+      type:'scatter',symbolSize:16,
+      data:[{name:mc.quadrant,value:[g,i],itemStyle:{color:THEME.gold},
+        label:{show:true,formatter:'当前',position:'top',color:THEME.gold}}],
+      markLine:{silent:true,symbol:'none',lineStyle:{color:THEME.line,type:'dashed'},
+        data:[{xAxis:0},{yAxis:0}]},
+      markArea:{silent:true,itemStyle:{opacity:.06},
+        data:[
+          [{name:'滞胀',coord:[-scale,0],itemStyle:{color:'#f5a623'}},{coord:[0,scale]}],
+          [{name:'过热',coord:[0,0],itemStyle:{color:'#ff4d4f'}},{coord:[scale,scale]}],
+          [{name:'衰退',coord:[-scale,-scale],itemStyle:{color:'#22c55e'}},{coord:[0,0]}],
+          [{name:'复苏',coord:[0,-scale],itemStyle:{color:'#4f9dff'}},{coord:[scale,0]}]],
+        label:{show:true,color:THEME.muted,fontSize:13,position:'insideTopLeft'}}
+    }]
+  };
+  c('clockChart').setOption(opt);
+  const insufficient = mc.quadrant==='数据不足';
+  document.getElementById('quadVal').textContent = insufficient
+    ? '数据不足 · 无法定位象限'
+    : `${mc.quadrant} · 最优资产：${mc.best_asset}`;
+  document.getElementById('quadEv').innerHTML=
+    mc.growth_evidence.concat(mc.inflation_evidence).map(e=>`<li>${e}</li>`).join('');
+  document.getElementById('invVal').textContent=DATA.cycle.inventory_cycle.phase;
+  document.getElementById('invEv').innerHTML=(DATA.cycle.inventory_cycle.evidence||[]).map(e=>`<li>${e}</li>`).join('');
+  document.getElementById('credVal').textContent=DATA.cycle.credit_cycle.state||'—';
+  document.getElementById('credEv').innerHTML=(DATA.cycle.credit_cycle.evidence||[]).map(e=>`<li>${e}</li>`).join('');
+
+  // P1 扩展周期卡片
+  function fillP1(valId,evId,obj){
+    if(!obj) return;
+    document.getElementById(valId).textContent=obj.state||'—';
+    document.getElementById(evId).innerHTML=(obj.evidence||[]).map(e=>`<li>${e}</li>`).join('');
+  }
+  fillP1('liqVal','liqEv',DATA.cycle.liquidity_cycle);
+  fillP1('valVal','valEv',DATA.cycle.valuation_cycle);
+  fillP1('cgVal','cgEv',DATA.cycle.copper_gold_cycle);
+  fillP1('spVal','spEv',DATA.cycle.rate_spread_cycle);
+  // P2 扩展周期卡片
+  fillP1('earnVal','earnEv',DATA.cycle.earnings_cycle);
+  fillP1('sentiVal','sentiEv',DATA.cycle.sentiment_cycle);
+  fillP1('propVal','propEv',DATA.cycle.property_cycle);
+})();
+
+/* ---------- 2. 配置建议 ---------- */
+(function(){
+  const a=DATA.cycle.allocation;
+  const pending = a.style==='待定' || !a.sectors || a.sectors.length===0;
+  document.getElementById('allocStyle').innerHTML=`风格倾向：<span class="pill ${pending?'':'hot'}">${a.style}</span>`;
+  document.getElementById('allocSectors').innerHTML=
+    (a.sectors||[]).map(s=>`<span class="pill ok">${s}</span>`).join('')||'<span class="pill">暂无（数据不足）</span>';
+  document.getElementById('allocLogic').innerHTML=(a.logic||[]).map(l=>`<li>${l}</li>`).join('');
+})();
+
+/* ---------- 3. 传导链路图 ---------- */
+(function(){
+  const chains=DATA.transmission.chains;
+  const nodes=[], links=[], cats={};
+  const catColors=['#4f9dff','#f5a623','#ff4d4f','#22c55e','#a78bfa'];
+  chains.forEach((ch,ci)=>{
+    cats[ch.name]={itemStyle:{color:catColors[ci%catColors.length]}};
+  });
+  links.push(...[]);
+  const nodesMap={};
+  chains.forEach((ch,ci)=>{
+    const seq=[ch.from,ch.mid,ch.to];
+    seq.forEach((nm,si)=>{
+      const id=`${ci}_${si}`;
+      nodesMap[id]={name:nm,category:ci,x:90+si*230,y:65+ci*78,
+        symbolSize:Math.min(96,Math.max(58,nm.length*7)),
+        label:{show:true,color:'#e6ecff',fontSize:10,formatter:nm,width:74,overflow:'break'}};
+    });
+    links.push({source:`${ci}_0`,target:`${ci}_1`,lineStyle:{color:catColors[ci%catColors.length],width:1.6}});
+    links.push({source:`${ci}_1`,target:`${ci}_2`,lineStyle:{color:catColors[ci%catColors.length],width:1.6}});
+  });
+  const series={type:'graph',layout:'none',roam:true,
+    categories:chains.map((ch,ci)=>({name:ch.name,itemStyle:{color:catColors[ci%catColors.length]}})),
+    data:Object.values(nodesMap),links:links,
+    edgeSymbol:['none','arrow'],edgeSymbolSize:8,
+    lineStyle:{width:1.6,curveness:0},
+    emphasis:{focus:'adjacency'},
+    label:{position:'inside'}};
+  const opt={
+    tooltip:{},
+    legend:{top:0,textStyle:{color:THEME.sub},data:chains.map(c=>c.name)},
+    series:[series]
+  };
+  c('transChart').setOption(opt);
+})();
+
+/* ---------- 4. 因子-行业热力 ---------- */
+(function(){
+  const m=DATA.transmission.heatmap;
+  const data=[];
+  m.factors.forEach((f,fi)=>{m.industries.forEach((ind,ii)=>{
+    data.push([ii,fi,m.matrix[fi][ii]]);});});
+  const opt={
+    grid:{left:70,right:20,top:20,bottom:60},
+    tooltip:{formatter:p=>`${m.factors[p.value[1]]} × ${m.industries[p.value[0]]}: ${p.value[2]}`},
+    xAxis:{type:'category',data:m.industries,...AX,axisLabel:{color:THEME.sub,rotate:35}},
+    yAxis:{type:'category',data:m.factors,...AX},
+    visualMap:{min:-0.8,max:0.8,calculable:false,orient:'horizontal',left:'center',bottom:0,
+      textStyle:{color:THEME.sub},inRange:{color:['#22c55e','#1b2740','#ff4d4f']}},
+    series:[{type:'heatmap',data:data,label:{show:true,color:'#e6ecff',fontSize:9,
+      formatter:p=>p.value[2].toFixed(1)},
+      itemStyle:{borderColor:'#0b1020',borderWidth:1}}]
+  };
+  c('heatChart').setOption(opt);
+})();
+
+/* ---------- 图表工具 ---------- */
+function lineOpt(dates,seriesList,opts={}){
+  return {grid:{left:50,right:24,top:34,bottom:34},
+    tooltip:{trigger:'axis'},
+    legend:{top:0,textStyle:{color:THEME.sub},data:seriesList.map(s=>s.name)},
+    xAxis:{type:'category',data:dates,...AX},
+    yAxis:{type:'value',...AX,scale:opts.scale!==false},
+    series:seriesList.map(s=>({name:s.name,type:s.type||'line',data:s.data,smooth:true,
+      symbol:'circle',symbolSize:5,showSymbol:false,connectNulls:s.connectNulls||false,
+      lineStyle:{width:2,color:s.color},itemStyle:{color:s.color},
+      areaStyle:s.area?{opacity:.12}:null,
+      yAxisIndex:s.yAxisIndex||0}))};
+}
+
+/* ---------- 5. 国内图 ---------- */
+(function(){
+  const d=DATA.domestic;
+  c('cpiPpi').setOption(lineOpt(d.cpi.dates,[
+    {name:'CPI同比',data:d.cpi.cpi,color:THEME.up},
+    {name:'PPI同比',data:d.cpi.ppi,color:THEME.accent}]));
+  c('pmiChart').setOption(Object.assign(lineOpt(d.pmi.dates,[
+    {name:'制造业PMI',data:d.pmi.mfg,color:THEME.gold},
+    {name:'非制造业PMI',data:d.pmi.nonmfg,color:THEME.accent}]),
+    {yAxis:{type:'value',min:45,max:56,...AX},series:[
+      {name:'制造业PMI',type:'line',data:d.pmi.mfg,smooth:true,showSymbol:false,lineStyle:{color:THEME.gold,width:2},
+        markLine:{silent:true,symbol:'none',lineStyle:{color:THEME.up,type:'dashed'},data:[{yAxis:50}],label:{formatter:'50'}}},
+      {name:'非制造业PMI',type:'line',data:d.pmi.nonmfg,smooth:true,showSymbol:false,lineStyle:{color:THEME.accent,width:2}}]}));
+  c('mChart').setOption(lineOpt(d.money.dates,[
+    {name:'M1同比',data:d.money.m1,color:THEME.up},
+    {name:'M2同比',data:d.money.m2,color:THEME.accent},
+    {name:'M1-M2剪刀差',data:d.money.scissors,color:THEME.gold}]));
+  c('demandChart').setOption(lineOpt(d.retail.dates,[
+    {name:'社零同比',data:d.retail.retail,color:THEME.up},
+    {name:'GDP同比',data:d.gdp.gdpGapped,color:THEME.gold,connectNulls:true}]));
+})();
+
+/* ---------- 6. 海外图 ---------- */
+(function(){
+  const d=DATA.overseas;
+  c('rateChart').setOption(lineOpt(d.rate.dates,[
+    {name:'联邦基金利率',data:d.rate.fedfunds,color:THEME.down},
+    {name:'10Y美债',data:d.rate.us10y,color:THEME.up}]));
+  c('fxChart').setOption((function(){
+    const o=lineOpt(d.fx.dates,[
+      {name:'美元兑人民币',data:d.fx.usdcny,color:THEME.up},
+      {name:'美元指数(右)',data:d.fx.usdindex,color:THEME.accent,yAxisIndex:1}]);
+    o.yAxis=[{type:'value',...AX,scale:true},{type:'value',...AX,scale:true,splitLine:{show:false}}];
+    return o;
+  })());
+  c('usChart').setOption(lineOpt(d.us.dates,[
+    {name:'美国CPI同比',data:d.us.cpi,color:THEME.up},
+    {name:'失业率',data:d.us.unrate,color:THEME.accent}]));
+  c('oilChart').setOption(lineOpt(d.oil.dates,[
+    {name:'WTI原油',data:d.oil.wti,color:THEME.gold,area:true}]));
+})();
+
+/* ---------- 6b. P1 扩展周期图 ---------- */
+(function(){
+  const p=DATA.p1;
+  if(!p) return;
+  c('liqChart').setOption((function(){
+    const o=lineOpt(p.liquidity.dates,[
+      {name:'美元指数(左)',data:p.liquidity.usdindex,color:THEME.accent},
+      {name:'10Y美债实际利率(右)',data:p.liquidity.real,yAxisIndex:1,color:THEME.up}]);
+    o.yAxis=[{type:'value',...AX,scale:true},{type:'value',...AX,scale:true,splitLine:{show:false}}];
+    return o;
+  })());
+  c('cgChart').setOption(lineOpt(p.copper_gold.dates,[
+    {name:'铜金比',data:p.copper_gold.values,color:THEME.gold,area:true}]));
+  c('spreadChart').setOption(lineOpt(p.spread.dates,[
+    {name:'中美利差',data:p.spread.values,color:THEME.up}]));
+  c('riskChart').setOption((function(){
+    const o=lineOpt(p.risk.dates,[
+      {name:'VIX(左)',data:p.risk.vix,color:THEME.up},
+      {name:'美债10Y-2Y利差(右)',data:p.risk.curve,yAxisIndex:1,color:THEME.gold}]);
+    o.yAxis=[{type:'value',...AX,scale:true},{type:'value',...AX,scale:true,splitLine:{show:false}}];
+    return o;
+  })());
+  c('propChart').setOption(lineOpt(p.property.dates,[
+    {name:'新房价格指数',data:p.property.new,color:THEME.up},
+    {name:'二手房价指数',data:p.property.second,color:THEME.accent}]));
+  c('earnChart').setOption(lineOpt(p.earnings.dates,[
+    {name:'美国工业生产同比',data:p.earnings.indpro,color:THEME.gold},
+    {name:'美国零售销售同比',data:p.earnings.retail,color:THEME.accent}]));
+})();
+
+/* ---------- 6d. 长周期梯队 ---------- */
+(function(){
+  const LC=DATA.long_cycle||{}, LW=DATA.long_wave||{};
+  const cycles=LC.cycles||{};
+
+  /* 长周期定位卡片 */
+  function lcCard(c,accent){
+    if(!c) return `<div class="kpi"><div class="k-name">—</div><div class="k-val">无数据</div></div>`;
+    const dirTxt = c.direction>0.02?'↑ 上行':(c.direction<-0.02?'↓ 下行':'→ 走平');
+    const stageColor = c.latest>=0.6?THEME.up:(c.latest<=-0.6?THEME.down:THEME.gold);
+    return `<div class="kpi"><div class="k-name">${c.name} <span style="color:var(--muted)">${c.period}</span></div>
+      <div class="k-val" style="color:${stageColor};font-size:19px">${c.stage}</div>
+      <div class="k-sub">z=${c.latest>=0?'+':''}${c.latest} ${dirTxt} · ${c.n_obs}期历史</div>
+      <div class="k-sub" style="color:var(--sub);margin-top:6px;line-height:1.6">${c.note||''}</div></div>`;
+  }
+  document.getElementById('longCards').innerHTML=
+    lcCard(cycles.juglar)+lcCard(cycles.kuznets)+lcCard(cycles.debt);
+
+  /* 峰谷标记 → markPoint / markLine */
+  function turnsMarks(c){
+    const peaks=(c.turns||[]).filter(t=>t.type==='peak');
+    const troughs=(c.turns||[]).filter(t=>t.type==='trough');
+    return {
+      markPoint:{symbol:'pin',symbolSize:34,
+        data:[].concat(
+          peaks.map(p=>({name:'顶',coord:[p.date,p.value],value:p.value,itemStyle:{color:THEME.up},
+            label:{formatter:'顶',color:'#fff',fontSize:9}})),
+          troughs.map(p=>({name:'底',coord:[p.date,p.value],value:p.value,itemStyle:{color:THEME.down},
+            label:{formatter:'底',color:'#fff',fontSize:9}})))},
+      markLine:{silent:true,symbol:'none',data:[{yAxis:0}],
+        lineStyle:{color:THEME.line,type:'dashed'},label:{show:false}}
+    };
+  }
+
+  /* 朱格拉周期 */
+  if(cycles.juglar){
+    const j=cycles.juglar;
+    const opt=lineOpt(j.labels,[
+      {name:'朱格拉周期分量(z)',data:j.component,color:THEME.accent,area:true}],
+      {scale:true});
+    Object.assign(opt.series[0],turnsMarks(j));
+    c('juglarChart').setOption(opt);
+  }
+
+  /* 库兹涅茨周期 */
+  if(cycles.kuznets){
+    const k=cycles.kuznets;
+    const opt=lineOpt(k.labels,[
+      {name:'库兹涅茨周期分量(z)',data:k.component,color:THEME.purple,area:true}],
+      {scale:true});
+    Object.assign(opt.series[0],turnsMarks(k));
+    c('kuznetsChart').setOption(opt);
+  }
+
+  /* 债务周期：柱=Δ债务/GDP(左轴) + 线=债务/GDP水平(右轴) */
+  if(cycles.debt){
+    const dbt=cycles.debt;
+    const opt={
+      grid:{left:50,right:56,top:34,bottom:34},
+      tooltip:{trigger:'axis'},
+      legend:{top:0,textStyle:{color:THEME.sub},data:['债务/GDP 同比变化(z)','债务/GDP 水平(%)']},
+      xAxis:{type:'category',data:dbt.labels,...AX},
+      yAxis:[{type:'value',...AX,scale:true,name:'Δ z',nameTextStyle:{color:THEME.sub}},
+             {type:'value',...AX,scale:true,splitLine:{show:false},name:'%',nameTextStyle:{color:THEME.sub}}],
+      series:[
+        {name:'债务/GDP 同比变化(z)',type:'bar',data:dbt.component,yAxisIndex:0,
+          itemStyle:{color:p=>p.value>=0?THEME.up:THEME.down,opacity:.75}},
+        {name:'债务/GDP 水平(%)',type:'line',data:dbt.raw,yAxisIndex:1,smooth:true,
+          showSymbol:false,lineStyle:{color:THEME.gold,width:2},itemStyle:{color:THEME.gold}}]
+    };
+    c('debtChart').setOption(opt);
+  }
+
+  /* 康波：技术革命浪潮时间轴（定性，用 custom 条形表示各浪时间跨度） */
+  const kd=(LW.kondratiev&&LW.kondratiev.waves)||[];
+  if(kd.length){
+    const names=kd.map(w=>`第${w.no}浪 ${w.name}`);
+    const cur=kd[kd.length-1]; // 第六浪（孕育中）
+    const data=kd.map((w,i)=>({value:[String(w.start),String(w.end)],itemStyle:{
+      color:i===kd.length-1?THEME.gold:(i%2?'#3b5bdb':'#2f4bb0'),opacity:i===kd.length-1?.95:.75}}));
+    const opt={
+      grid:{left:130,right:30,top:24,bottom:44},
+      tooltip:{formatter:p=>{const w=kd[p.dataIndex];
+        return `${names[p.dataIndex]}<br/>${w.start}-${w.end}（${w.end-w.start}年）<br/>主导国：${w.leading}<br/>核心：${w.core_tech}`;}},
+      xAxis:{type:'value',min:1770,max:2070,...AX,axisLabel:{color:THEME.sub,formatter:v=>v+'年'}},
+      yAxis:{type:'category',data:names,...AX,axisLabel:{color:THEME.sub,fontSize:11}},
+      series:[{type:'custom',renderItem:(params,api)=>{
+        const y=api.value(0), s=api.coord([api.value(1),y]), e=api.coord([api.value(2),y]);
+        const h=api.size([0,1])[1]*0.55;
+        return {type:'rect',shape:{x:s[0],y:s[1]-h/2,width:Math.max(e[0]-s[0],2),height:h},
+          style:api.style()};},
+        encode:{x:[1,2],y:0},
+        data:kd.map((w,i)=>({value:[i,w.start,w.end],itemStyle:{
+          color:i===kd.length-1?THEME.gold:'#3b5bdb',opacity:i===kd.length-1?.95:.7}})),
+        markLine:{silent:true,symbol:'none',
+          data:[{xAxis:2026,lineStyle:{color:THEME.up,type:'dashed',width:1.6},
+            label:{formatter:'当前 2026',color:THEME.up,fontSize:11}}]}
+      }]
+    };
+    c('kondratievChart').setOption(opt);
+  }
+
+  /* 康波/熊彼特当前定位文字 */
+  const box=document.getElementById('longWaveBox');
+  if(box){
+    const kn=LW.kondratiev||{}, sc=LW.schumpeter||{};
+    const cp=kn.current_phase||{}, ccl=sc.current_cluster||{};
+    const imp=LW.investment_implication||{};
+    let html='';
+    if(cp.phase) html+=`<div style="margin-bottom:10px"><b style="color:var(--gold)">康波定位：</b>
+      <span style="color:var(--txt)">${cp.phase}</span>
+      <span class="pill" style="margin-left:8px;color:var(--warn);border-color:var(--warn)">${cp.confidence||''}</span>
+      <div style="margin-top:6px">${cp.position||''}</div>
+      <ul style="margin:6px 0 0;padding-left:20px">${(cp.evidence||[]).map(e=>`<li>${e}</li>`).join('')}</ul></div>`;
+    if(ccl.cluster) html+=`<div style="margin-bottom:10px"><b style="color:var(--purple)">熊彼特创新簇：</b>
+      <span style="color:var(--txt)">${ccl.cluster}</span>（${ccl.stage||''}）
+      <ul style="margin:6px 0 0;padding-left:20px">${(ccl.signals||[]).map(e=>`<li>${e}</li>`).join('')}</ul></div>`;
+    if(imp['要点']) html+=`<div><b style="color:var(--accent)">长波投资含义：</b>
+      <ul style="margin:6px 0 0;padding-left:20px">${imp['要点'].map(e=>`<li>${e}</li>`).join('')}</ul></div>`;
+    if(imp.caveat) html+=`<div style="margin-top:10px;color:var(--warn);font-size:12px">⚠ ${imp.caveat}</div>`;
+    box.innerHTML=html||'<span style="color:var(--muted)">长波框架数据缺失</span>';
+  }
+})();
+
+/* ---------- 7. 多周期共振时间轴 ---------- */
+(function(){
+  const t=DATA.cycle.timeline;
+  if(!t||!t.months) return;
+  const data=[];
+  t.rows.forEach((r,ri)=>{
+    r.scores.forEach((s,mi)=>{ data.push([mi,ri,s===null?0:s]); });
+  });
+  const opt={
+    grid:{left:110,right:20,top:20,bottom:50},
+    tooltip:{formatter:p=>{
+      const name=t.rows[p.value[1]].name; const s=p.value[2];
+      const label=s>0?'改善':(s<0?'恶化':'持平/无数据');
+      return `${t.months[p.value[0]]}<br>${name}: ${label}`;
+    }},
+    xAxis:{type:'category',data:t.months,...AX,axisLabel:{color:THEME.sub,rotate:40,fontSize:10}},
+    yAxis:{type:'category',data:t.rows.map(r=>r.name),...AX},
+    visualMap:{show:false,min:-1,max:1,inRange:{color:['#22c55e','#26314d','#ff4d4f']}},
+    series:[{type:'heatmap',data:data,itemStyle:{borderColor:'#0b1020',borderWidth:1},
+      label:{show:false}}]
+  };
+  c('timelineChart').setOption(opt);
+})();
+
+/* ---------- 7. 数据表 ---------- */
+(function(){
+  const rows=DATA.table;
+  let h='<thead><tr>'+rows.header.map(x=>`<th>${x}</th>`).join('')+'</tr></thead><tbody>';
+  rows.body.forEach(r=>{h+='<tr>'+r.map((v,idx)=>{return `<td>${v==null?'—':v}</td>`;}).join('')+'</tr>';});
+  h+='</tbody>';
+  document.getElementById('dataTable').innerHTML=h;
+})();
+
+document.getElementById('disclaimer').textContent=DATA.cycle.disclaimer;
+document.getElementById('asof').textContent=DATA.cycle.as_of||'—';
+</script>
+</body>
+</html>
