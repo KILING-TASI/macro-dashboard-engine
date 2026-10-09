@@ -1,0 +1,3 @@
+# Historical third-party data has no per-series redistribution record.
+# Keep explicit local reproduction; exclude it from source-distribution archives.
+assets/sample_data.json export-ignore

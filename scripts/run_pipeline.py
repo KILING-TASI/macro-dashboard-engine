@@ -68,8 +68,11 @@ def main():
     ap.add_argument("--workdir", default=None, help="归档父目录；每次在其下创建独立run目录")
     ap.add_argument("--title", default="宏观全景看板")
     ap.add_argument("--demo", action="store_true", help="离线演示，不抓取真实数据")
+    ap.add_argument("--demo-snapshot", default=None, help="显式演示快照；不附加第三方数据授权")
     ap.add_argument("--overwrite", action="store_true", help="成功后替换指定HTML；失败保留旧结果")
     args = ap.parse_args()
+    if args.demo_snapshot and not args.demo:
+        raise SystemExit("--demo-snapshot 仅可配合 --demo")
     base = args.workdir or tempfile.mkdtemp(prefix="macro_")
     os.makedirs(base, exist_ok=True)
     workdir = tempfile.mkdtemp(prefix="run_", dir=base)
@@ -77,7 +80,10 @@ def main():
     if os.path.exists(args.out) and not args.overwrite:
         raise SystemExit("输出已存在；请指定新路径或显式使用 --overwrite")
     if args.demo:
-        if not run([os.path.join(HERE, "build_dashboard.py"), "--demo", "--out", args.out, "--title", args.title], overwrite=args.overwrite):
+        command = [os.path.join(HERE, "build_dashboard.py"), "--demo", "--out", args.out, "--title", args.title]
+        if args.demo_snapshot:
+            command.extend(["--demo-snapshot", args.demo_snapshot])
+        if not run(command, overwrite=args.overwrite):
             raise SystemExit(1)
         print(f"[pipeline] 演示完成 → {args.out}")
         return

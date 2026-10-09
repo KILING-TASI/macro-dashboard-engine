@@ -76,6 +76,6 @@ FRED 接口（无需 API key）：`https://fred.stlouisfed.org/graph/fredgraph.c
 |---|---|---|
 | 1 | 实时接口抓取（东财 / FRED） | 网络可用 |
 | 2 | 用户手动提供（CSV/Excel/粘贴） | 用户有自有数据 |
-| 3 | `assets/sample_data.json` 教学快照 | 仅显式 `--demo`，与正式数据分开 |
+| 3 | 原创模拟教学序列 | 仅显式 `--demo`，与正式数据分开；旧快照需另用 `--demo-snapshot` 指定并核对权利 |
 
 部分真实输入标为数据不完整；全部无有效输入时失败。演示标为示例数据，不把失败视为读取样本的授权。CSV/Excel 等需先转换为脚本 JSON 结构，尚无通用导入器。

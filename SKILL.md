@@ -2,7 +2,7 @@
 name: macro-dashboard
 description: 生成宏观研究看板，观察增长、通胀、货币与银行信用传导、金融周期及行业历史关联；按研究问题选择资料，保留来源、口径、日期与缺口。
 metadata:
-  version: "1.6.0"
+  version: "1.6.1"
   author: "CodeBuddy AI"
   created: "2026-10-09"
 ---
@@ -46,6 +46,8 @@ python <skill-directory>/scripts/run_pipeline.py --demo --out <demo.html>
 ```
 
 演示只使用离线快照，顶部标注示例，不参与正式判断。正式模式不自动读取样本。组装器同样支持--demo。
+
+默认演示现用原创模拟序列，未模拟的模块留空；旧第三方快照不随源码归档。仅在用户有权使用且需要复查时，显式--demo-snapshot传入路径，不能混入正式结论。公开材料的权利分界见[许可清单](LICENSE_SCOPE.md)，MIT不授权第三方库或数据再分发。
 
 已有归档可直接调用build_dashboard.py，传入--eastmoney、--fred、--cycle、--longcycle、--attribution、--credit和--out；缺失项可省略或指向不存在文件。原有输入结构见 [指标字典](references/indicators.md)，信用补充结构见 [信用说明](references/credit_transmission.md)。
 

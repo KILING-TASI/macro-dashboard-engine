@@ -289,6 +289,13 @@ def render(payload, out_path, title="宏观全景看板"):
     html = html.replace("__GENTIME__", datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
     html = html.replace("__CALC_VERSION__", escape(str((payload.get("cycle") or {}).get("calculation_version") or "未登记")))
     html = html.replace("__SRCTEXT__", src_text)
+    notice_files = ["LICENSE_SCOPE.md", "LICENSE", "third_party/echarts-5.5.1/LICENSE",
+                    "third_party/echarts-5.5.1/NOTICE", "third_party/echarts-5.5.1/LICENSE-d3"]
+    notices = []
+    for name in notice_files:
+        with open(os.path.join(SKILL_DIR, name), encoding="utf-8") as stream:
+            notices.append(name + "\n" + stream.read())
+    html = html.replace("__THIRD_PARTY_NOTICES__", escape("\n\n".join(notices)))
     html = html.replace("__ECHARTS__", echarts_js)
     html = html.replace("__DATA__", json.dumps(payload, ensure_ascii=False))
 
@@ -307,9 +314,12 @@ def main():
     ap.add_argument("--attribution", default="attribution.json")
     ap.add_argument("--credit", default=None)
     ap.add_argument("--demo", action="store_true", help="仅演示：允许使用离线示例，不作正式研究")
+    ap.add_argument("--demo-snapshot", default=None, help="仅配合--demo显式复现已有快照；需自行核对数据权利")
     ap.add_argument("--out", default="/workspace/macro-dashboard.html")
     ap.add_argument("--title", default="宏观全景看板")
     args = ap.parse_args()
+    if args.demo_snapshot and not args.demo:
+        raise SystemExit("--demo-snapshot 仅用于显式演示")
 
     em = _load(args.eastmoney)
     fr = _load(args.fred)
@@ -324,9 +334,13 @@ def main():
         raise SystemExit("正式研究不能使用标记为sample的输入；演示请显式使用 --demo")
 
     if args.demo:
-        sample = _load(os.path.join(ASSETS, "sample_data.json")) or {}
+        if args.demo_snapshot:
+            sample = _load(args.demo_snapshot) or {}
+        else:
+            from teaching_data import teaching_input
+            sample = teaching_input()
         em, fr = sample.get("eastmoney"), sample.get("fred")
-        if not (em or {}).get("indicators") or not (fr or {}).get("indicators"):
+        if not any((source or {}).get("indicators") for source in (em, fr)):
             raise SystemExit("演示快照不可用")
         em, fr = dict(em, source="sample"), dict(fr, source="sample")
         credit, attribution = None, None
@@ -352,8 +366,10 @@ def main():
     payload = build_payload(em, fr, cycle, long_cycle=long_cycle,
                             long_wave=long_wave, attribution=attribution,
                             policy=policy, offline=offline, credit=credit)
+    if args.demo and not args.demo_snapshot:
+        payload["demo_source"] = "本仓库原创模拟数值（教学用，不来自实时接口）"
     path = render(payload, args.out, args.title)
-    flag = "示例数据(离线兜底)" if offline else "实时抓取"
+    flag = "教学示例" if offline else "正式数据输入"
     print(f"[dashboard] 已生成 {path} ({flag})")
 
 

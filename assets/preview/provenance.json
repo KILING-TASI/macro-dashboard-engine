@@ -1,6 +1,6 @@
 {
   "generated_date": "2026-10-09",
-  "page_generated_at": "2026-10-09 19:00",
+  "page_generated_at": "2026-10-09 19:09",
   "observed_through": "2026-08 (fictional)",
   "calculation_version": "2.0.0",
   "kind": "original_synthetic_teaching",
@@ -8,8 +8,12 @@
   "command": "python scripts/demo_preview.py --out-dir local-data/public-demo",
   "capture": "Actual in-app browser screenshot, default viewport, no image editing",
   "sha256": {
-    "screenshot": "add054f9f7e26e0dfebecbbff03a455b4d73f2701fbe412376806315f7674bd1",
+    "screenshot": "e7eb19659aa4324216fd855664f96e519d467194aee96a19aa3b74046f0d5f97",
     "input": "df642705d1920695d7e96e45a401c5e665a023b9851de4bf523f337cbc9ea778",
-    "generator": "5dc524e8e0433c14f4066488984c65fac3afaad878884eaf4f383c382b136316"
-  }
+    "generator": "94f9bde43b87f2b1a33f4335c796ed5895445d04c5541966793893b3e3e741e0",
+    "teaching_data": "c3918da3cc6eb3fea341c88a34fb7af3679c7b1583cb18d0b23022d446b19252",
+    "rendered_html": "dabc660e556db45c28606009358a545304d1b0e3cda24ba0c7d94c16270a621e"
+  },
+  "data_function": "scripts/teaching_data.py:teaching_input",
+  "license_note": "Original fictional numbers; ECharts/fonts retain their own rights. Not a blanket MIT sublicense of rendered components."
 }

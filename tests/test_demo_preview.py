@@ -7,9 +7,23 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 import demo_preview
+import build_dashboard
 
 
 class DemoPreviewTests(unittest.TestCase):
+    def test_explicit_legacy_snapshot_is_available_without_becoming_default(self):
+        snapshot = Path(__file__).resolve().parents[1] / "assets/sample_data.json"
+        if not snapshot.exists():
+            self.skipTest("旧快照不随源码归档分发")
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "legacy.html"
+            with patch.object(sys, "argv", ["build", "--demo", "--demo-snapshot", str(snapshot), "--out", str(output)]):
+                build_dashboard.main()
+            page = output.read_text(encoding="utf-8")
+            self.assertIn("离线示例快照", page)
+            self.assertNotIn('"us10y": null', page)
+            self.assertIn('"status": "sample"', page)
+
     def test_teaching_markers_dates_and_missing_fields(self):
         with tempfile.TemporaryDirectory() as temporary:
             folder = Path(temporary) / "preview"
@@ -22,6 +36,9 @@ class DemoPreviewTests(unittest.TestCase):
             self.assertIn('id="asof">2026-08', page)
             self.assertIn('"us10y": null', page)
             self.assertIn('"status": "sample"', page)
+            self.assertIn('id="third-party-notices"', page)
+            self.assertIn("Copyright 2017-2024 The Apache Software Foundation", page)
+            self.assertIn("BSD", page)
             source = json.loads((folder / "demo-input.json").read_text(encoding="utf-8"))
             self.assertFalse(source["fred"]["indicators"])
             before = (folder / "macro-demo.html").read_bytes()
