@@ -58,3 +58,28 @@
 版本分开解释：main Skill1.4.0；待审Skill1.6.3只标技能说明版本，不推定软件总版本。macro_contract支持1.0.0；周期方法2.1.0，历史2.0.0按原版本复现不自动重算。显示/留档1.0.0未变。来源目录1.0为登记格式而非数据快照版；数据快照以文件摘要及取得上下文识别。规则没有独立统一版本，不能用方法版本代所有规则；候选parser0.1.0只约束本地旁挂实现。未知/不支持接口拒绝，旧归档不静默迁移。没有自动安装或发布。
 
 本批结案条件是入口盘点、最小旁挂、两类原创反例、本地资源检查提交并更新现有PR；不等待规划采集完成。后置：原文证据链、日线月末实际日/缺月收益修复、字段单位/季调核验、原始字节摘要/修订链、跨仓同样本消费者验收。尚未完成的原因是原始版本/时点或共同消费者缺失，不以CI代替认证或投资有效性。复杂功能另立有界批次，不能不断叠入已交付旧批。
+
+
+## 2026-10-10 独立安装使用验收批（已结案）
+
+此批独立于数据候选迁移，不增加模型或采集器。结果：**待审源码包的最短离线教学入口独立通过**。实际验收对象为提交`cdb5d71bf5de5cc53b967dc0e72b557fd20c0337`的Git源码归档，SHA256为`50a4200cb61dc6e64c545badc0512a63e89fe6e5e1a96ca2f63f2fb1af2215c6`。未复制作者输入、缓存、.git或其他专业仓，旧第三方快照按export-ignore排除。当前仓以源码/Skill目录分发，无wheel安装元数据；独立安装方式是解压源码，不使用editable路径或自动修改用户Skill安装。
+
+环境为Windows、Python3.12.10，新临时目录、新venv及空用户/缓存目录。子进程清除PYTHONPATH/PYTHONHOME/CODEX_HOME、workbench/组件/作者数据相关变量，子进程HOME/USERPROFILE/APPDATA/LOCALAPPDATA指向隔离目录，未修改系统变量或删除真实缓存。pip25.0.1是venv自带工具，没有安装第三方Python依赖或任何自家专业库。宿主仍有其他仓库：这是目录和进程隔离，不能称全新OS或物理无其他仓。
+
+以新venv Python执行README标准命令：
+
+```text
+python scripts/demo_preview.py --out-dir local-data/public-demo
+python scripts/run_pipeline.py --demo --workdir local-data/pipeline
+python scripts/check_repository.py
+```
+
+三条均退出0。生成新HTML、输入及周期JSON；增长动能0.290、方法2.1.0、point_in_time=false，输入为original_synthetic且FRED为空。HTML教学标识及项目MIT/KILING-TASI/ECharts许可内嵌完整；外部模块缺口保留，不冒充真实数据。来源审计额外执行同一入口并记录sys.path/模块__file__：项目模块来自解压包scripts，其他模块来自新venv或宿主Python标准库；审计helper自身位于隔离临时目录。未加载作者工作区或其他专业仓。Skill入口/相对文档链接、模板及许可资源在解压包内检查通过；本包没有agents文件，不要求虚构该元数据。
+
+必要失败例：再次使用既有public-demo目录退出非0，原HTML摘要不变；仅在隔离副本临时移走内置ECharts后运行，明确FileNotFoundError且未产生成功HTML，随后恢复该副本资源。最短入口不需要可选Python包，未通过临时装其他专业仓补缺；可选海外/信用/行业无输入仍标缺口。失败例不修改作者仓资源。最短报告成功不代表全部数据采集成功。
+
+完整命令、退出值与输出、依赖版本及模块来源分类见[验收记录](examples/standalone-verification.json)，公开记录将临时路径标准化为ISOLATED_ROOT；本地交付保留实际路径/模块清单、源码包摘要及报告文件。该记录为验收证据，不是运行时输入；后续文档收尾提交不改被测运行代码。
+
+远端证据范围：既有CI仅checkout本仓，Windows/Linux与Python3.8/3.12已运行解压源码演示；没有checkout其他仓或安装专业包。它没有等同本次完整venv/模块来源审计，因此不能代替本地隔离证据。自然语言Skill安装发现、浏览器视觉、真实联网取数、main旧入口及旧本地冻结包本批均未验证。仓库无GitHub Release/发布安装版可供验收，未替换旧资产。CI/CLI成功不证明资料认证、投资有效或跨仓一致。
+
+本批结案点：指定源码归档在独立目录/venv完成最短教学使用、来源/数值/未知/许可检查和必要失败例，证据已随现有PR交付；没有发现需要修复的隐含专业依赖或README命令错误，不新增生产功能。不延伸至采集、迁移或跨仓联调。

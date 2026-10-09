@@ -1,0 +1,149 @@
+{
+  "tested_commit": "cdb5d71bf5de5cc53b967dc0e72b557fd20c0337",
+  "archive_sha256": "50a4200cb61dc6e64c545badc0512a63e89fe6e5e1a96ca2f63f2fb1af2215c6",
+  "isolation": "new directories and process on existing host, not a new OS",
+  "python_version": "Python 3.12.10",
+  "dependencies": [
+    {
+      "name": "pip",
+      "version": "25.0.1"
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "<ISOLATED_ROOT>\\venv\\Scripts\\python.exe",
+        "scripts/demo_preview.py",
+        "--out-dir",
+        "local-data/public-demo"
+      ],
+      "cwd": "<ISOLATED_ROOT>\\package",
+      "exit_code": 0,
+      "stdout": "Teaching preview: <ISOLATED_ROOT>\\package\\local-data\\public-demo\\macro-demo.html\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "<ISOLATED_ROOT>\\venv\\Scripts\\python.exe",
+        "scripts/demo_preview.py",
+        "--out-dir",
+        "local-data/public-demo"
+      ],
+      "cwd": "<ISOLATED_ROOT>\\package",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "输出目录已存在，请另选新目录\n"
+    },
+    {
+      "argv": [
+        "<ISOLATED_ROOT>\\venv\\Scripts\\python.exe",
+        "scripts/run_pipeline.py",
+        "--demo",
+        "--workdir",
+        "local-data/pipeline"
+      ],
+      "cwd": "<ISOLATED_ROOT>\\package",
+      "exit_code": 0,
+      "stdout": "  [dashboard] 已生成 <ISOLATED_ROOT>\\package\\local-data\\pipeline\\run_40_qszjc\\.macro-stage-qdbsayug.html (教学示例)\n[pipeline] 演示完成 → <ISOLATED_ROOT>\\package\\local-data\\pipeline\\run_40_qszjc\\macro-dashboard.html\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "<ISOLATED_ROOT>\\venv\\Scripts\\python.exe",
+        "-I",
+        "<ISOLATED_ROOT>\\probe.py",
+        "<ISOLATED_ROOT>\\package"
+      ],
+      "cwd": "<ISOLATED_ROOT>\\package",
+      "exit_code": 0,
+      "stdout": "Teaching preview: <ISOLATED_ROOT>\\package\\local-data\\probe-demo\\macro-demo.html\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "<ISOLATED_ROOT>\\venv\\Scripts\\python.exe",
+        "-I",
+        "-m",
+        "pip",
+        "list",
+        "--format=json"
+      ],
+      "cwd": "<ISOLATED_ROOT>\\package",
+      "exit_code": 0,
+      "stdout": "[{\"name\": \"pip\", \"version\": \"25.0.1\"}]\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "<ISOLATED_ROOT>\\venv\\Scripts\\python.exe",
+        "scripts/demo_preview.py",
+        "--out-dir",
+        "local-data/missing-resource"
+      ],
+      "cwd": "<ISOLATED_ROOT>\\package",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"<ISOLATED_ROOT>\\package\\scripts\\demo_preview.py\", line 32, in <module>\n    main()\n  File \"<ISOLATED_ROOT>\\package\\scripts\\demo_preview.py\", line 27, in main\n    render(payload, str(folder / \"macro-demo.html\"), title=\"宏观教学看板 · 原创模拟数据\")\n  File \"<ISOLATED_ROOT>\\package\\scripts\\build_dashboard.py\", line 273, in render\n    with open(os.path.join(ASSETS, \"echarts.min.js\"), encoding=\"utf-8\") as f:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: 'C:\\\\Users\\\\caiqi\\\\AppData\\\\Local\\\\Temp\\\\macro-isolated-nna9t9gu\\\\package\\\\assets\\\\echarts.min.js'\n"
+    },
+    {
+      "argv": [
+        "<ISOLATED_ROOT>\\venv\\Scripts\\python.exe",
+        "-I",
+        "--version"
+      ],
+      "cwd": "<ISOLATED_ROOT>\\package",
+      "exit_code": 0,
+      "stdout": "Python 3.12.10\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "<ISOLATED_ROOT>\\venv\\Scripts\\python.exe",
+        "scripts/check_repository.py"
+      ],
+      "cwd": "<ISOLATED_ROOT>\\package",
+      "exit_code": 0,
+      "stdout": "Required resources, Python 3.8 syntax and relative documentation links checked.\n",
+      "stderr": ""
+    }
+  ],
+  "module_origins_validated": true,
+  "numeric_validation": {
+    "growth_momentum": 0.29,
+    "method_version": "2.1.0",
+    "point_in_time": false
+  },
+  "output_exists_preserves_file": true,
+  "missing_resource_failure": "explicit FileNotFoundError for bundled ECharts; no optional Python dependencies required",
+  "packaged_license_resources": [
+    "LICENSE",
+    "LICENSE_SCOPE.md",
+    "THIRD_PARTY_NOTICES.md",
+    "SKILL.md",
+    "assets/template.html",
+    "assets/echarts.min.js",
+    "third_party/echarts-5.5.1/LICENSE",
+    "third_party/echarts-5.5.1/NOTICE",
+    "third_party/echarts-5.5.1/LICENSE-d3",
+    "references/data_contract_inventory.md"
+  ],
+  "visual_validation": "not performed",
+  "natural_language_skill_discovery": "not performed",
+  "release_validation": "no GitHub Release; main historical entry not run",
+  "result": "independent shortest offline entry passed",
+  "skill_resources_and_relative_links": "isolated package check passed; no agents metadata exists or is required by this package",
+  "path_normalization": "Public command logs replace the temporary root with <ISOLATED_ROOT>; full local logs and module origins retained in delivery artifact.",
+  "module_origin_summary": {
+    "project_modules": [
+      "build_dashboard",
+      "compute_cycle",
+      "dated_series",
+      "teaching_data",
+      "data_evidence"
+    ],
+    "project_origin": "extracted package/scripts",
+    "other_modules": "fresh venv or host Python standard library; audit probe __main__ only from isolated helper",
+    "author_workspace_modules": 0,
+    "other_repository_modules": 0
+  }
+}
