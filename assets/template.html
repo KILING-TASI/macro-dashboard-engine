@@ -74,6 +74,12 @@
   footer{margin-top:34px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:11.5px;line-height:1.9}
   footer b{color:var(--sub)}
   a{color:var(--accent);text-decoration:none}
+#creditTable {width:100%;min-width:1150px;border-collapse:collapse;}
+#creditTable th,#creditTable td {padding:10px 12px;text-align:left;vertical-align:top;line-height:1.6;border-bottom:1px solid #26314d;}
+#creditTable td:nth-child(1) {min-width:105px;}
+#creditTable td:nth-child(2) {min-width:230px;}
+#creditTable td:nth-child(3),#creditTable td:nth-child(4) {white-space:nowrap;}
+#creditTable td:nth-child(6) {min-width:300px;}
 </style>
 </head>
 <body>
@@ -166,6 +172,25 @@
         <ul id="propEv"></ul>
       </div>
     </div>
+  </section>
+
+  <section id="creditSection">
+    <h2 class="sec-title">货币与信用传导 <span class="tag" id="creditStatus">逐项日期 · 数据覆盖</span></h2>
+    <p class="hint">资金价格 → 银行信用 → 借款需求 → 融资结构 → 现金流压力。国内与美国分别观察，不合成同一周期评分。</p>
+    <p class="hint" id="creditNotes"></p>
+    <div class="card"><h3>传导指标与来源</h3><div style="overflow-x:auto"><table id="creditTable"></table></div></div>
+    <div class="grid2" style="margin-top:14px">
+      <div class="card"><h3>国内新增融资（亿元）</h3><p class="hint">同图保留各自日期；两种贷款口径不可相减，未季调月度值不作单月趋势判断。</p><div class="chart" id="creditFlowChart"></div></div>
+      <div class="card"><h3>贷款报价参考：LPR（%）</h3><p class="hint">LPR不等于银行间资金价格，也不等于实际贷款利率。</p><div class="chart" id="creditRateChart"></div></div>
+      <div class="card"><h3>美国银行信用供给与需求</h3><p class="hint">季度调查净占比；标准收紧为正，需求增强为正，不能作为中国借款需求。</p><div class="chart" id="creditSurveyChart"></div></div>
+      <div class="card"><h3>数据缺口</h3><ul id="creditGaps"></ul><p class="hint">缺数据不填零、不沿用其他地区数据；缺名义GDP与完整融资分项时暂不计算信用脉冲。</p></div>
+    </div>
+    <details style="margin-top:14px"><summary>阅读与方法参考</summary>
+      <p><a href="https://www.bankofengland.co.uk/quarterly-bulletin/2014/q1/money-creation-in-the-modern-economy" target="_blank" rel="noopener">英格兰银行：现代经济中的货币创造</a> — 理解贷款与存款的关系。</p>
+      <p><a href="https://www.bis.org/publ/work395.pdf" target="_blank" rel="noopener">Borio：金融周期与宏观经济</a> — 将信用、房地产与一般经济周期分开。</p>
+      <p><a href="https://www.levyinstitute.org/publications/the-financial-instability-hypothesis/" target="_blank" rel="noopener">明斯基：金融不稳定假说</a> — 关注偿债能力和再融资依赖。</p>
+      <p><a href="https://mises.org/library/book/money-bank-credit-and-economic-cycles" target="_blank" rel="noopener">德索托：货币、银行信贷与经济周期</a> — 奥地利学派的信用与投资结构视角。</p>
+    </details>
   </section>
 
   <!-- 2b. 多周期时间轴 -->
@@ -798,6 +823,26 @@ function lineOpt(dates,seriesList,opts={}){
   rows.body.forEach(r=>{h+='<tr>'+r.map((v,idx)=>{return `<td>${v==null?'—':v}</td>`;}).join('')+'</tr>';});
   h+='</tbody>';
   document.getElementById('dataTable').innerHTML=h;
+})();
+
+
+/* 货币与银行信用传导：缺项不补零，使用真实日期坐标。 */
+(function(){
+  const data=DATA.credit||{rows:[],gaps:[],status:'partial'};
+  const text=(value)=>String(value==null?'—':value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const safeLink=(url)=>/^https?:\/\//.test(url||'')?`<a href="${text(url)}" target="_blank" rel="noopener">来源</a>`:'—';
+  document.getElementById('creditStatus').textContent=data.status==='sample'?'示例/混合来源 · 逐项日期':(data.status==='partial'?'部分数据 · 缺口已列示':'数据完整');
+  document.getElementById('creditNotes').textContent=(data.note||'')+' '+(data.m1_note||'');
+  document.getElementById('creditTable').innerHTML='<thead><tr><th>环节</th><th>指标</th><th>最新值</th><th>日期/频率</th><th>状态</th><th>口径/来源</th></tr></thead><tbody>'+data.rows.map(r=>`<tr><td>${text(r.stage)}</td><td>${text(r.name)}</td><td>${text(r.value)} ${text(r.unit)}</td><td>${text(r.date)} / ${text(r.frequency)}</td><td>${r.stale?'滞后':'已取得'}</td><td>${text(r.note)} ${safeLink(r.source_url)}</td></tr>`).join('')+'</tbody>';
+  document.getElementById('creditGaps').innerHTML=data.gaps.map(g=>`<li>${text(g.stage)}：${text(g.note)}（未取得）</li>`).join('');
+  function plot(id,keys){
+    const rows=data.rows.filter(r=>keys.includes(r.key));
+    if(!rows.length){document.getElementById(id).textContent='未取得数据';return;}
+    c(id).setOption({tooltip:{trigger:'axis'},legend:{data:rows.map(r=>r.name),textStyle:{color:THEME.sub},type:'scroll'},grid:{left:65,right:20,top:55,bottom:45},xAxis:{type:'time',...AX},yAxis:{type:'value',...AX},series:rows.map(r=>({name:r.name,type:'line',connectNulls:false,showSymbol:false,data:r.dates.map((d,i)=>[d.length===7?d+'-01':d,r.values[i]])}))});
+  }
+  plot('creditFlowChart',['afre_flow','afre_rmb','bank_loans']);
+  plot('creditRateChart',['lpr1y','lpr5y']);
+  plot('creditSurveyChart',['us_standards','us_demand']);
 })();
 
 document.getElementById('disclaimer').textContent=DATA.cycle.disclaimer;

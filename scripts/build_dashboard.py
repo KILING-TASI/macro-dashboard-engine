@@ -74,7 +74,7 @@ def _tail(lst, n):
 
 
 def build_payload(em_raw, fr_raw, cycle, long_cycle=None, long_wave=None,
-                  attribution=None, policy=None, offline=False):
+                  attribution=None, policy=None, offline=False, credit=None):
     em = (em_raw or {}).get("indicators", {})
     fr = (fr_raw or {}).get("indicators", {})
 
@@ -243,7 +243,9 @@ def build_payload(em_raw, fr_raw, cycle, long_cycle=None, long_wave=None,
                      round(vals[-2], 2) if len(vals) >= 2 else None,
                      round(vals[-1] - vals[-2], 2) if len(vals) >= 2 else None])
 
+    from compute_credit import compute as compute_credit
     return {
+        "credit": compute_credit(credit, offline=offline),
         "kpi": kpi,
         "cycle": cycle,
         "domestic": domestic,
@@ -272,10 +274,12 @@ def render(payload, out_path, title="宏观全景看板"):
         html = f.read()
 
     offline = payload.get("offline")
-    partial = payload.get("data_quality", {}).get("status") == "partial"
+    partial = (payload.get("data_quality", {}).get("status") == "partial"
+               or payload.get("credit", {}).get("status") == "partial")
     badge_text = "示例数据" if offline else ("数据不完整" if partial else "实时数据")
     src_text = "东方财富 + FRED（离线示例快照）" if offline else (
-        "东方财富 + FRED（部分指标抓取失败）" if partial else "东方财富 + FRED（实时抓取）")
+        "东方财富 + FRED；信用模块另含商务部数据（部分数据，见逐项来源）" if partial
+        else "东方财富 + FRED（实时抓取）")
 
     html = html.replace("__TITLE__", title)
     html = html.replace("__BADGE__", badge_text)
@@ -298,6 +302,7 @@ def main():
     ap.add_argument("--cycle", default="cycle.json")
     ap.add_argument("--longcycle", default="long_cycle.json")
     ap.add_argument("--attribution", default="attribution.json")
+    ap.add_argument("--credit", default=None)
     ap.add_argument("--out", default="/workspace/macro-dashboard.html")
     ap.add_argument("--title", default="宏观全景看板")
     args = ap.parse_args()
@@ -307,6 +312,7 @@ def main():
     cycle = _load(args.cycle)
     long_cycle = _load(args.longcycle)
     attribution = _load(args.attribution)
+    credit = _load(args.credit)
     long_wave = _load(os.path.join(ASSETS, "long_wave.json")) or {}
     policy = _load(os.path.join(ASSETS, "policy_calendar.json")) or {}
     offline = False
@@ -339,7 +345,7 @@ def main():
 
     payload = build_payload(em, fr, cycle, long_cycle=long_cycle,
                             long_wave=long_wave, attribution=attribution,
-                            policy=policy, offline=offline)
+                            policy=policy, offline=offline, credit=credit)
     path = render(payload, args.out, args.title)
     flag = "示例数据(离线兜底)" if offline else "实时抓取"
     print(f"[dashboard] 已生成 {path} ({flag})")

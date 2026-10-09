@@ -54,6 +54,7 @@ def main():
     lc_json = os.path.join(workdir, "long_cycle.json")
     ind_json = os.path.join(workdir, "industry_data.json")
     attr_json = os.path.join(workdir, "attribution.json")
+    credit_json = os.path.join(workdir, "credit_data.json")
     for path in (cycle_json, lc_json, attr_json):
         if os.path.isfile(path):
             os.remove(path)
@@ -67,6 +68,8 @@ def main():
     print("[3/5] 抓取行业指数行情（新浪）...")
     ok_ind = run([os.path.join(HERE, "fetch_industry.py"),
                   "--months", "36", "--out", ind_json])
+    print("[credit] 抓取货币与银行信用传导数据...")
+    run([os.path.join(HERE, "fetch_credit.py"), "--out", credit_json])
 
     print("[4/5] 周期研判（短周期 + 长周期梯队）+ 量化归因...")
     ok_cycle = ok_em and ok_fr and run(
@@ -91,6 +94,7 @@ def main():
         ok = run([os.path.join(HERE, "build_dashboard.py"),
                   "--eastmoney", em_json, "--fred", fr_json, "--cycle", cycle_json,
                   "--longcycle", lc_json, "--attribution", attr_json,
+                  "--credit", credit_json,
                   "--out", args.out, "--title", args.title])
     else:
         print("[pipeline] 数据源不完整，使用离线示例数据兜底生成看板")
@@ -100,6 +104,7 @@ def main():
                   "--cycle", cycle_json if os.path.exists(cycle_json) else "/nonexistent",
                   "--longcycle", lc_json if os.path.exists(lc_json) else "/nonexistent",
                   "--attribution", attr_json if os.path.exists(attr_json) else "/nonexistent",
+                  "--credit", credit_json,
                   "--out", args.out, "--title", args.title])
 
     if ok and os.path.exists(args.out):
