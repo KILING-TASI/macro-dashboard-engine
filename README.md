@@ -2,6 +2,16 @@
 
 把增长、物价、货币和银行信贷数据放在一张看板里，查看近期变化、来源和缺口，并对照行业的历史表现。
 
+## 你可以用它解决什么
+
+**增长、物价和信贷有哪些变化？哪些数据还缺着？**
+
+对照观测日期、来源和指标变化；同期表现不直接解释为因果关系。
+
+先看[保存的结果示例](assets/preview/macro-demo.png)，不需要安装 Python：图片可直接查看；HTML 请下载完整源码后用浏览器打开。示例按原记录标注教学或限定真实样本，不能换个名称就当作你的研究结果。重新计算才需要 Python。
+
+其他问题可看[九个工具如何选择](https://github.com/KILING-TASI/research-workbench/blob/main/references/tool-navigation.md)。各工具可独立使用，不必安装全部仓库。
+
 [![原创代码 MIT](https://img.shields.io/badge/%E5%8E%9F%E5%88%9B%E4%BB%A3%E7%A0%81-MIT-green)](LICENSE)
 
 ## 先看一份教学报告
@@ -12,9 +22,9 @@
 
 ## 安装和首次试用
 
-本轮对应[发布页](https://github.com/KILING-TASI/macro-dashboard-engine/releases/tag/v1.7.2)；下载时以实际上传的完整源码、wheel、sdist 与校验清单为准。源码按下面步骤安装；下载 wheel 后，将安装命令末尾的 `.` 换成该 wheel 文件路径。pip 安装不会自动注册 AI 工具中的 Skill。
+安装包见[发布页](https://github.com/KILING-TASI/macro-dashboard-engine/releases/tag/v1.7.2)；下载时以实际上传的完整源码、wheel、sdist 与校验清单为准。源码按下面步骤安装；下载 wheel 后，将安装命令末尾的 `.` 换成该 wheel 文件路径。pip 安装不会自动注册 AI 工具中的 Skill。
 
-本轮源码版本为 `1.7.2`。统一安装入口需要 Python 3.10 或以上。在完整源码目录新建自己的 Python 环境，下面的 Windows 命令不需要激活脚本：
+安装包版本为 `1.7.2`。统一安装入口需要 Python 3.10 或以上。在完整源码目录新建自己的 Python 环境，下面的 Windows 命令不需要激活脚本：
 
 ```powershell
 python -m venv .venv
@@ -23,7 +33,7 @@ python -m venv .venv
 .\.venv\Scripts\macro-dashboard-engine.exe demo --out-dir reports/demo --auto-name
 ```
 
-工具名与仓库名相同；在已激活的环境中可以直接输入工具名。Linux/macOS 使用 `.venv/bin/python` 和 `.venv/bin/macro-dashboard-engine`。教学结果写入当前工作目录；`--auto-name` 自动另选新名字，旧结果保留。不加该参数时，教学入口拒绝已有目录。`macro-dashboard-engine run --help` 查看原生参数，原来的命令继续兼容。其他专题可用 `macro-dashboard-engine script --help` 查看入口，以脚本名调用，不需要记住源码路径。pip 安装提供 CLI；作为 Skill 使用仍须保留完整源码及许可资源，不能只复制 SKILL.md。安装可能需要联网获取普通构建依赖；教学离线。下面保留原生入口及此前发行记录，本轮安装和版本以本节为准。
+工具名与仓库名相同；在已激活的环境中可以直接输入工具名。Linux/macOS 使用 `.venv/bin/python` 和 `.venv/bin/macro-dashboard-engine`。教学结果写入当前工作目录；`--auto-name` 自动另选新名字，旧结果保留。不加该参数时，教学入口拒绝已有目录。`macro-dashboard-engine run --help` 查看原生参数，原来的命令继续兼容。其他专题可用 `macro-dashboard-engine script --help` 查看入口，以脚本名调用，不需要记住源码路径。pip 安装提供 CLI；作为 Skill 使用仍须保留完整源码及许可资源，不能只复制 SKILL.md。安装可能需要联网获取普通构建依赖；教学离线。下面保留原生入口及此前发行记录，安装步骤和对应版本以本节为准。
 
 ## 先试一下
 
@@ -101,7 +111,7 @@ python scripts/build_dashboard.py --eastmoney local-data/em.json --fred local-da
 |---|---|
 | 已集成main | 基线`04fdcdd`已包含修复、教学/情景及首页更新；不是未合补丁 |
 | v1.7.0源码/Skill | 已发布，源码包与Skill元数据均为1.7.0；周期方法2.1.0、宏观接口1.0.0保持，历史快照不改 |
-| GitHub Release / 安装版 | v1.7.0已发布，tag对应`5a4c1d5`，附件SHA256与独立验收包一致；此前无旧Release，旧版只提供源码 ZIP；本轮新增 Python wheel 工程，不提供 npm 包 |
+| GitHub Release / 安装版 | v1.7.0已发布，tag对应`5a4c1d5`，附件SHA256与独立验收包一致；此前无旧Release，旧版只提供源码 ZIP；已新增 Python wheel 工程，不提供 npm 包 |
 | 历史源码包、截图和验收记录 | 按各自提交与方法版本保留，不覆盖；旧文件不保证含当前新增入口和校验 |
 
 已发布ZIP固定于`5a4c1d5`，包内“候选”文字记录打包时状态；本次main文档更正不替换ZIP或标签。历史记录中的“待审”描述当时状态，不代表当前main状态。[变更记录](CHANGELOG.md) · [后续路线](ROADMAP.md) · [历史设计v1.4](docs/设计方案.md)
@@ -122,6 +132,6 @@ CI和教学结果不证明预测有效；真实联网取数、历史可得版本
 
 原发布机构与获取渠道分开登记；东方财富、FRED、新浪及商务部接口可访问，不等于所有用途获授权。来源和缺口见[来源登记](references/source_catalog.json)及[研究路由](references/research_routing.md)。旧第三方快照仅保留[显式本地复查入口](assets/SAMPLE_DATA_RIGHTS.md)，不随源码归档。
 
-## 本轮验证范围
+## 验证范围
 
 源码教学启动、软件环境查询和安装后教学入口分别验证；软件就绪不等于真实资料已取得。中文问答需要助手按本仓Skill准备已声明输入，没有宣称任意自然语言自动发现或全市场数据闭环。旧报告、历史tag与案例证据保留。
