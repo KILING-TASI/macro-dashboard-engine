@@ -27,6 +27,8 @@ def _series(ind, key="value", frequency=None):
 
 def _yoy_series(ind, frequency="M"):
     """取同比序列，优先 series.yoy。"""
+    if ind and ind.get("period_basis") not in (None, "single_period", "quarterly" if frequency == "Q" else "monthly"):
+        raise ValueError("同比趋势不支持累计/合并期或未知期间口径；先取得可比单期序列")
     if not ind or "yoy" not in (ind.get("series") or {}):
         return []
     return [v for _, v in trailing(ind, "yoy", frequency)]
@@ -243,6 +245,8 @@ def credit_cycle(em, clean_outliers=False):
     """信用周期：以 M1-M2 剪刀差为主（社融不可得时的降级方案）。按日期对齐，避免错位。"""
     m1 = em.get("m1") or {}
     m2 = em.get("m2") or {}
+    if any(ind.get("comparability") not in (None, "verified_same_basis") for ind in (m1, m2)):
+        raise ValueError("M1/M2跨统计断点可比性未核验；不判断信用拐点")
     validate_frequency(m1, "M")
     validate_frequency(m2, "M")
     trailing(m1, "yoy", "M")

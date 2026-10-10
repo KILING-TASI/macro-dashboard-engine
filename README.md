@@ -22,9 +22,10 @@ python scripts/demo_preview.py --out-dir local-data/public-demo
 
 ```text
 python scripts/run_scenarios.py --out-dir local-data/scenarios
+python scripts/run_scenarios.py --suite cn --out-dir local-data/cn-scenarios
 ```
 
-同目录`index.json`索引六个情景，各保存输入、手算预期、实际命令/结果与方法版本；成功情景生成HTML，失败情景检查旧结果不变。范围与已有测试复用见[情景索引](references/data_contract_inventory.md#2026-10-10-情景实例验收批)。不代表真实数据、因果预测或视觉验收。
+默认套件`index.json`索引六个情景；cn套件为GDP当季/累计、社零合并期、M1断点三组（含一个正向对照），官方口径依据见[核验登记](references/examples/cn-definition-sources.json)。各套件保存输入、手算预期、实际命令/结果与方法版本；成功情景生成HTML，失败情景检查旧结果不变。范围与已有测试复用见[情景索引](references/data_contract_inventory.md#2026-10-10-情景实例验收批)。不代表真实数据、因果预测或视觉验收。
 
 ## 其他运行入口
 

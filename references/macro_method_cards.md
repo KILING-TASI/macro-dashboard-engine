@@ -52,3 +52,6 @@
 ## 本次验收与许可
 
 `tests/test_method_counterexamples.py`保存5组反例，已有测试共同覆盖连续期与契约回读；方法版本通过共享常量保持周期/契约一致。验证只支持程序行为，不认证所有官方数据或经济解释。书籍资料只引用方法与链接，未复制整章、图表、教材数据或受许可限制的代码。根MIT与第三方库许可边界保持原样。
+
+
+2026-10-10 中国口径声明校验：`series.yoy`指标的可选`period_basis`仅支持single_period或相应monthly/quarterly；累计、合并及未知期间明确拒绝，不转换。不提供该声明时保留旧输入假设，尚未自动认证渠道字段语义。M1/M2可选comparability声明仅支持verified_same_basis，unverified_break/unknown等拒绝；不提供声明不等于已核验可比。声明本身也不是认证。公式及方法2.1.0未变，输入校验变更通过代码提交区分。官方支持条件与CN情景见[统一目录](data_contract_inventory.md)及[官方核验登记](examples/cn-definition-sources.json)。

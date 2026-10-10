@@ -1,0 +1,48 @@
+{
+  "checked_at": "2026-10-10",
+  "checked_timezone": "Asia/Shanghai",
+  "scope": "统计口径依据；不是本教学输入逐数认证，不打包官方PDF",
+  "sources": [
+    {
+      "id": "nbs-gdp-2025q3",
+      "url": "https://www.stats.gov.cn/sj/zxfb/202510/t20251021_1961646.html",
+      "publisher": "国家统计局",
+      "published_at": "2025-10-21",
+      "locator": "中国GDP季度核算说明 1.2核算范围与方式；当季/累计数据表",
+      "support": "当季与累计GDP分开，累计水平通过当季相加；不能将累计同比序列直接当当季同比",
+      "conditions": "同价格口径与同版本的水平才可谈相加/差分，不对增长率直接相减；本批不实现转换",
+      "status": "official_page_opened"
+    },
+    {
+      "id": "nbs-retail-2026janfeb",
+      "url": "https://www.stats.gov.cn/sj/zxfb/202603/t20260316_1962786.html",
+      "publisher": "国家统计局",
+      "published_at": "2026-03-16T10:00:00+08:00",
+      "locator": "主要数据表1—2月；附注5环比数据修订",
+      "support": "主表绝对额/同比的参考期间为1—2月；另有单月季调环比表，不可混同",
+      "conditions": "本批只处理主表合并期同比的拒绝，不否认官方另有单月环比；无权将合并同比拆成1月/2月",
+      "status": "official_page_opened"
+    },
+    {
+      "id": "pbc-m1-2024-17",
+      "url": "https://www.pbc.gov.cn/chubanwu/fileDir/resource/cms/2025/06/2025062416082199683.pdf",
+      "publisher": "中国人民银行",
+      "published_at": "2024-12-01",
+      "effective_observation_period": "2025-01",
+      "locator": "PDF第9页，公告〔2024〕第17号（仅读取核验，未打包）",
+      "support": "自2025年1月数据启用新M1口径，组成新增个人活期存款和非银行支付机构客户备付金",
+      "conditions": "公告不能认证输入是否已按可比口径回溯；未核验跨断点输入须拒绝信用趋势",
+      "status": "official_pdf_text_checked"
+    },
+    {
+      "id": "nbs-cpi-2025feb-context",
+      "url": "https://www.stats.gov.cn/sj/sjjd/202503/t20250309_1958913.html",
+      "publisher": "国家统计局",
+      "published_at": "2025-03-09T09:30:00+08:00",
+      "locator": "开头CPI/PPI同比与环比、春节错月解读",
+      "support": "同比/环比分开，春节错月影响可改变短期比较解释",
+      "conditions": "仅作为后置边界，不构成此次CPI春节修正算法或新实例通过",
+      "status": "official_page_opened_context_only"
+    }
+  ]
+}

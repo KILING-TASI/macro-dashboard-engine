@@ -38,5 +38,7 @@ jobs:
         run: python scripts/run_pipeline.py --demo --workdir local-data/ci-demo
       - name: Fictional scenario CLI and report evidence
         run: python scripts/run_scenarios.py --out-dir local-data/ci-scenarios
+      - name: Chinese macro definition scenarios
+        run: python scripts/run_scenarios.py --suite cn --out-dir local-data/ci-cn-scenarios
       - name: Check whitespace
         run: git diff --check
