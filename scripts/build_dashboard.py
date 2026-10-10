@@ -22,6 +22,9 @@ from html import escape
 HERE = os.path.dirname(os.path.abspath(__file__))
 SKILL_DIR = os.path.dirname(HERE)
 ASSETS = os.path.join(SKILL_DIR, "assets")
+NOTICE_FILES = ("LICENSE_SCOPE.md", "LICENSE", "third_party/echarts-5.5.1/LICENSE",
+                "third_party/echarts-5.5.1/NOTICE", "third_party/echarts-5.5.1/LICENSE-d3")
+RENDER_RESOURCES = ("assets/echarts.min.js", "assets/template.html", "assets/dashboard_controls.js") + NOTICE_FILES
 
 # 因子-行业敏感度矩阵（见 references/transmission.md）
 HEATMAP = {
@@ -291,10 +294,8 @@ def render(payload, out_path, title="宏观全景看板"):
     html = html.replace("__GENTIME__", datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
     html = html.replace("__CALC_VERSION__", escape(str((payload.get("cycle") or {}).get("calculation_version") or "未登记")))
     html = html.replace("__SRCTEXT__", src_text)
-    notice_files = ["LICENSE_SCOPE.md", "LICENSE", "third_party/echarts-5.5.1/LICENSE",
-                    "third_party/echarts-5.5.1/NOTICE", "third_party/echarts-5.5.1/LICENSE-d3"]
     notices = []
-    for name in notice_files:
+    for name in NOTICE_FILES:
         with open(os.path.join(SKILL_DIR, name), encoding="utf-8") as stream:
             notices.append(name + "\n" + stream.read())
     html = html.replace("__THIRD_PARTY_NOTICES__", escape("\n\n".join(notices)))

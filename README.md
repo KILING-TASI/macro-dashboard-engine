@@ -2,6 +2,21 @@
 
 从公开渠道取得宏观序列，生成可离线打开的 HTML 看板，观察周期代理指标与行业历史关联。
 
+## 安装前提与身份
+
+仓库名是`macro-dashboard-engine`，真实Skill frontmatter name是`macro-dashboard`（见[SKILL.md](SKILL.md)）。源码根目录本身就是Skill包根，含SKILL.md、scripts、references、assets和third_party；安装到技能目录时可以使用`macro-dashboard`目录名，内部相对资源保持完整。无需重命名仓库或修改现有调用。本批只验证解压包的CLI运行，不自动安装，也未认证自然语言发现。
+
+普通CLI独立运行：从当前待审源码归档解压到新目录，在含SKILL.md的根目录打开终端；不是wheel/npm包，无需pip安装本项目或editable指向作者工作区。Python3.8+，最短教学入口仅用标准库，ECharts随包提供；不需要Node、可选PDF依赖或其他自家专业仓。PDF/研报解析不是本包入口，不能为此临时安装工作台后声称单仓可用。Node仅用于开发检查。工作台可消费有限接口，不是运行依赖。
+
+Windows示例（在解压包根目录，选择未存在的输出目录）：
+
+```text
+python --version
+python scripts/demo_preview.py --out-dir local-data/public-demo
+```
+
+若python未配置且已安装Windows Python启动器，可改为`py -3`。这是离线原创教学；正式run_pipeline取数另需网络和来源权限。源码资源缺失应重新解压完整包，不安装不存在的extra。首次成功提示保留原stdout行，人类说明写stderr；机器JSON文件/返回键不变。main、待审版和已发布范围仍按下方版本表区分，不把待审归档写成已发布安装包。
+
 ## 结果预览与一分钟教学演示
 
 ![原创模拟数据生成的宏观看板首屏](assets/preview/macro-demo.png)

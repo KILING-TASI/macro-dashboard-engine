@@ -11,6 +11,15 @@ import build_dashboard
 
 
 class DemoPreviewTests(unittest.TestCase):
+    def test_missing_package_resource_fails_before_creating_output(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            folder = Path(temporary) / "preview"
+            with patch.object(demo_preview, "RENDER_RESOURCES", ("assets/not-distributed.js",)), patch.object(sys, "argv", ["preview", "--out-dir", str(folder)]):
+                with self.assertRaises(SystemExit) as error:
+                    demo_preview.main()
+            self.assertIsInstance(error.exception.code, str)
+            self.assertFalse(folder.exists())
+
     def test_explicit_legacy_snapshot_is_available_without_becoming_default(self):
         snapshot = Path(__file__).resolve().parents[1] / "assets/sample_data.json"
         if not snapshot.exists():
