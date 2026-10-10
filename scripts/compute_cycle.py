@@ -13,27 +13,25 @@ import json
 import math
 import os
 import sys
+from dated_series import paired, trailing, adjacent, validate_frequency
 
+
+CALCULATION_VERSION = "2.1.0"
 
 # ---------- 工具 ----------
 
-def _series(ind, key="value"):
+def _series(ind, key="value", frequency=None):
     """取指标序列（东财用 series.value，FRED 用 values）。"""
-    if not ind:
-        return []
-    if "values" in ind:               # FRED 格式
-        return [v for v in ind["values"] if v is not None]
-    ser = ind.get("series") or {}
-    return [v for v in ser.get(key, []) if v is not None]
+    return [v for _, v in trailing(ind, key, frequency)]
 
 
-def _yoy_series(ind):
+def _yoy_series(ind, frequency="M"):
     """取同比序列，优先 series.yoy。"""
-    if not ind:
+    if ind and ind.get("period_basis") not in (None, "single_period", "quarterly" if frequency == "Q" else "monthly"):
+        raise ValueError("同比趋势不支持累计/合并期或未知期间口径；先取得可比单期序列")
+    if not ind or "yoy" not in (ind.get("series") or {}):
         return []
-    ser = ind.get("series") or {}
-    vals = [v for v in ser.get("yoy", []) if v is not None]
-    return vals
+    return [v for _, v in trailing(ind, "yoy", frequency)]
 
 
 def _mean(xs):
@@ -66,8 +64,9 @@ def _momentum(xs, period=12):
 
 def _trend_momentum(xs, short=3, long=12):
     """短期 vs 长期均值差，衡量近期改善/恶化，更适合判断方向。"""
-    if len(xs) < long:
-        return _momentum(xs, min(len(xs), 6))
+    if len(xs) < 4:
+        return 0.0
+    long = min(long, len(xs))
     s = _mean(xs[-short:])
     l = _mean(xs[-long:])
     if s is None or l is None:
@@ -108,15 +107,16 @@ def _level_and_dir(series, level_ref=None, scale=1.0):
 
 # ---------- 维度合成 ----------
 
-def growth_score(em, fr):
+def growth_score(em, fr, diagnostics=None):
     """增长动能：PMI（水平+方向）+ 社零同比 + GDP 同比。
     返回 (score, evidence[], n_dims)。n_dims=0 表示无可用数据。"""
-    ev, parts = [], []
+    ev, parts, components = [], [], []
 
-    pmi = _series(em.get("pmi"))
-    if pmi:
+    pmi = _series(em.get("pmi"), frequency="M")
+    if len(pmi) >= 4:
         s, lz, dz = _level_and_dir(pmi, level_ref=50.0, scale=1.0)
-        parts.append(s)
+        parts.append(s / 1.2)
+        components.append({"indicator": "pmi", "raw": s, "scale": 1.2, "transform": "divide", "frequency": "M", "n": len(pmi)})
         trend = "改善" if dz > 0.05 else ("走弱" if dz < -0.05 else "持平")
         ev.append(f"制造业PMI {pmi[-1]:.1f}（{'荣枯线上' if pmi[-1] >= 50 else '荣枯线下'}，"
                   f"近期趋势{trend}）")
@@ -124,17 +124,33 @@ def growth_score(em, fr):
     retail_yoy = _yoy_series(em.get("retail"))
     if retail_yoy and len(retail_yoy) >= 4:
         m = _trend_momentum(retail_yoy, 3, 12)
-        parts.append(m)
-        ev.append(f"社零同比 {retail_yoy[-1]:.1f}%（近3月-近12月 {m:+.2f}pct）")
+        parts.append(math.tanh(m / 2.0))
+        components.append({"indicator": "retail", "raw": m, "scale": 2.0, "transform": "tanh", "frequency": "M", "n": len(retail_yoy)})
+        ev.append(f"社零同比 {retail_yoy[-1]:.1f}%（连续{len(retail_yoy)}月；短长窗口差 {m:+.2f}pct）")
 
-    gdp_yoy = _yoy_series(em.get("gdp"))
-    if gdp_yoy and len(gdp_yoy) >= 3:
+    gdp_yoy = _yoy_series(em.get("gdp"), "Q")
+    if gdp_yoy and len(gdp_yoy) >= 4:
         m = _trend_momentum(gdp_yoy, 2, min(len(gdp_yoy), 8))
-        parts.append(m * 0.5)
-        ev.append(f"GDP同比 {gdp_yoy[-1]:.1f}%")
+        parts.append(math.tanh(m / 1.0))
+        components.append({"indicator": "gdp", "raw": m, "scale": 1.0, "transform": "tanh", "frequency": "Q", "n": len(gdp_yoy)})
+        ev.append(f"GDP同比 {gdp_yoy[-1]:.1f}%（连续{len(gdp_yoy)}季；短长窗口差 {m:+.2f}pct）")
 
     if not parts:
         return 0.0, ["缺少增长类指标（PMI/社零/GDP）"], 0
+    for component, part in zip(components, parts):
+        component.update(score=part, weight=1/len(parts), contribution=part/len(parts))
+    if diagnostics is not None:
+        diagnostics.update(components=components,
+            scale_sensitivity={str(factor): round(_mean([
+                c["score"] if c["transform"] == "divide" else math.tanh(c["raw"]/(c["scale"]*factor))
+                for c in components]), 4) for factor in (0.5, 1.0, 2.0)},
+            leave_one_out={c["indicator"]: round(_mean([p for j,p in enumerate(parts) if j != i]),4)
+                for i,c in enumerate(components)} if len(parts)>1 else {},
+            minimum_coverage="至少4个连续有效原生频率观测；不足12月/8季使用已有连续窗口，并披露n",
+            interpretation="当前资料的事后描述；发布与修订时点未取得，不作当时可用预测")
+    ev.append("增长贡献：可用维度等权；PMI分数÷1.2、社零趋势tanh(百分点÷2)、GDP趋势tanh(百分点÷1)，均限制在[-1,1]；参数是研究假设")
+    ev.extend(f"维度{j+1}：归一化分数{part:+.4f}，权重{1/len(parts):.4f}，贡献{part/len(parts):+.4f}" for j, part in enumerate(parts))
+    ev.append("尺度敏感性（社零/GDP尺度减半或加倍）及删维度结果见growth_diagnostics；不代表实时预测")
     return round(_mean(parts), 3), ev, len(parts)
 
 
@@ -143,13 +159,13 @@ def inflation_score(em, fr):
     返回 (score, evidence[], n_dims)。"""
     ev, parts = [], []
 
-    cpi = _yoy_series(em.get("cpi")) or _series(em.get("cpi"))
+    cpi = _yoy_series(em.get("cpi"), frequency="M") or _series(em.get("cpi"), frequency="M")
     if cpi and len(cpi) >= 4:
         d = _trend_momentum(cpi, 3, min(len(cpi), 12)) if len(cpi) >= 8 else (cpi[-1] - cpi[0])
         parts.append(d * 0.5)
         ev.append(f"CPI同比 {cpi[-1]:.2f}%（近3月-近12月 {d:+.2f}pct）")
 
-    ppi = _series(em.get("ppi"))
+    ppi = _series(em.get("ppi"), frequency="M")
     if ppi and len(ppi) >= 4:
         d = _trend_momentum(ppi, 3, min(len(ppi), 12)) if len(ppi) >= 8 else (ppi[-1] - ppi[0])
         parts.append(d * 0.5)
@@ -183,11 +199,11 @@ def classify_quadrant(g, i, g_dims=3, i_dims=2):
 
 def inventory_cycle(em):
     """用 PPI 同比方向近似库存周期（无库存数据时的降级方案）。"""
-    ppi = _series(em.get("ppi"))
-    pmi = _series(em.get("pmi"))
+    ppi = _series(em.get("ppi"), frequency="M")
+    pmi = _series(em.get("pmi"), frequency="M")
     ev = []
     inv_up = need_up = None
-    if ppi:
+    if len(ppi) >= 4:
         inv_up = _trend_momentum(ppi, 3, 12) > 0
         ev.append(f"PPI同比 {ppi[-1]:.2f}%（{'上行→补库倾向' if inv_up else '下行→去库倾向'}）")
     if pmi:
@@ -206,73 +222,67 @@ def inventory_cycle(em):
     return {"phase": table[(inv_up, need_up)], "evidence": ev}
 
 
-def _clean_outliers(dates, values, threshold=5.0):
-    """剔除孤立异常点（源数据质量问题），两阶段：
-    ① 迭代剔除偏离邻点中位数超过 threshold 的点，直至稳定；
-    ② 回补：与清洗后邻域重新一致的点恢复（避免异常点的邻居被牵连误杀）。
-    保留连续的结构性变化（如统计口径切换、春节效应），只剔除真毛刺。"""
-    out = list(values)
-    removed = set()
-
-    def neigh(i):
-        return [out[j] for j in range(max(0, i - 2), min(len(out), i + 3))
-                if j != i and out[j] is not None]
-
-    # ① 迭代剔除
-    for _ in range(5):
-        changed = False
-        for i, v in enumerate(out):
-            if v is None or i in removed:
+def _clean_outliers(dates, values, threshold=5.0, enabled=False):
+    """默认保留原值；显式启用时仅屏蔽两侧一致的孤立点，非官方纠错。"""
+    paired(dates, values)
+    if not math.isfinite(threshold) or threshold <= 0:
+        raise ValueError("清洗阈值须为正有限数")
+    out, removed = list(values), []
+    if enabled:
+        for i in range(1, len(values) - 1):
+            left, v, right = values[i-1:i+2]
+            if any(x is None or not math.isfinite(x) for x in (left, v, right)):
                 continue
-            ns = neigh(i)
-            if ns and abs(v - _mean(ns)) > threshold:
+            if not (adjacent(dates[i-1], dates[i], "M") and adjacent(dates[i], dates[i+1], "M")):
+                continue
+            if abs(left-right) <= threshold and abs(v-left) > threshold and abs(v-right) > threshold:
                 out[i] = None
-                removed.add(i)
-                changed = True
-        if not changed:
-            break
-
-    # ② 回补恢复
-    for i in sorted(removed):
-        v = values[i]
-        ns = neigh(i)
-        if ns and abs(v - _mean(ns)) <= threshold:
-            out[i] = v
-            removed.discard(i)
-
-    removed_pts = [f"{dates[i]}({values[i]:+.2f})" for i in sorted(removed)
-                   if values[i] is not None]
-    return out, removed_pts
+                removed.append(f"{dates[i]}({v:+.2f})")
+    return out, removed
 
 
-def credit_cycle(em):
+def credit_cycle(em, clean_outliers=False):
     """信用周期：以 M1-M2 剪刀差为主（社融不可得时的降级方案）。按日期对齐，避免错位。"""
     m1 = em.get("m1") or {}
     m2 = em.get("m2") or {}
+    if any(ind.get("comparability") not in (None, "verified_same_basis") for ind in (m1, m2)):
+        raise ValueError("M1/M2跨统计断点可比性未核验；不判断信用拐点")
+    validate_frequency(m1, "M")
+    validate_frequency(m2, "M")
+    trailing(m1, "yoy", "M")
+    trailing(m2, "yoy", "M")
     m1_dates = m1.get("dates") or []
     m2_dates = m2.get("dates") or []
-    m1_map = {d: v for d, v in zip(m1_dates, (m1.get("series") or {}).get("yoy", []))
+    m1_map = {d: v for d, v in paired(m1_dates, (m1.get("series") or {}).get("yoy", []))
               if v is not None}
-    m2_map = {d: v for d, v in zip(m2_dates, (m2.get("series") or {}).get("yoy", []))
+    m2_map = {d: v for d, v in paired(m2_dates, (m2.get("series") or {}).get("yoy", []))
               if v is not None}
     common = sorted(set(m1_map) & set(m2_map))
     if not common:
         return {"state": "数据不足", "evidence": ["缺少 M1/M2 数据"]}
+    if common[-1] != max(m1_dates[-1], m2_dates[-1]):
+        return {"state": "数据不足", "evidence": ["M1/M2最新观测期未共同取得，不用较早共同期替代"]}
 
     scissors_raw = [round(m1_map[d] - m2_map[d], 2) for d in common]
-    scissors, removed = _clean_outliers(common, scissors_raw)
+    scissors, removed = _clean_outliers(common, scissors_raw, enabled=clean_outliers)
+    audit = {"scissors_raw_dates": common, "scissors_raw_series": scissors_raw,
+             "cleaning": {"mode": "isolated-neighbor" if clean_outliers else "none",
+                          "threshold_pct_points": 5.0, "masked_points": removed,
+                          "assumption": "可选研究屏蔽，不认定原始发布错误"}}
     # 取最后一个有效值与 3 期前有效值判断方向
-    valid = [(d, v) for d, v in zip(common, scissors) if v is not None]
+    valid = trailing({"dates": common, "values": scissors, "freq": "M"})
+    if len(valid) < 4:
+        return {**audit, "state": "数据不足", "evidence": ["信用变化需要最近4个连续有效月份，不跨缺月或剔除点计算"]}
     cur = valid[-1][1]
     mom = round(cur - valid[-4][1], 2) if len(valid) >= 4 else 0.0
     ev = [f"M1同比 {m1_map[valid[-1][0]]:.1f}% / M2同比 {m2_map[valid[-1][0]]:.1f}% "
           f"→ M1-M2 剪刀差 {cur:+.2f}pct（{valid[-1][0]}）"]
     ev.append(f"剪刀差近3月变化 {mom:+.2f}pct（{'走阔→资金活化' if mom > 0 else '收窄→资金淤积'}）")
     if removed:
-        ev.append(f"已剔除源数据异常点: {', '.join(removed)}（偏离邻月过大）")
+        ev.append(f"按显式研究假设屏蔽孤立点: {', '.join(removed)}（偏离邻月过大）")
 
     state = "宽信用" if mom > 0 else "紧信用"
-    return {"state": state, "scissors": cur, "scissors_mom": mom,
+    return {**audit, "state": state, "scissors": cur, "scissors_mom": mom,
             "scissors_dates": common[-12:], "scissors_series": scissors[-12:],
             "evidence": ev}
 
@@ -332,12 +342,12 @@ def valuation_cycle(em, fr):
 
     if cn:
         pct = percentile_rank(cn, window=60)
-        ev.append(f"中国3月期利率 {cn[-1]:.2f}%（近5年分位 {pct}%）")
+        ev.append(f"中国3月期利率 {cn[-1]:.2f}%（最近至多60个连续原生频率观测分位 {pct}%）")
     else:
         pct = None
     if us:
         upct = percentile_rank(us, window=60)
-        ev.append(f"10Y美债 {us[-1]:.2f}%（近5年分位 {upct}%）")
+        ev.append(f"10Y美债 {us[-1]:.2f}%（最近至多60个连续原生频率观测分位 {upct}%）")
 
     # 利率分位越低 → 估值环境越友好（宽松）
     ref = pct if pct is not None else upct
@@ -374,7 +384,7 @@ def rate_spread_cycle(fr):
     sp = _series(fr.get("cn_us_spread"))
     fx = _series(fr.get("usdcny"))
     ev = []
-    if not sp or len(sp) < 3:
+    if not sp or len(sp) < 4:
         return {"state": "数据不足", "evidence": ["缺少中美利差数据"]}
     cur = sp[-1]
     mom = round(sp[-1] - sp[-4], 3) if len(sp) >= 4 else 0.0
@@ -419,7 +429,7 @@ def earnings_cycle(em, fr):
         ev.append(f"美国非农就业同比 {pay[-1]:.2f}%")
 
     # 国内 PPI 作为企业盈利的领先代理
-    ppi = _series(em.get("ppi"))
+    ppi = _series(em.get("ppi"), frequency="M")
     if ppi and len(ppi) >= 4:
         d = _trend_momentum(ppi, 3, min(len(ppi), 12)) if len(ppi) >= 8 else (ppi[-1] - ppi[0])
         parts.append(d * 0.5)
@@ -460,22 +470,24 @@ def sentiment_cycle(fr):
 def property_cycle(em):
     """地产周期：以 70 城新房/二手房价格指数均值方向判断。"""
     h = em.get("house") or {}
-    new = [v for v in (h.get("series") or {}).get("new", []) if v is not None]
-    second = [v for v in (h.get("series") or {}).get("second", []) if v is not None]
+    new = _series(h, "new")
+    second = _series(h, "second")
     ev = []
     if not new and not second:
         return {"state": "数据不足", "evidence": ["缺少房价数据"]}
 
     parts = []
-    if new and len(new) >= 3:
+    if new and len(new) >= 4:
         d = new[-1] - new[-4] if len(new) >= 4 else (new[-1] - new[0])
         parts.append(d)
         ev.append(f"70城新房价格指数 {new[-1]:.2f}（近3月 {d:+.2f}，100=持平）")
-    if second and len(second) >= 3:
+    if second and len(second) >= 4:
         d2 = second[-1] - second[-4] if len(second) >= 4 else (second[-1] - second[0])
         parts.append(d2)
         ev.append(f"70城二手房价指数 {second[-1]:.2f}（近3月 {d2:+.2f}）")
 
+    if not parts:
+        return {"state": "数据不足", "evidence": ["房价趋势需要最近4个连续有效月份"]}
     score = round(_mean(parts), 3)
     if score > 0.1:
         state = "企稳回升"
@@ -536,13 +548,14 @@ def allocation(quadrant, style_base, credit_state, us10y, usdcny):
 
 # ---------- 主流程 ----------
 
-def compute(em, fr, as_of=None):
-    g, g_ev, g_dims = growth_score(em, fr)
+def compute(em, fr, as_of=None, clean_credit_outliers=False):
+    growth_diagnostics = {}
+    g, g_ev, g_dims = growth_score(em, fr, growth_diagnostics)
     i, i_ev, i_dims = inflation_score(em, fr)
     quad, best_asset, style, qlogic = classify_quadrant(g, i, g_dims, i_dims)
 
     inv = inventory_cycle(em)
-    cred = credit_cycle(em)
+    cred = credit_cycle(em, clean_outliers=clean_credit_outliers)
     # P1 新增周期
     liq = liquidity_cycle(fr)
     val = valuation_cycle(em, fr)
@@ -588,6 +601,9 @@ def compute(em, fr, as_of=None):
 
     return {
         "as_of": as_of or em.get("as_of") or fr.get("as_of"),
+        "calculation_version": CALCULATION_VERSION,
+        "period_policy": "日期和值严格配对；仅使用末端连续有效原生频率窗口。M按相邻月，Q按相邻季，D按工作日（仅容许周末，未推定节假日），W按7天；趋势至少4期，长窗口不足则缩短并披露。",
+        "point_in_time": False,
         "merrill_clock": {
             "quadrant": quad,
             "growth_momentum": g,
@@ -595,6 +611,7 @@ def compute(em, fr, as_of=None):
             "growth_dims": g_dims,
             "inflation_dims": i_dims,
             "growth_evidence": g_ev,
+            "growth_diagnostics": growth_diagnostics,
             "inflation_evidence": i_ev,
             "best_asset": best_asset,
             "stock_style": style,
@@ -647,7 +664,7 @@ def build_timeline(em, fr):
     # 统一到最近 24 个月（日频序列按月末值归到 YYYY-MM）
     def to_monthly(dd, vv):
         m = {}
-        for d, v in zip(dd, vv):
+        for d, v in paired(dd, vv):
             if v is None or not d:
                 continue
             m[d[:7]] = v  # 后写覆盖 → 月内最后一个值
@@ -662,7 +679,7 @@ def build_timeline(em, fr):
         scores = [None] * len(months)
         for i in range(3, len(seq)):
             cur, prev = seq[i], seq[i - 3]
-            if cur is None or prev is None:
+            if any(v is None for v in seq[i-3:i+1]) or not all(adjacent(months[j-1], months[j]) for j in range(i-2,i+1)):
                 continue
             if mode == "level":
                 s = 1 if cur > (ref or 0) else -1
@@ -705,10 +722,11 @@ def main():
     ap.add_argument("--eastmoney", default="eastmoney_data.json")
     ap.add_argument("--fred", default="fred_data.json")
     ap.add_argument("--out", default="cycle.json")
+    ap.add_argument("--clean-credit-outliers", action="store_true", help="显式启用孤立点屏蔽研究假设；默认保留原值")
     args = ap.parse_args()
 
     em, fr, as_of = load_payload(args.eastmoney, args.fred)
-    result = compute(em, fr, as_of=as_of)
+    result = compute(em, fr, as_of=as_of, clean_credit_outliers=args.clean_credit_outliers)
     with open(args.out, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
 

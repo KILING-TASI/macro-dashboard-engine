@@ -11,10 +11,13 @@ fetch_fred.py — FRED（圣路易斯联储）宏观数据抓取
 
 输出: JSON 结构同 fetch_eastmoney.py
 """
+from dated_series import paired, period_number
+import math
 import argparse
 import csv
 import io
 import json
+from datetime import datetime
 import sys
 import urllib.request
 
@@ -97,24 +100,29 @@ def fetch_series(series_id, timeout=30, retries=2):
     return out
 
 
-def _yoy(series):
-    """把指数型月度序列转成同比 %（12 期前比较）。"""
+def _calendar_yoy(series, frequency):
+    points = paired([d for d, _ in series], [v for _, v in series])
+    periods = [period_number(d, frequency) for d, _ in points]
+    if len(set(periods)) != len(periods):
+        raise ValueError("同比输入存在重复观测期")
+    lookup = dict(zip(periods, [v for _, v in points]))
+    lag = 12 if frequency == "M" else 4
     out = []
-    for i in range(len(series)):
-        if i >= 12 and series[i - 12][1]:
-            yoy = (series[i][1] / series[i - 12][1] - 1) * 100
-            out.append((series[i][0], round(yoy, 3)))
+    for (d, v), period in zip(points, periods):
+        base = lookup.get(period - lag)
+        if v is not None and base is not None and base != 0 and math.isfinite(v) and math.isfinite(base):
+            out.append((d, round((v / base - 1) * 100, 3)))
     return out
+
+
+def _yoy(series):
+    """与上年同月配对；缺失或零基期不生成同比。"""
+    return _calendar_yoy(series, "M")
 
 
 def _yoy_quarterly(series):
-    """把指数型季度序列转成同比 %（4 期前比较）。"""
-    out = []
-    for i in range(len(series)):
-        if i >= 4 and series[i - 4][1]:
-            yoy = (series[i][1] / series[i - 4][1] - 1) * 100
-            out.append((series[i][0], round(yoy, 3)))
-    return out
+    """与上年同季配对；不以记录位置替代日历。"""
+    return _calendar_yoy(series, "Q")
 
 
 def build(key, limit=None):
@@ -136,6 +144,7 @@ def build(key, limit=None):
         "series_id": series_id,
         "unit": unit,
         "freq": freq,
+        "transformation": "calendar-yoy-1.0.0" if to_yoy else "identity",
         "dates": dates,
         "values": values,
         "latest": values[-1] if values else None,
@@ -144,19 +153,20 @@ def build(key, limit=None):
     }
 
 
-def _derive_ratio(num_key, den_key, name, unit, limit=60):
+def _derive_ratio(num_key, den_key, name, unit, limit=60, operation="ratio"):
     """由两条序列按日期对齐计算比值（如铜金比 = 铜价 / 金价）。"""
     a = {d[:7] if len(d) > 7 else d: v for d, v in fetch_series(SERIES[num_key][0])}
     b = {d[:7] if len(d) > 7 else d: v for d, v in fetch_series(SERIES[den_key][0])}
     common = sorted(set(a) & set(b))
-    raw = [(d, a[d] / b[d]) for d in common if b[d]]
+    raw = ([(d, a[d] - b[d]) for d in common] if operation == "spread"
+           else [(d, a[d] / b[d]) for d in common if b[d]])
     raw = raw[-limit:]
     dates = [d for d, _ in raw]
     values = [round(v, 4) for _, v in raw]
     latest = values[-1] if values else None
     prev = values[-2] if len(values) >= 2 else None
     return {
-        "name": name, "series_id": f"{SERIES[num_key][0]}/{SERIES[den_key][0]}",
+        "name": name, "series_id": f"{SERIES[num_key][0]}{'-' if operation == 'spread' else '/'}{SERIES[den_key][0]}",
         "unit": unit, "freq": "M", "dates": dates, "values": values,
         "latest": latest, "prev": prev,
         "mom": round(latest - prev, 4) if (latest is not None and prev is not None) else None,
@@ -172,12 +182,15 @@ DERIVED = {
 
 def fetch_all(keys=None):
     keys = keys or list(SERIES.keys())
-    result = {"source": "fred", "as_of": None, "indicators": {}, "errors": []}
+    result = {"source": "fred", "fetched_at": datetime.now().astimezone().isoformat(), "as_of": None, "indicators": {}, "errors": []}
     for key in keys:
         if key in DERIVED:
             continue          # 派生指标单独处理，跳过 SERIES 查询
         try:
-            result["indicators"][key] = build(key)
+            indicator = build(key)
+            if not indicator["dates"]:
+                raise ValueError("序列没有有效数据")
+            result["indicators"][key] = indicator
         except Exception as e:  # noqa: BLE001
             result["errors"].append(f"{key}: {e}")
     # 派生指标：默认全部计算；若显式指定 keys，则只算被请求的那些
@@ -186,7 +199,11 @@ def fetch_all(keys=None):
     for key in derived_keys:
         nk, dk, name, unit = DERIVED[key]
         try:
-            result["indicators"][key] = _derive_ratio(nk, dk, name, unit)
+            indicator = _derive_ratio(nk, dk, name, unit,
+                                      operation="spread" if key == "cn_us_spread" else "ratio")
+            if not indicator["dates"]:
+                raise ValueError("派生序列没有共同日期")
+            result["indicators"][key] = indicator
         except Exception as e:  # noqa: BLE001
             result["errors"].append(f"{key}(派生): {e}")
     us10y = result["indicators"].get("us10y")
@@ -215,6 +232,8 @@ def main():
     for e in data["errors"]:
         print("  [err]", e, file=sys.stderr)
     print(f"[fred] 已写入 {args.out} (as_of={data['as_of']})")
+    if not data["indicators"]:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

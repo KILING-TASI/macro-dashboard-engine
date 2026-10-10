@@ -19,6 +19,7 @@ fetch_industry.py — 行业指数历史行情抓取（新浪财经）
 """
 import argparse
 import json
+from datetime import datetime
 import sys
 import time
 import urllib.request
@@ -107,12 +108,14 @@ def monthly_returns(months, closes):
 
 def fetch_all(months=36):
     """抓取全部指数，返回 {code: {name, months, closes, returns}}。"""
-    result = {"source": "sina", "as_of": None, "indices": {}, "errors": []}
+    result = {"source": "sina", "fetched_at": datetime.now().astimezone().isoformat(), "as_of": None, "indices": {}, "errors": []}
     datalen = min(1023, max(120, months * 23))
     for code, name in INDICES.items():
         try:
             daily = fetch_kline(code, datalen=datalen)
             m, closes = to_monthly(daily)
+            if len(m) < 2:
+                raise ValueError("有效月度数据不足")
             # 只保留最近 months+1 个月（多留 1 个月用于算首月收益率）
             keep = months + 1
             m, closes = m[-keep:], closes[-keep:]
@@ -148,6 +151,8 @@ def main():
     for e in data["errors"]:
         print("  [err]", e, file=sys.stderr)
     print(f"[industry] 已写入 {args.out}")
+    if not data["indices"]:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

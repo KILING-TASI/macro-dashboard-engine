@@ -74,6 +74,20 @@
   footer{margin-top:34px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:11.5px;line-height:1.9}
   footer b{color:var(--sub)}
   a{color:var(--accent);text-decoration:none}
+#creditTable {width:100%;min-width:1150px;border-collapse:collapse;}
+#creditTable th,#creditTable td {padding:10px 12px;text-align:left;vertical-align:top;line-height:1.6;border-bottom:1px solid #26314d;}
+#creditTable td:nth-child(1) {min-width:105px;}
+#creditTable td:nth-child(2) {min-width:230px;}
+#creditTable td:nth-child(3),#creditTable td:nth-child(4) {white-space:nowrap;}
+#creditTable td:nth-child(6) {min-width:300px;}
+  #viewControls label{display:inline-flex;flex-direction:column;gap:5px;margin:6px 12px 6px 0;color:var(--sub);font-size:12px}
+  #viewControls input,#viewControls select,#viewControls button{background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:6px;padding:8px;font:inherit}
+  #viewControls button{cursor:pointer;margin:6px 8px 6px 0}
+  #viewControls .hint{line-height:1.7}
+  #viewArchive{width:100%;height:120px;background:var(--bg);color:var(--sub)}
+  #evidenceTable td,#evidenceTable th{padding:8px;text-align:left;vertical-align:top}
+  .chart{position:relative}
+  .view-empty{position:absolute;inset:0;z-index:5;background:var(--panel);display:flex;align-items:center;justify-content:center;color:var(--sub)}
 </style>
 </head>
 <body>
@@ -85,10 +99,26 @@
     </div>
     <div class="meta">
       数据截止：<b id="asof">__ASOF__</b><br>
-      生成时间：__GENTIME__<br>
+      生成时间：<time id="reportGeneratedAt">__GENTIME__</time><br>
+      计算版本：__CALC_VERSION__<br>
       数据来源：__SRCTEXT__
     </div>
   </header>
+
+  <section id="viewControls" class="card" aria-label="看板显示筛选">
+    <h3>查看已载入的观测</h3>
+    <p class="hint">指标、来源和状态筛选仅作用于证据及信用明细；时间窗口只调整日期图表显示，不重算当前指标和周期结论。不连接接口，不更新历史快照。</p>
+    <label>指标关键词<input id="viewQuery" type="search" placeholder="名称、代码或口径"></label>
+    <label>来源<select id="viewSource"><option value="">全部来源</option></select></label>
+    <label>数据状态<select id="viewState"><option value="">全部状态</option><option value="acquired">已取得真实输入</option><option value="missing">未取得</option><option value="stale">滞后</option><option value="sample">教学样本</option><option value="verified">原文已核验</option><option value="unverified">原文未核验</option></select></label>
+    <label>时间窗口<select id="viewWindow"><option value="all">全部历史</option><option value="12">最近12个月</option><option value="36">最近36个月</option><option value="custom">自定义月份</option></select></label>
+    <label>起始月份<input id="viewFrom" type="month"></label>
+    <label>结束月份<input id="viewTo" type="month"></label>
+    <label>已有观察排序<select id="viewSort"><option value="name">按指标/尺度名称</option><option value="absolute">按贡献/尺度偏移绝对值</option></select></label>
+    <div><button id="viewApply" type="button">应用显示参数</button><button id="viewReset" type="button">重置筛选和窗口</button><button id="viewExport" type="button">生成留档参数</button><a id="viewDownload" hidden>下载新JSON留档</a></div>
+    <p id="viewError" role="alert"></p><p id="viewCount" class="hint"></p><p id="viewWindowNote" class="hint"></p>
+    <details><summary>已有增长贡献、尺度观察与留档内容</summary><p class="hint">表格显示4位小数，留档保留原值；未知不填零。尺度观察只读取原报告已计算的敏感性，不应用假设、不切换主结论，不是预测。留档包含已载入展示数据，不是原始响应文件。</p><div style="overflow-x:auto"><table id="viewContributions" class="data"></table><table id="viewScenarios" class="data"></table></div><textarea id="viewArchive" aria-label="留档JSON" readonly></textarea></details>
+  </section>
 
   <!-- 1. KPI -->
   <section>
@@ -151,12 +181,12 @@
     <!-- P2 扩展周期 -->
     <div class="grid3" style="margin-top:14px">
       <div class="v-card">
-        <div class="v-label">盈利周期</div>
+        <div class="v-label">盈利周期（宏观代理）</div>
         <div class="v-val" style="font-size:17px" id="earnVal">—</div>
         <ul id="earnEv"></ul>
       </div>
       <div class="v-card">
-        <div class="v-label">市场情绪周期</div>
+        <div class="v-label">市场情绪周期（全球代理）</div>
         <div class="v-val" style="font-size:17px" id="sentiVal">—</div>
         <ul id="sentiEv"></ul>
       </div>
@@ -168,9 +198,33 @@
     </div>
   </section>
 
+  <section id="creditSection">
+    <h2 class="sec-title">货币与信用传导 <span class="tag" id="creditStatus">逐项日期 · 数据覆盖</span></h2>
+    <p class="hint">资金价格 → 银行信用 → 借款需求 → 融资结构 → 现金流压力。国内与美国分别观察，不合成同一周期评分。</p>
+    <p class="hint" id="creditNotes"></p>
+    <div class="card"><h3>传导指标与来源</h3><div style="overflow-x:auto"><table id="creditTable"></table></div></div>
+    <div class="grid2" style="margin-top:14px">
+      <div class="card"><h3>国内新增融资（亿元）</h3><p class="hint">同图保留各自日期；两种贷款口径不可相减，未季调月度值不作单月趋势判断。</p><div class="chart" id="creditFlowChart"></div></div>
+      <div class="card"><h3>贷款报价参考：LPR（%）</h3><p class="hint">LPR不等于银行间资金价格，也不等于实际贷款利率。</p><div class="chart" id="creditRateChart"></div></div>
+      <div class="card"><h3>美国银行信用供给与需求</h3><p class="hint">季度调查净占比；标准收紧为正，需求增强为正，不能作为中国借款需求。</p><div class="chart" id="creditSurveyChart"></div></div>
+      <div class="card"><h3>数据缺口</h3><ul id="creditGaps"></ul><p class="hint">缺数据不填零、不沿用其他地区数据；缺名义GDP与完整融资分项时暂不计算信用脉冲。</p></div>
+    </div>
+    <details style="margin-top:14px"><summary>阅读与方法参考</summary>
+      <p><a href="https://www.bankofengland.co.uk/quarterly-bulletin/2014/q1/money-creation-in-the-modern-economy" target="_blank" rel="noopener">英格兰银行：现代经济中的货币创造</a> — 理解贷款与存款的关系。</p>
+      <p><a href="https://www.bis.org/publ/work395.pdf" target="_blank" rel="noopener">Borio：金融周期与宏观经济</a> — 将信用、房地产与一般经济周期分开。</p>
+      <p><a href="https://www.levyinstitute.org/publications/the-financial-instability-hypothesis/" target="_blank" rel="noopener">明斯基：金融不稳定假说</a> — 关注偿债能力和再融资依赖。</p>
+      <p><a href="https://mises.org/library/book/money-bank-credit-and-economic-cycles" target="_blank" rel="noopener">德索托：货币、银行信贷与经济周期</a> — 奥地利学派的信用与投资结构视角。</p>
+    </details>
+  </section>
+
+  <section>
+    <h2 class="sec-title">来源与核验记录 <span class="tag">获取状态与原文核验分开</span></h2>
+    <p class="hint" id="evidenceNote"></p>
+    <details><summary>展开逐指标证据表</summary><div style="overflow-x:auto"><table id="evidenceTable" style="min-width:1200px;width:100%"></table></div></details>
+  </section>
   <!-- 2b. 多周期时间轴 -->
   <section>
-    <h2 class="sec-title">多周期共振时间轴 <span class="tag">红=改善 · 绿=恶化 · 灰=持平/无数据</span></h2>
+    <p class="hint">口径说明：库存以 PPI/PMI 代理；信用以 M1−M2 代理；估值环境以利率分位代理，未直接测量股票估值。回归反映历史关联，不代表因果或未来收益预测。</p><h2 class="sec-title">多周期共振时间轴 <span class="tag">红=改善 · 绿=恶化 · 灰=持平/无数据</span></h2>
     <div class="card"><div class="chart tall" id="timelineChart"></div></div>
   </section>
 
@@ -180,7 +234,7 @@
     <div class="grid2">
       <div class="card"><h3>美元指数 / 10Y美债实际利率</h3><div class="hint">全球流动性松紧的核心变量</div><div class="chart" id="liqChart"></div></div>
       <div class="card"><h3>铜金比</h3><div class="hint">上行=增长预期改善（顺周期）；下行=避险</div><div class="chart" id="cgChart"></div></div>
-      <div class="card"><h3>中美利差（中国利率 − 美国利率）</h3><div class="hint">影响汇率与外资流向</div><div class="chart" id="spreadChart"></div></div>
+      <div class="card"><h3>中美利差（中国利率 − 美国利率）</h3><div class="hint">中国3个月银行间利率 − 美国联邦基金利率，单位：百分点</div><div class="chart" id="spreadChart"></div></div>
       <div class="card"><h3>VIX 恐慌指数 / 美债10Y-2Y利差</h3><div class="hint">风险偏好与衰退信号</div><div class="chart" id="riskChart"></div></div>
       <div class="card"><h3>70城房价指数（新房/二手，100=持平）</h3><div class="hint">地产周期与居民资产负债表</div><div class="chart" id="propChart"></div></div>
       <div class="card"><h3>盈利代理：工业生产 / 零售销售同比</h3><div class="hint">企业盈利的宏观领先代理</div><div class="chart" id="earnChart"></div></div>
@@ -243,14 +297,14 @@
 
   <!-- 6. 宏观→行业量化归因 -->
   <section>
-    <h2 class="sec-title">宏观→行业量化归因 <span class="tag">历史回归 · 真实 beta 替代经验矩阵</span></h2>
+    <h2 class="sec-title">宏观→行业量化归因 <span class="tag">历史回归 · 历史关联估计</span></h2>
     <div class="card">
       <div class="hint" id="attribNote"></div>
       <div class="chart tall" id="attribChart" style="height:360px"></div>
     </div>
     <div class="card" style="margin-top:14px">
       <h3>归因明细（beta / t 值 / R²）</h3>
-      <div class="hint">beta 为标准化系数，|t|&gt;2 近似显著；R² 为因子对行业超额收益的解释力</div>
+      <div class="hint">beta 为收益与因子均标准化后的无量纲系数，|t|&gt;2 近似显著；R² 为因子对行业超额收益的解释力</div>
       <div class="scroll"><table class="data" id="attribTable"></table></div>
     </div>
   </section>
@@ -309,6 +363,7 @@
   </footer>
 </div>
 
+<script type="text/plain" id="third-party-notices">__THIRD_PARTY_NOTICES__</script>
 <script>__ECHARTS__</script>
 <script>
 const DATA = __DATA__;
@@ -800,8 +855,37 @@ function lineOpt(dates,seriesList,opts={}){
   document.getElementById('dataTable').innerHTML=h;
 })();
 
+
+/* 货币与银行信用传导：缺项不补零，使用真实日期坐标。 */
+(function(){
+  const data=DATA.credit||{rows:[],gaps:[],status:'partial'};
+  const text=(value)=>String(value==null?'—':value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const safeLink=(url)=>/^https?:\/\//.test(url||'')?`<a href="${text(url)}" target="_blank" rel="noopener">来源</a>`:'—';
+  document.getElementById('creditStatus').textContent=data.status==='sample'?'示例/混合来源 · 逐项日期':(data.status==='partial'?'部分数据 · 缺口已列示':'数据完整');
+  document.getElementById('creditNotes').textContent=(data.note||'')+' '+(data.m1_note||'');
+  document.getElementById('creditTable').innerHTML='<thead><tr><th>环节</th><th>指标</th><th>最新值</th><th>日期/频率</th><th>状态</th><th>口径/来源</th></tr></thead><tbody>'+data.rows.map(r=>`<tr><td>${text(r.stage)}</td><td>${text(r.name)}</td><td>${text(r.value)} ${text(r.unit)}</td><td>${text(r.date)} / ${text(r.frequency)}</td><td>${r.stale?'滞后':'已取得'}</td><td>${text(r.note)} ${safeLink(r.source_url)}</td></tr>`).join('')+'</tbody>';
+  document.getElementById('creditGaps').innerHTML=data.gaps.map(g=>`<li>${text(g.stage)}：${text(g.note)}（未取得）</li>`).join('');
+  function plot(id,keys){
+    const rows=data.rows.filter(r=>keys.includes(r.key));
+    if(!rows.length){document.getElementById(id).textContent='未取得数据';return;}
+    c(id).setOption({tooltip:{trigger:'axis'},legend:{data:rows.map(r=>r.name),textStyle:{color:THEME.sub},type:'scroll'},grid:{left:65,right:20,top:55,bottom:45},xAxis:{type:'time',...AX},yAxis:{type:'value',...AX},series:rows.map(r=>({name:r.name,type:'line',connectNulls:false,showSymbol:false,data:r.dates.map((d,i)=>[d.length===7?d+'-01':d,r.values[i]])}))});
+  }
+  plot('creditFlowChart',['afre_flow','afre_rmb','bank_loans']);
+  plot('creditRateChart',['lpr1y','lpr5y']);
+  plot('creditSurveyChart',['us_standards','us_demand']);
+})();
+
+
+(function(){
+ const evidence=DATA.evidence||{rows:[]};
+ const escape=(v)=>String(v==null?'未取得':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ document.getElementById('evidenceNote').textContent=evidence.note||'';
+ document.getElementById('evidenceTable').innerHTML='<thead><tr><th>指标</th><th>生产机构</th><th>获取平台</th><th>观测截至</th><th>发布日期</th><th>获取时间</th><th>口径状态</th><th>原文核验</th></tr></thead><tbody>'+evidence.rows.map(r=>'<tr>'+[r.name,r.producer,r.provider,r.observed_through,r.release_date,r.fetched_at,r.definition_status,r.sample?'演示样本':r.verification_status].map(v=>'<td style="padding:8px;vertical-align:top">'+escape(v)+'</td>').join('')+'</tr>').join('')+'</tbody>';
+})();
+
 document.getElementById('disclaimer').textContent=DATA.cycle.disclaimer;
 document.getElementById('asof').textContent=DATA.cycle.as_of||'—';
 </script>
+<script>__DASHBOARD_CONTROLS__</script>
 </body>
 </html>

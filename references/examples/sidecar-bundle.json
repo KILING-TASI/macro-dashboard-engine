@@ -1,0 +1,154 @@
+{
+  "contract_version": "1.0.0",
+  "calculation_version": "2.1.0",
+  "kind": "teaching",
+  "observations": [
+    {
+      "provider": "fred",
+      "indicator": "us_cpi",
+      "layer": "acquired_series",
+      "payload": {
+        "dates": [
+          "2026-01",
+          "2026-02"
+        ],
+        "values": [
+          12.0,
+          null
+        ],
+        "unit": "%",
+        "freq": "M",
+        "transformation": "calendar-yoy-1.0.0",
+        "release_date": "2026-10-09",
+        "dependency_gap": "2025-02 baseline missing",
+        "synthetic_levels": [
+          [
+            "2025-01",
+            100
+          ],
+          [
+            "2026-01",
+            112
+          ],
+          [
+            "2026-02",
+            113
+          ]
+        ]
+      },
+      "frequency": "M",
+      "frequency_basis": "input",
+      "fetched_at": "2026-10-10T00:00:00+00:00",
+      "release_date": "2026-10-09",
+      "revision": null,
+      "source": "sample",
+      "missing_dates": [
+        "2026-02"
+      ]
+    }
+  ],
+  "input_context": {
+    "eastmoney": {},
+    "fred": {
+      "source": "sample",
+      "data_origin": "original_synthetic",
+      "fetched_at": "2026-10-10T00:00:00+00:00"
+    }
+  },
+  "evidence": {
+    "rows": [
+      {
+        "key": "us_cpi",
+        "name": "us_cpi",
+        "provider": "原创模拟",
+        "producer": "本仓库原创模拟",
+        "source_url": null,
+        "observed_through": "2026-01",
+        "fetched_at": "2026-10-10T00:00:00+00:00",
+        "release_date": "2026-10-09",
+        "unit": "%",
+        "frequency": "M",
+        "seasonality": "未核验",
+        "stock_flow": "未核验",
+        "definition_status": "模拟指标模板，不是官方观测",
+        "verification_status": "原创模拟，无官方原文",
+        "verification": null,
+        "breaks": [],
+        "revision": "历史版本未取得",
+        "sample": true
+      }
+    ],
+    "catalog_reviewed_at": "2026-10-09",
+    "note": "取得数据不等于原文核验；空白发布日期不以观测期或抓取时间代替。"
+  },
+  "gaps": [
+    {
+      "provider": "eastmoney",
+      "indicator": "pmi",
+      "reason": "未取得"
+    },
+    {
+      "provider": "eastmoney",
+      "indicator": "retail",
+      "reason": "未取得"
+    },
+    {
+      "provider": "eastmoney",
+      "indicator": "gdp",
+      "reason": "未取得"
+    },
+    {
+      "provider": "eastmoney",
+      "indicator": "cpi",
+      "reason": "未取得"
+    },
+    {
+      "provider": "eastmoney",
+      "indicator": "ppi",
+      "reason": "未取得"
+    },
+    {
+      "provider": "eastmoney",
+      "indicator": "m1",
+      "reason": "未取得"
+    },
+    {
+      "provider": "eastmoney",
+      "indicator": "m2",
+      "reason": "未取得"
+    }
+  ],
+  "cycle_observation": {
+    "growth_momentum": 0.0,
+    "inflation_momentum": 0.0,
+    "growth_dims": 0,
+    "inflation_dims": 0,
+    "quadrant": "数据不足",
+    "growth_evidence": [
+      "缺少增长类指标（PMI/社零/GDP）"
+    ],
+    "inflation_evidence": [
+      "缺少通胀类指标（CPI/PPI）"
+    ],
+    "growth_diagnostics": {},
+    "inventory_cycle": {
+      "phase": "数据不足",
+      "evidence": [
+        "缺少 PPI/PMI 数据"
+      ]
+    },
+    "credit_cycle": {
+      "state": "数据不足",
+      "evidence": [
+        "缺少 M1/M2 数据"
+      ]
+    }
+  },
+  "point_in_time": false,
+  "limitations": [
+    "观测取得不等于官方原文核验",
+    "未知发布与修订时点保持未知",
+    "周期评分为研究假设；不含资产配置或预测",
+    "不与工作台已有宏观模块宣称等价"
+  ]
+}

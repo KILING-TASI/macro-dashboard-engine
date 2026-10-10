@@ -1,0 +1,19 @@
+{
+  "generated_date": "2026-10-09",
+  "page_generated_at": "2026-10-09 19:12",
+  "observed_through": "2026-08 (fictional)",
+  "calculation_version": "2.0.0",
+  "kind": "original_synthetic_teaching",
+  "input_generator": "scripts/demo_preview.py:teaching_input",
+  "command": "python scripts/demo_preview.py --out-dir local-data/public-demo",
+  "capture": "Actual in-app browser screenshot, default viewport, no image editing",
+  "sha256": {
+    "screenshot": "b14fdba3c7c543c794d11a364ec58629fe1c809f84fa7fa28b526cadbc5dc4e2",
+    "input": "69c0b806873dd8de45d32875467e6966b5691ccd60b2f81b2072bead188ad888",
+    "generator": "94f9bde43b87f2b1a33f4335c796ed5895445d04c5541966793893b3e3e741e0",
+    "teaching_data": "573f7cb496127ccd464ac90fa1430d0c1c5bf359d03fead14f6267996b8107cc",
+    "rendered_html": "fb4f4abbb3b4ed35a26dd743d840e328fbdbd438592ff940876d299e9b657e91"
+  },
+  "data_function": "scripts/teaching_data.py:teaching_input",
+  "license_note": "Original fictional numbers; ECharts/fonts retain their own rights. Not a blanket MIT sublicense of rendered components."
+}

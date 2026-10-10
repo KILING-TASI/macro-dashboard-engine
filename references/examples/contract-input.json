@@ -1,0 +1,11 @@
+{
+  "eastmoney": {
+    "source": "sample", "as_of": "2026-04", "fetched_at": null,
+    "indicators": {
+      "pmi": {"dates": ["2026-01", "2026-02", "2026-03", "2026-04"], "series": {"value": [49.123456, 49.2, 49.4, 49.6]}, "unit": "指数", "release_date": null},
+      "cpi": {"dates": ["2026-01", "2026-02", "2026-03", "2026-04"], "series": {"value": [0.1, 0.2, 0.3, 0.4]}, "unit": "%", "revision": "unknown"},
+      "retail": {"dates": ["2026-01", "2026-02", "2026-03", "2026-04"], "series": {"yoy": [1.0, null, 2.0, 3.0]}, "unit": "%"}
+    }
+  },
+  "fred": {"source": "sample", "indicators": {}}
+}

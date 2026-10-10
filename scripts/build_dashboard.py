@@ -8,19 +8,23 @@ build_dashboard.py — 组装单文件宏观看板 HTML
 
 用法:
     python3 build_dashboard.py --eastmoney em.json --fred fr.json --cycle cycle.json \
-        --out /workspace/macro-dashboard.html
+        --out local-data/macro-dashboard.html
 
-若任一输入缺失，自动回退到 assets/sample_data.json。
+正式数据缺项留空；演示样本仅由 --demo 显式启用。
 """
 import argparse
 import json
 import os
 import sys
 import datetime
+from html import escape
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SKILL_DIR = os.path.dirname(HERE)
 ASSETS = os.path.join(SKILL_DIR, "assets")
+NOTICE_FILES = ("LICENSE_SCOPE.md", "LICENSE", "third_party/echarts-5.5.1/LICENSE",
+                "third_party/echarts-5.5.1/NOTICE", "third_party/echarts-5.5.1/LICENSE-d3")
+RENDER_RESOURCES = ("assets/echarts.min.js", "assets/template.html", "assets/dashboard_controls.js") + NOTICE_FILES
 
 # 因子-行业敏感度矩阵（见 references/transmission.md）
 HEATMAP = {
@@ -47,7 +51,8 @@ CHAINS = [
 
 def _load(path):
     if path and os.path.exists(path):
-        return json.load(open(path, encoding="utf-8"))
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
     return None
 
 
@@ -72,7 +77,7 @@ def _tail(lst, n):
 
 
 def build_payload(em_raw, fr_raw, cycle, long_cycle=None, long_wave=None,
-                  attribution=None, policy=None, offline=False):
+                  attribution=None, policy=None, offline=False, credit=None):
     em = (em_raw or {}).get("indicators", {})
     fr = (fr_raw or {}).get("indicators", {})
 
@@ -185,13 +190,13 @@ def build_payload(em_raw, fr_raw, cycle, long_cycle=None, long_wave=None,
 
     # ---------- P1 扩展周期数据 ----------
     xd2, xv2 = fr_take("usd_index", 260)
-    _, rv = fr_take("us10y_real", 260)
-    rv_al = _align(xd2, rv, xd2)  # 两者同为日频，直接对齐
+    rd, rv = fr_take("us10y_real", 260)
+    rv_al = _align(rd, rv, xd2)
     cgd, cgv = fr_take("copper_gold", 60)
     spd, spv = fr_take("cn_us_spread", 60)
     vd, vv = fr_take("vix", 260)
-    _, cv2 = fr_take("us_curve", 260)
-    cv2_al = _align(vd, cv2, vd)
+    curve_dates, cv2 = fr_take("us_curve", 260)
+    cv2_al = _align(curve_dates, cv2, vd)
 
     p1 = {
         "liquidity": {"dates": xd2, "usdindex": xv2, "real": rv_al},
@@ -241,7 +246,11 @@ def build_payload(em_raw, fr_raw, cycle, long_cycle=None, long_wave=None,
                      round(vals[-2], 2) if len(vals) >= 2 else None,
                      round(vals[-1] - vals[-2], 2) if len(vals) >= 2 else None])
 
+    from compute_credit import compute as compute_credit
+    from data_evidence import build_evidence
     return {
+        "evidence": build_evidence({"eastmoney": em_raw, "fred": fr_raw, "credit": credit}),
+        "credit": compute_credit(credit, offline=offline),
         "kpi": kpi,
         "cycle": cycle,
         "domestic": domestic,
@@ -254,6 +263,12 @@ def build_payload(em_raw, fr_raw, cycle, long_cycle=None, long_wave=None,
         "transmission": {"chains": CHAINS, "heatmap": HEATMAP},
         "table": {"header": header, "body": body},
         "offline": offline,
+        "data_quality": {
+            "status": "sample" if offline else (
+                "partial" if any((source or {}).get("errors") for source in (em_raw, fr_raw)) else "live"),
+            "errors": [error for source in (em_raw, fr_raw)
+                       for error in (source or {}).get("errors", [])],
+        },
     }
 
 
@@ -262,19 +277,31 @@ def render(payload, out_path, title="宏观全景看板"):
         echarts_js = f.read()
     with open(os.path.join(ASSETS, "template.html"), encoding="utf-8") as f:
         html = f.read()
+    with open(os.path.join(ASSETS, "dashboard_controls.js"), encoding="utf-8") as f:
+        controls_js = f.read()
 
     offline = payload.get("offline")
-    badge = ('<span class="badge demo">示例数据</span>' if offline
-             else '<span class="badge live">实时数据</span>')
-    src_text = "东方财富 + FRED（离线示例快照）" if offline else "东方财富 + FRED（实时抓取）"
+    partial = (payload.get("data_quality", {}).get("status") == "partial"
+               or payload.get("credit", {}).get("status") == "partial")
+    badge_text = "示例数据" if offline else ("数据不完整" if partial else "实时数据")
+    src_text = escape(str(payload.get("demo_source") or "东方财富 + FRED（离线示例快照）")) if offline else (
+        "东方财富 + FRED；信用模块另含商务部数据（部分数据，见逐项来源）" if partial
+        else "东方财富 + FRED（实时抓取）")
 
     html = html.replace("__TITLE__", title)
-    html = html.replace("__BADGE__", "实时数据" if not offline else "示例数据")
+    html = html.replace("__BADGE__", badge_text)
     html = html.replace("__ASOF__", str((payload.get("cycle") or {}).get("as_of") or "—"))
     html = html.replace("__GENTIME__", datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
+    html = html.replace("__CALC_VERSION__", escape(str((payload.get("cycle") or {}).get("calculation_version") or "未登记")))
     html = html.replace("__SRCTEXT__", src_text)
+    notices = []
+    for name in NOTICE_FILES:
+        with open(os.path.join(SKILL_DIR, name), encoding="utf-8") as stream:
+            notices.append(name + "\n" + stream.read())
+    html = html.replace("__THIRD_PARTY_NOTICES__", escape("\n\n".join(notices)))
     html = html.replace("__ECHARTS__", echarts_js)
     html = html.replace("__DATA__", json.dumps(payload, ensure_ascii=False))
+    html = html.replace("__DASHBOARD_CONTROLS__", controls_js)
 
     os.makedirs(os.path.dirname(os.path.abspath(out_path)), exist_ok=True)
     with open(out_path, "w", encoding="utf-8") as f:
@@ -289,45 +316,64 @@ def main():
     ap.add_argument("--cycle", default="cycle.json")
     ap.add_argument("--longcycle", default="long_cycle.json")
     ap.add_argument("--attribution", default="attribution.json")
+    ap.add_argument("--credit", default=None)
+    ap.add_argument("--demo", action="store_true", help="仅演示：允许使用离线示例，不作正式研究")
+    ap.add_argument("--demo-snapshot", default=None, help="仅配合--demo显式复现已有快照；需自行核对数据权利")
     ap.add_argument("--out", default="/workspace/macro-dashboard.html")
     ap.add_argument("--title", default="宏观全景看板")
     args = ap.parse_args()
+    if args.demo_snapshot and not args.demo:
+        raise SystemExit("--demo-snapshot 仅用于显式演示")
 
     em = _load(args.eastmoney)
     fr = _load(args.fred)
     cycle = _load(args.cycle)
     long_cycle = _load(args.longcycle)
     attribution = _load(args.attribution)
+    credit = _load(args.credit)
     long_wave = _load(os.path.join(ASSETS, "long_wave.json")) or {}
     policy = _load(os.path.join(ASSETS, "policy_calendar.json")) or {}
     offline = False
+    if not args.demo and any((source or {}).get("source") == "sample" for source in (em, fr, credit)):
+        raise SystemExit("正式研究不能使用标记为sample的输入；演示请显式使用 --demo")
 
-    if em is None or fr is None or cycle is None:
-        sample = _load(os.path.join(ASSETS, "sample_data.json")) or {}
-        em = em or sample.get("eastmoney")
-        fr = fr or sample.get("fred")
+    if args.demo:
+        if args.demo_snapshot:
+            sample = _load(args.demo_snapshot) or {}
+        else:
+            from teaching_data import teaching_input
+            sample = teaching_input()
+        em, fr = sample.get("eastmoney"), sample.get("fred")
+        if not any((source or {}).get("indicators") for source in (em, fr)):
+            raise SystemExit("演示快照不可用")
+        em, fr = dict(em, source="sample"), dict(fr, source="sample")
+        credit, attribution = None, None
+        cycle, long_cycle = None, None
         offline = True
-        import subprocess, sys
-        # 用样本数据现算周期结论
-        tmp_em, tmp_fr = "/tmp/_em.json", "/tmp/_fr.json"
-        json.dump(em, open(tmp_em, "w", encoding="utf-8"), ensure_ascii=False)
-        json.dump(fr, open(tmp_fr, "w", encoding="utf-8"), ensure_ascii=False)
-        tmp_cy = "/tmp/_cycle.json"
-        subprocess.run([sys.executable, os.path.join(HERE, "compute_cycle.py"),
-                        "--eastmoney", tmp_em, "--fred", tmp_fr, "--out", tmp_cy], check=False)
-        cycle = _load(tmp_cy) or {"as_of": "—"}
-        # 长周期：样本数据也可能含长历史序列，尝试现算
-        if long_cycle is None:
-            tmp_lc = "/tmp/_longcycle.json"
-            subprocess.run([sys.executable, os.path.join(HERE, "compute_long_cycle.py"),
-                            "--fred", tmp_fr, "--out", tmp_lc], check=False)
-            long_cycle = _load(tmp_lc)
+    elif not any((source or {}).get("indicators") for source in (em, fr, credit)):
+        raise SystemExit("没有可用真实数据；正式研究禁止示例兜底。演示请显式使用 --demo")
+    em = em or {"indicators": {}, "errors": ["国内数据未取得"]}
+    fr = fr or {"indicators": {}, "errors": ["海外数据未取得"]}
+    if not em.get("indicators"):
+        em.setdefault("errors", []).append("国内数据未取得")
+    if not fr.get("indicators"):
+        fr.setdefault("errors", []).append("海外数据未取得")
+    if cycle is None:
+        sys.path.insert(0, HERE)
+        from compute_cycle import compute
+        cycle = compute(em.get("indicators", {}), fr.get("indicators", {}),
+                        as_of=em.get("as_of") or fr.get("as_of"))
+    if long_cycle is None:
+        from compute_long_cycle import compute as compute_long
+        long_cycle = compute_long(fr.get("indicators", {}))
 
     payload = build_payload(em, fr, cycle, long_cycle=long_cycle,
                             long_wave=long_wave, attribution=attribution,
-                            policy=policy, offline=offline)
+                            policy=policy, offline=offline, credit=credit)
+    if args.demo and not args.demo_snapshot:
+        payload["demo_source"] = "本仓库原创模拟数值（教学用，不来自实时接口）"
     path = render(payload, args.out, args.title)
-    flag = "示例数据(离线兜底)" if offline else "实时抓取"
+    flag = "教学示例" if offline else "正式数据输入"
     print(f"[dashboard] 已生成 {path} ({flag})")
 
 

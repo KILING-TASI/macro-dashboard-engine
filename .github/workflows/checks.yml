@@ -1,0 +1,44 @@
+name: Repository checks
+
+on:
+  pull_request:
+  push:
+    branches: [main, fix/macro-data-quality]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-checks:
+    name: Offline checks (${{ matrix.os }}, Python ${{ matrix.python }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ['3.8', '3.12']
+    runs-on: ${{ matrix.os }}
+    env:
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Tests
+        run: python -m unittest discover -s tests -v
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: View controls contract
+        run: node tests/test_dashboard_controls.js
+      - name: Syntax, documentation and source archive
+        run: python scripts/check_repository.py --archive
+      - name: README offline example
+        run: python scripts/run_pipeline.py --demo --workdir local-data/ci-demo
+      - name: Fictional scenario CLI and report evidence
+        run: python scripts/run_scenarios.py --out-dir local-data/ci-scenarios
+      - name: Chinese macro definition scenarios
+        run: python scripts/run_scenarios.py --suite cn --out-dir local-data/ci-cn-scenarios
+      - name: Check whitespace
+        run: git diff --check

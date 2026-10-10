@@ -1,0 +1,22 @@
+{
+  "component": "Apache ECharts",
+  "version": "5.5.1",
+  "checked_at": "2026-10-09",
+  "sources": {
+    "LICENSE": {
+      "url": "https://github.com/apache/echarts/blob/5.5.1/LICENSE",
+      "sha256": "634293835b43a6dd2094fa39182a3d9a6b9ca43b7fdb9ac354e8037af2a3093a"
+    },
+    "NOTICE": {
+      "url": "https://github.com/apache/echarts/blob/5.5.1/NOTICE",
+      "sha256": "fa99ac3af859d0e13166906dc53a73ad34a08898da7e8ae83407275496e9e30c"
+    },
+    "LICENSE-d3": {
+      "url": "https://github.com/apache/echarts/blob/5.5.1/licenses/LICENSE-d3",
+      "sha256": "e1211892da0b0e0585b7aebe8f98c1274fba15bafe47fa1f4ee8a7a502c06304"
+    }
+  },
+  "bundled_normalized_sha256": "e84270bd0cd5bdf60fefc26d00c2a391cb2e81f4d26a7a9ee16185a54773a3cf",
+  "upstream_dist_normalized_sha256": "e84270bd0cd5bdf60fefc26d00c2a391cb2e81f4d26a7a9ee16185a54773a3cf",
+  "normalized_identical": true
+}
