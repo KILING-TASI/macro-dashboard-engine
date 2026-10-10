@@ -2,7 +2,7 @@
 name: macro-dashboard
 description: 生成宏观研究看板，观察增长、通胀、货币与银行信用传导、金融周期及行业历史关联；按研究问题选择资料，保留来源、口径、日期与缺口。
 metadata:
-  version: "1.7.0"
+  version: "1.7.1"
   author: "CodeBuddy AI"
   created: "2026-10-09"
 ---

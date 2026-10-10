@@ -19,3 +19,9 @@ local-data/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Local Python installation/build outputs
+.venv/
+build/
+dist/
+*.egg-info/
