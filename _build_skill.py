@@ -4,7 +4,7 @@ from shutil import copyfile
 from setuptools.command.build_py import build_py
 
 PACKAGE = 'macro_dashboard'
-ROOTS = ['AUDIT_SCOPE.md', 'EXPANSION_RELEASE.md', 'REPORT_GUIDE.md', 'FORMAT_SCOPE.md', 'USER_SCENARIOS.md', 'EXPANSION.md', 'examples/expansion-teaching', 'BEGINNER.md', 'try_demo.py', 'Start-Demo.cmd', 'Start-Demo.sh', 'README.md', 'SKILL.md', 'LICENSE', 'THIRD_PARTY_NOTICES.md', 'DISCLAIMER.md', 'scripts', 'references', 'assets', 'templates', 'examples', 'docs', 'licenses', 'agents']
+ROOTS = ['AUDIT_SCOPE.md', 'EXPANSION_RELEASE.md', 'REPORT_GUIDE.md', 'FORMAT_SCOPE.md', 'EXPANSION.md', 'examples/expansion-teaching', 'BEGINNER.md', 'try_demo.py', 'Start-Demo.cmd', 'Start-Demo.sh', 'README.md', 'SKILL.md', 'LICENSE', 'THIRD_PARTY_NOTICES.md', 'DISCLAIMER.md', 'scripts', 'references', 'assets', 'templates', 'examples', 'docs', 'licenses', 'agents']
 ROOTS += ['third_party', 'LICENSE_SCOPE.md']
 EXCLUDED = ['assets/sample_data.json']
 EXTENSIONS = {'.cmd', '.sh', '.py','.js','.cjs','.mjs','.md','.json','.txt','.csv','.html','.css','.yaml','.yml','.jpg','.png','.svg'}
