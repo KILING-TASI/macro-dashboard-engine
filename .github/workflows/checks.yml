@@ -36,5 +36,7 @@ jobs:
         run: python scripts/check_repository.py --archive
       - name: README offline example
         run: python scripts/run_pipeline.py --demo --workdir local-data/ci-demo
+      - name: Fictional scenario CLI and report evidence
+        run: python scripts/run_scenarios.py --out-dir local-data/ci-scenarios
       - name: Check whitespace
         run: git diff --check

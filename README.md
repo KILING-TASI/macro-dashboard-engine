@@ -18,6 +18,14 @@ python scripts/demo_preview.py --out-dir local-data/public-demo
 
 看板支持指标、来源及状态筛选，日期图表窗口、已有贡献与尺度观察排序，以及带参数、方法版本和展示快照的新 JSON 留档。窗口不重算主指标或周期结论，没有在线刷新；详见[显示交互与留档](references/view_controls.md)及[实际交互截图](assets/preview/macro-controls.png)。
 
+关键情景实例（原创教学，输出另选新目录）：
+
+```text
+python scripts/run_scenarios.py --out-dir local-data/scenarios
+```
+
+同目录`index.json`索引六个情景，各保存输入、手算预期、实际命令/结果与方法版本；成功情景生成HTML，失败情景检查旧结果不变。范围与已有测试复用见[情景索引](references/data_contract_inventory.md#2026-10-10-情景实例验收批)。不代表真实数据、因果预测或视觉验收。
+
 ## 其他运行入口
 
 在仓库根目录运行。最低支持目标为 Python 3.8，脚本使用标准库；实际运行验收为 Python 3.12.10，未逐版本验收。Windows 使用 python，如仅配置了 Python 启动器可换成 py -3；其他系统可按环境换成 python3。ECharts 随源码内置，无需安装 Python 第三方包。
