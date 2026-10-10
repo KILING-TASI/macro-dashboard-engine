@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "macro-dashboard-engine"
-version = "1.7.4"
+version = "1.7.5"
 description = "独立研究工具与完整资源；未知证据保留"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -18,3 +18,6 @@ macro-dashboard-engine = "macro_dashboard._entry:main"
 [tool.setuptools]
 packages = ["macro_dashboard"]
 package-dir = {"macro_dashboard" = "macro_dashboard"}
+
+[tool.setuptools.data-files]
+"share/macro-dashboard-engine" = ["SHARED_CODE.json", "RIGHTS_INDEX.json", "CONTRIBUTING.md", "SECURITY.md", "LIFECYCLE.md"]

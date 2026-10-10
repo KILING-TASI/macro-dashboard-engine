@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "research-rights-index/1",
+  "repository": "macro-dashboard-engine",
+  "originalCodeLicense": "MIT",
+  "noticeFiles": [
+    {
+      "path": "LICENSE",
+      "sha256": "de8c79771642b39496c0eefa438b669b3d8bd2b14d72db2dec00c8dd563c7b91"
+    },
+    {
+      "path": "LICENSE_SCOPE.md",
+      "sha256": "6bbdb9bde079594cf726adbf6efdc1aaf1ec54d6cad967b6f753143d02a6c929"
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "sha256": "e57c7eae510451266ddaca0c04c7e0a50857947591b05a742beed1e485f1d6fc"
+    },
+    {
+      "path": "third_party/echarts-5.5.1/LICENSE",
+      "sha256": "634293835b43a6dd2094fa39182a3d9a6b9ca43b7fdb9ac354e8037af2a3093a"
+    },
+    {
+      "path": "third_party/echarts-5.5.1/LICENSE-d3",
+      "sha256": "e1211892da0b0e0585b7aebe8f98c1274fba15bafe47fa1f4ee8a7a502c06304"
+    },
+    {
+      "path": "third_party/echarts-5.5.1/NOTICE",
+      "sha256": "fa99ac3af859d0e13166906dc53a73ad34a08898da7e8ae83407275496e9e30c"
+    }
+  ],
+  "dataRights": "Source-specific; not granted by code MIT",
+  "methodReferences": "See repository method documents; citations do not convey text or data redistribution rights",
+  "scope": "Notice-file inventory and hashes, not an authorization or legal compliance certificate",
+  "hashFormat": "utf-8-lf"
+}
