@@ -8,7 +8,7 @@
 
 需要 Python 3.8 或以上版本。教学演示只用 Python 标准库，无需联网，也不用安装其他研究仓库；图表库随源码提供。
 
-下载或克隆当前 main 的完整源码，在仓库根目录打开终端。v1.7.0候选尚未发布；发布后可在[发布页](https://github.com/KILING-TASI/macro-dashboard-engine/releases)选择v1.7.0附件`macro-dashboard-engine-v1.7.0.zip`，解压后在`macro-dashboard`目录运行相同命令。不要把未发布候选当作已可下载的Release。Windows运行：
+下载或克隆当前 main 的完整源码，在仓库根目录打开终端。v1.7.0已发布，可从[发布页](https://github.com/KILING-TASI/macro-dashboard-engine/releases/tag/v1.7.0)下载[完整源码/Skill包](https://github.com/KILING-TASI/macro-dashboard-engine/releases/download/v1.7.0/macro-dashboard-engine-v1.7.0.zip)，解压后在`macro-dashboard`目录运行相同命令。下载后请用[SHA256SUMS](https://github.com/KILING-TASI/macro-dashboard-engine/releases/download/v1.7.0/SHA256SUMS)核对摘要。Windows运行：
 
 ```text
 python scripts/demo_preview.py --out-dir local-data/public-demo
@@ -79,11 +79,11 @@ python scripts/build_dashboard.py --eastmoney local-data/em.json --fred local-da
 | 范围 | 当前状态 |
 |---|---|
 | 已集成main | 基线`04fdcdd`已包含修复、教学/情景及首页更新；不是未合补丁 |
-| 本次源码/Skill候选 | v1.7.0，候选包与Skill元数据均为1.7.0；周期方法2.1.0、宏观接口1.0.0保持，历史快照不改 |
-| GitHub Release / 安装版 | v1.7.0尚待审合与发布；核验时无旧Release。发布后以实际tag和附件SHA256为准，本仓不提供wheel/npm包 |
+| v1.7.0源码/Skill | 已发布，源码包与Skill元数据均为1.7.0；周期方法2.1.0、宏观接口1.0.0保持，历史快照不改 |
+| GitHub Release / 安装版 | v1.7.0已发布，tag对应`5a4c1d5`，附件SHA256与独立验收包一致；此前无旧Release，本仓不提供wheel/npm包 |
 | 历史源码包、截图和验收记录 | 按各自提交与方法版本保留，不覆盖；旧文件不保证含当前新增入口和校验 |
 
-历史记录中的“待审”描述当时状态，不代表当前main状态。[变更记录](CHANGELOG.md) · [后续路线](ROADMAP.md) · [历史设计v1.4](docs/设计方案.md)
+已发布ZIP固定于`5a4c1d5`，包内“候选”文字记录打包时状态；本次main文档更正不替换ZIP或标签。历史记录中的“待审”描述当时状态，不代表当前main状态。[变更记录](CHANGELOG.md) · [后续路线](ROADMAP.md) · [历史设计v1.4](docs/设计方案.md)
 
 ## 验证、许可和来源
 
