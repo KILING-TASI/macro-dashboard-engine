@@ -11,3 +11,5 @@ exclude assets/sample_data.json
 
 recursive-include third_party *
 include LICENSE_SCOPE.md
+
+include try_demo.py Start-Demo.cmd Start-Demo.sh BEGINNER.md

@@ -2,7 +2,7 @@
 name: macro-dashboard
 description: 生成宏观研究看板，观察增长、通胀、货币与银行信用传导、金融周期及行业历史关联；按研究问题选择资料，保留来源、口径、日期与缺口。
 metadata:
-  version: "1.7.1"
+  version: "1.7.2"
   author: "CodeBuddy AI"
   created: "2026-10-09"
 ---
@@ -70,3 +70,7 @@ python <skill-directory>/scripts/run_pipeline.py --demo --out <demo.html>
 康波为定性背景，长周期峰谷吻合仅为事后描述；当前全样本标准化和后续观测峰谷识别不是实时回测。政策日历中的惯例不代替官方公告。未主动请求时不创建自动化。
 
 验证：python -m unittest discover -s tests -v。数据与代码测试通过不证明经济判断成立。
+
+## 普通用户与失败接续
+
+首次使用或资料无法组织时，读 [中文资料准备](BEGINNER.md)，先确认影响问题的来源、日期和单位；不要让用户填写技术JSON。软件缺组件时使用本仓 `doctor`，不把环境就绪当作来源核验。报告生成、数据取得、计算完成和证据核对分别解释；能回答的部分先交付，未知说明影响与补齐路径。
