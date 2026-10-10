@@ -20,6 +20,18 @@
 
 换成自己的资料，先看[中文资料准备与错误处理](BEGINNER.md)。已安装 CLI 可运行 `macro-dashboard-engine doctor` 检查软件环境；它不检查资料或认证来源。
 
+## 名称与使用入口
+
+| 用途 | 名称 |
+|---|---|
+| 中文展示名称 | 宏观研究看板 |
+| GitHub 仓库／Python 发行包 | `macro-dashboard-engine` |
+| Skill 注册名 | `macro-dashboard` |
+| 安装后的命令 | `macro-dashboard-engine` |
+| Python 模块 | `macro_dashboard` |
+
+宏观工具的 Skill 沿用 `macro-dashboard` 注册名；安装包和命令使用 `macro-dashboard-engine`。两者指向同一工具，安装 CLI 不会自动注册 Skill。
+
 ## 安装和首次试用
 
 安装包见[发布页](https://github.com/KILING-TASI/macro-dashboard-engine/releases/tag/v1.7.2)，提供完整源码、wheel、sdist 和校验清单。源码按下面步骤安装；下载 wheel 后，将安装命令末尾的 `.` 换成该 wheel 文件路径。pip 安装不会自动注册 AI 工具中的 Skill。
