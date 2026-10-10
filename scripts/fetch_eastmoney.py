@@ -24,6 +24,7 @@ fetch_eastmoney.py — 东方财富宏观数据抓取
 """
 import argparse
 import json
+import math
 import sys
 import urllib.request
 import urllib.parse
@@ -64,28 +65,36 @@ def _http_get(url, timeout=20):
         return json.loads(resp.read().decode("utf-8"))
 
 
-def fetch_report(report_name, page_size=40):
-    """调用东财接口，返回 data 列表（按时间倒序）。"""
-    params = {
-        "reportName": report_name,
-        "columns": "ALL",
-        "pageSize": str(page_size),
-        "pageNumber": "1",
-        "sortColumns": "REPORT_DATE",
-        "sortTypes": "-1",
-    }
-    url = BASE + "?" + urllib.parse.urlencode(params)
-    payload = _http_get(url)
-    if not payload.get("success"):
-        raise RuntimeError(payload.get("message", "eastmoney api error"))
-    return (payload.get("result") or {}).get("data") or []
+def fetch_report(report_name, page_size=40, *, all_pages=False, filter_text=None):
+    """Bounded pagination; fail if page metadata changes or rows are truncated."""
+    if not 1 <= page_size <= 2000: raise ValueError('分页大小须为1至2000')
+    params = dict(reportName=report_name, columns='ALL', pageSize=str(page_size), pageNumber='1', sortColumns='REPORT_DATE', sortTypes='-1')
+    if filter_text: params['filter']=filter_text
+    rows=[];pages=None;total=None
+    for page in range(1,21):
+        params['pageNumber']=str(page)
+        payload=_http_get(BASE+'?'+urllib.parse.urlencode(params))
+        if not payload.get('success'):raise RuntimeError(payload.get('message','数据接口失败'))
+        result=payload.get('result')
+        if not isinstance(result,dict) or not isinstance(result.get('data'),list):raise ValueError('报表数据缺失，不以空列表冒充成功')
+        if not all_pages:return result['data']
+        current_pages=int(result['pages']);current_total=int(result['count'])
+        if not 1<=current_pages<=20 or not 0<=current_total<=40000:raise ValueError('分页数量超限或无效')
+        if pages is not None and (pages!=current_pages or total!=current_total):raise ValueError('分页总数变化，停止本批')
+        pages,total=current_pages,current_total;rows.extend(result['data'])
+        if page==pages:
+            if len(rows)!=total:raise ValueError('记录数不符，可能截断')
+            return rows
+    raise ValueError('分页超限')
 
 
 def _num(v):
     try:
         if v is None or v == "":
             return None
-        return float(v)
+        if isinstance(v,bool): return None
+        value=float(v)
+        return value if math.isfinite(value) else None
     except (TypeError, ValueError):
         return None
 
@@ -103,39 +112,15 @@ def build_series(rows, field_map, limit):
     return dates, series
 
 
+from housing_model import build_house_price_series
+
+
 def fetch_house_price(limit=36):
-    """房价专项：原始数据按城市分行，需按月份聚合为全国均值。"""
-    rows = fetch_report("RPT_ECONOMY_HOUSE_PRICE", page_size=2000)
-    by_month = {}
-    for row in rows:
-        rd = (row.get("REPORT_DATE") or "")[:7]
-        if not rd:
-            continue
-        for field, key in (("FIRST_COMHOUSE_SAME", "new"), ("SECOND_HOUSE_SAME", "second")):
-            v = _num(row.get(field))
-            if v is not None:
-                by_month.setdefault(rd, {"new": [], "second": []})[key].append(v)
-
-    months = sorted(by_month.keys())[-limit:]
-    dates = months
-    new_avg, second_avg = [], []
-    for m in months:
-        n = by_month[m]["new"]; s = by_month[m]["second"]
-        # 房价指数以 100 为基准，同比为指数形式；均值依然是指数口径
-        new_avg.append(round(sum(n) / len(n), 2) if n else None)
-        second_avg.append(round(sum(s) / len(s), 2) if s else None)
-
-    def _m(vals):
-        vv = [v for v in vals if v is not None]
-        return (vv[-1], vv[-2] if len(vv) >= 2 else None) if vv else (None, None)
-    ln, lp = _m(new_avg)
-    return {
-        "name": "70城房价指数(均值)", "unit": "指数(100=持平)",
-        "dates": dates, "series": {"new": new_avg, "second": second_avg},
-        "latest": ln, "prev": lp,
-        "mom": round(ln - lp, 3) if (ln is not None and lp is not None) else None,
-        "yoy": None,
-    }
+    if type(limit) is not int or not 1<=limit<=120:raise ValueError('房价区间须为1至120个月')
+    today=datetime.now(); month_number=today.year*12+today.month-1-limit
+    year,month=divmod(month_number,12)
+    rows=fetch_report('RPT_ECONOMY_HOUSE_PRICE',page_size=2000,all_pages=True,filter_text="(REPORT_DATE>='"+f'{year:04d}-{month+1:02d}-01'+"')")
+    return build_house_price_series(rows,limit)
 
 
 def fetch_indicator(key, limit=36):

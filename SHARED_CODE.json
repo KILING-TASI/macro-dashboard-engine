@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "fixed-shared-components/1",
+  "hashFormat": "UTF-8 with LF newlines",
+  "components": [
+    {
+      "localPath": "scripts/housing_model.py",
+      "normalizedTextSha256": "f6e13afdde95e36c9b9c98fc7d41c5beda0fa9410b283ccbc4b95b38cd71a170",
+      "canonicalRepository": "cn-data-adapters",
+      "canonicalPath": "cn_data_adapters/housing_model.py",
+      "syncPolicy": "fixed-with-distribution; review and regenerate manifest before replacing; no runtime source dependency",
+      "licenseScope": "see repository third-party notices; inventory does not grant rights"
+    },
+    {
+      "localPath": "setup.py",
+      "normalizedTextSha256": "69d9c745c320f8f121f9e8f20ef5823fa411d32170f8188fd83dd52c5b5aaf5e",
+      "canonicalRepository": "research-workbench",
+      "canonicalPath": "setup.py",
+      "syncPolicy": "fixed-with-distribution; review and regenerate manifest before replacing; no runtime source dependency",
+      "licenseScope": "see repository third-party notices; inventory does not grant rights"
+    }
+  ],
+  "scope": "This inventory covers discovered equal original Python text, not proof of all interfaces being equivalent; divergent variants are not merged"
+}
