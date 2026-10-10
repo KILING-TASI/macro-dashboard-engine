@@ -303,6 +303,7 @@ def render(payload, out_path, title="宏观全景看板"):
     html = html.replace("__DATA__", json.dumps(payload, ensure_ascii=False))
     html = html.replace("__DASHBOARD_CONTROLS__", controls_js)
 
+    html = html.replace('</body>', '<details aria-label="指标怎么读"><summary>指标怎么读、金额怎么核</summary><p>同比与上年同期比较，环比与上一期比较；它们都不是百分点变化。数据观察期、发布时点和取得时点分别核对。样本回归的相关关系不能直接证明政策因果。</p><p>未知不当作零；比例必须配分母。只有明确完整、同币种基数时才将比例乘基数换成金额。原始结果、方法和资料版本继续保留，新解释不会改写历史冻结报告。</p></details>'+'</body>')
     os.makedirs(os.path.dirname(os.path.abspath(out_path)), exist_ok=True)
     with open(out_path, "w", encoding="utf-8") as f:
         f.write(html)
