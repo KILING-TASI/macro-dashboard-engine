@@ -59,7 +59,7 @@ python scripts/demo_preview.py --out-dir local-data/public-demo
 
 仓库名是`macro-dashboard-engine`，真实Skill名称是[SKILL.md](SKILL.md)中的`macro-dashboard`。Skill说明与Python命令行可以并用。源码根目录包含SKILL.md、scripts、references、assets和third_party；复制Skill时需保留这些资源的相对位置，不必重命名现有仓库或调用。
 
-本仓以源码分发，不需要pip安装本项目或其他自家专业包。没有wheel/npm安装包；PDF、研报解析不是本包能力。Node仅用于开发检查，生成看板不需要Node。已验证独立目录和虚拟环境中的命令行运行，尚未验证自然语言Skill发现。
+本仓同时提供完整源码、Python wheel和sdist；安装方式见首页“安装和首次试用”。也可以直接运行完整源码中的脚本，无需安装其他自家专业包。不提供npm包；PDF、研报解析不是本包能力。Node仅用于开发检查，生成看板不需要Node。已验证独立目录和虚拟环境中的命令行运行，尚未验证自然语言Skill发现。
 
 工作台可以接收[宏观接口1.0.0](references/macro_contract.md)的有限观测，但不是运行依赖。公司经营与综合研究判断留给工作台；本仓不替代其官方发布核验、资产窗口或原件解析，也不承担财报、基金全评价和公司事件库的职责。数据入口和各批次验收详情统一见[数据目录与契约说明](references/data_contract_inventory.md)。
 
