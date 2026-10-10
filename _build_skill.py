@@ -4,10 +4,10 @@ from shutil import copyfile
 from setuptools.command.build_py import build_py
 
 PACKAGE = 'macro_dashboard'
-ROOTS = ['README.md', 'SKILL.md', 'LICENSE', 'THIRD_PARTY_NOTICES.md', 'DISCLAIMER.md', 'scripts', 'references', 'assets', 'templates', 'examples', 'docs', 'licenses', 'agents']
+ROOTS = ['BEGINNER.md', 'try_demo.py', 'Start-Demo.cmd', 'Start-Demo.sh', 'README.md', 'SKILL.md', 'LICENSE', 'THIRD_PARTY_NOTICES.md', 'DISCLAIMER.md', 'scripts', 'references', 'assets', 'templates', 'examples', 'docs', 'licenses', 'agents']
 ROOTS += ['third_party', 'LICENSE_SCOPE.md']
 EXCLUDED = ['assets/sample_data.json']
-EXTENSIONS = {'.py','.js','.cjs','.mjs','.md','.json','.txt','.csv','.html','.css','.yaml','.yml','.jpg','.png','.svg'}
+EXTENSIONS = {'.cmd', '.sh', '.py','.js','.cjs','.mjs','.md','.json','.txt','.csv','.html','.css','.yaml','.yml','.jpg','.png','.svg'}
 
 class BuildSkill(build_py):
     def run(self):
