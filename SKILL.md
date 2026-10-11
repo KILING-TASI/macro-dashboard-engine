@@ -2,9 +2,10 @@
 name: macro-dashboard
 description: 生成宏观研究看板，观察增长、通胀、货币与银行信用传导、金融周期及行业历史关联；按研究问题选择资料，保留来源、口径、日期与缺口。
 metadata:
-  version: "1.7.2"
-  author: "CodeBuddy AI"
-  created: "2026-10-09"
+  version: 1.7.7
+  author: CodeBuddy AI
+  created: '2026-10-09'
+license: MIT
 ---
 
 # 宏观研究看板
@@ -77,3 +78,7 @@ python <skill-directory>/scripts/run_pipeline.py --demo --out <demo.html>
 
 
 新增[问题导向的证据复查](QUESTION_REVIEW.md)：macro-dashboard-engine script industry_evidence_review review；示例、输入口径及限制见该页。
+
+## 安装与结果状态
+
+本仓可以单独安装；pip安装命令行包不等于在助手中注册Skill。按本仓README安装完整资源，再使用SKILL中的入口。结果生成、资料取得与原文核验分别解释；未知说明影响及补齐路径。原创代码MIT，第三方代码保留许可，公告、研报和数据不随代码许可转移权利。
