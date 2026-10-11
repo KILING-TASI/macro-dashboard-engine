@@ -34,7 +34,7 @@ def review(spec):
         rows.append(dict(row, change=change, sourceVerified=False))
     missing=[FAMILIES[f] for f in FAMILIES if not any(r['family']==f and r.get('value') is not None for r in rows)]
     coverage='缺少'+ '、'.join(missing)+'证据' if missing else '四类证据均有声明值'
-    return {'methodVersion':'industry-evidence/1', 'status':'partial' if missing or excluded else 'ready-for-review', 'conclusion':f"{spec['industry']}按价格、产能、开工率和库存分别展示；{coverage}，不合成为确定的景气或盈利预测。", 'records':rows,'excludedAfterCutoff':excluded,'missingFamilies':missing,'humanRows':[[FAMILIES[r['family']]+' · '+r['id'],(str(r['value']) if r.get('value') is not None else '未知')+' '+r['unit']+'；较所填基准变化 '+(r['change'] if r['change'] is not None else '未知')+'；'+{'disclosed':'披露值','estimated':'估算值','proxy':'代理指标'}[r['valueType']]] for r in rows], 'limitations':['只检查声明口径与时点，未认证原始来源','价格上涨不等于盈利改善；库存增加可能来自补库或滞销','行业分类与样本范围不一致不可直接排名；未覆盖全部31行业','本模块读取资料；新增采集器和数据落库仍由数据仓负责']}
+    return {'methodVersion':'industry-evidence/1', 'status':'partial' if missing or excluded else 'ready-for-review', 'conclusion':('原创教学样本，非真实研究结论。' if spec.get('sampleType')=='teaching' else '')+f"{spec['industry']}按价格、产能、开工率和库存分别展示；{coverage}，不合成为确定的景气或盈利预测。", 'records':rows,'excludedAfterCutoff':excluded,'missingFamilies':missing,'humanRows':[[FAMILIES[r['family']]+' · '+r['id'],(str(r['value']) if r.get('value') is not None else '未知')+' '+r['unit']+'；较所填基准变化 '+(r['change'] if r['change'] is not None else '未知')+'；'+{'disclosed':'披露值','estimated':'估算值','proxy':'代理指标'}[r['valueType']]] for r in rows], 'limitations':['只检查声明口径与时点，未认证原始来源','价格上涨不等于盈利改善；库存增加可能来自补库或滞销','行业分类与样本范围不一致不可直接排名；未覆盖全部31行业','本模块读取资料；新增采集器和数据落库仍由数据仓负责']}
 
 
 if __name__ == '__main__':
