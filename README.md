@@ -2,7 +2,7 @@
 
 观察增长、物价、货币和信贷变化，并对照行业价格、产能、开工率与库存证据。
 
-[![原创代码 MIT](https://img.shields.io/badge/原创代码-MIT-green)](LICENSE) · [当前发行版 v1.7.7](https://github.com/KILING-TASI/macro-dashboard-engine/releases/tag/v1.7.7) · [运行检查](https://github.com/KILING-TASI/macro-dashboard-engine/actions)
+[![原创代码 MIT](https://img.shields.io/badge/原创代码-MIT-green)](LICENSE) · [当前发行版 v1.7.8](https://github.com/KILING-TASI/macro-dashboard-engine/releases/tag/v1.7.8) · [运行检查](https://github.com/KILING-TASI/macro-dashboard-engine/actions)
 
 ## 能解决什么问题
 
@@ -12,7 +12,7 @@
 
 ## 快速开始
 
-从[发行页](https://github.com/KILING-TASI/macro-dashboard-engine/releases/tag/v1.7.7)下载完整源码并解压，需要 Python 3.10 或以上。在源码目录执行：
+从[发行页](https://github.com/KILING-TASI/macro-dashboard-engine/releases/tag/v1.7.8)下载完整源码并解压，需要 Python 3.10 或以上。在源码目录执行：
 
 ```text
 python try_demo.py --no-open --out-dir reports/first-demo
