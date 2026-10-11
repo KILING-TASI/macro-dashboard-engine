@@ -74,3 +74,6 @@ python <skill-directory>/scripts/run_pipeline.py --demo --out <demo.html>
 ## 普通用户与失败接续
 
 首次使用或资料无法组织时，读 [中文资料准备](BEGINNER.md)，先确认影响问题的来源、日期和单位；不要让用户填写技术JSON。软件缺组件时使用本仓 `doctor`，不把环境就绪当作来源核验。报告生成、数据取得、计算完成和证据核对分别解释；能回答的部分先交付，未知说明影响与补齐路径。
+
+
+新增[问题导向的证据复查](QUESTION_REVIEW.md)：macro-dashboard-engine script industry_evidence_review review；示例、输入口径及限制见该页。
