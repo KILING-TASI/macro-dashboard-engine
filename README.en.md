@@ -4,7 +4,7 @@ Inspect supplied growth, inflation, money and credit series, and retain gaps in 
 
 [中文说明](README.md) · [Release v1.7.8](https://github.com/KILING-TASI/macro-dashboard-engine/releases/tag/v1.7.8) · [Skill instructions](SKILL.md) · [Input preparation](BEGINNER.md)
 
-Current release: **regular release**. Python **3.10+**. Base runtime dependencies: none.
+Current release: **v1.7.8 · regular release**. Python **3.10+**. Base runtime dependencies: none.
 
 ## First run
 
