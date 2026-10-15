@@ -38,3 +38,5 @@ recursive-include tools *.py
 include QUESTION_REVIEW.md
 
 include USAGE.md
+
+include PUBLIC_VALIDATION.json
