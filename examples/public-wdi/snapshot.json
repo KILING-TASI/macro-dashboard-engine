@@ -1,0 +1,151 @@
+{
+  "schemaVersion": "cn-wdi-archive/1.0",
+  "request": {
+    "countries": [
+      "CHN",
+      "USA",
+      "JPN"
+    ],
+    "indicator": "NY.GDP.MKTP.KD.ZG",
+    "start": 2022,
+    "end": 2024
+  },
+  "status": "success",
+  "attemptedAt": "2026-10-15T12:45:14.312071+00:00",
+  "retrievedAt": "2026-10-15T12:45:36.187273+00:00",
+  "replayedAt": null,
+  "pages": [
+    {
+      "page": 1,
+      "file": "page-1.json",
+      "url": "https://api.worldbank.org/v2/country/CHN;USA;JPN/indicator/NY.GDP.MKTP.KD.ZG?source=2&format=json&date=2022%3A2024&per_page=5000&page=1&footnote=y",
+      "sha256": "e37c6e62873ddd51910711b8f389972d69d1e345566f737cd9b8aa0b6ba7b5ee",
+      "byteCount": 2153
+    }
+  ],
+  "data": [
+    {
+      "indicatorId": "NY.GDP.MKTP.KD.ZG",
+      "indicatorName": "GDP growth (annual %)",
+      "regionCode": "CHN",
+      "regionName": "China",
+      "period": "2024",
+      "value": "4.95830378788091",
+      "unit": null,
+      "unknownReason": null,
+      "footnote": "",
+      "regionClassification": "not-verified",
+      "availableAt": "2026-10-15T12:45:36.187273+00:00"
+    },
+    {
+      "indicatorId": "NY.GDP.MKTP.KD.ZG",
+      "indicatorName": "GDP growth (annual %)",
+      "regionCode": "CHN",
+      "regionName": "China",
+      "period": "2023",
+      "value": "5.41600334492955",
+      "unit": null,
+      "unknownReason": null,
+      "footnote": "",
+      "regionClassification": "not-verified",
+      "availableAt": "2026-10-15T12:45:36.187273+00:00"
+    },
+    {
+      "indicatorId": "NY.GDP.MKTP.KD.ZG",
+      "indicatorName": "GDP growth (annual %)",
+      "regionCode": "CHN",
+      "regionName": "China",
+      "period": "2022",
+      "value": "3.13385438394069",
+      "unit": null,
+      "unknownReason": null,
+      "footnote": "",
+      "regionClassification": "not-verified",
+      "availableAt": "2026-10-15T12:45:36.187273+00:00"
+    },
+    {
+      "indicatorId": "NY.GDP.MKTP.KD.ZG",
+      "indicatorName": "GDP growth (annual %)",
+      "regionCode": "JPN",
+      "regionName": "Japan",
+      "period": "2024",
+      "value": "-0.240084236041696",
+      "unit": null,
+      "unknownReason": null,
+      "footnote": "",
+      "regionClassification": "not-verified",
+      "availableAt": "2026-10-15T12:45:36.187273+00:00"
+    },
+    {
+      "indicatorId": "NY.GDP.MKTP.KD.ZG",
+      "indicatorName": "GDP growth (annual %)",
+      "regionCode": "JPN",
+      "regionName": "Japan",
+      "period": "2023",
+      "value": "0.720785304749811",
+      "unit": null,
+      "unknownReason": null,
+      "footnote": "",
+      "regionClassification": "not-verified",
+      "availableAt": "2026-10-15T12:45:36.187273+00:00"
+    },
+    {
+      "indicatorId": "NY.GDP.MKTP.KD.ZG",
+      "indicatorName": "GDP growth (annual %)",
+      "regionCode": "JPN",
+      "regionName": "Japan",
+      "period": "2022",
+      "value": "1.33164750653741",
+      "unit": null,
+      "unknownReason": null,
+      "footnote": "",
+      "regionClassification": "not-verified",
+      "availableAt": "2026-10-15T12:45:36.187273+00:00"
+    },
+    {
+      "indicatorId": "NY.GDP.MKTP.KD.ZG",
+      "indicatorName": "GDP growth (annual %)",
+      "regionCode": "USA",
+      "regionName": "United States",
+      "period": "2024",
+      "value": "2.79318715363841",
+      "unit": null,
+      "unknownReason": null,
+      "footnote": "",
+      "regionClassification": "not-verified",
+      "availableAt": "2026-10-15T12:45:36.187273+00:00"
+    },
+    {
+      "indicatorId": "NY.GDP.MKTP.KD.ZG",
+      "indicatorName": "GDP growth (annual %)",
+      "regionCode": "USA",
+      "regionName": "United States",
+      "period": "2023",
+      "value": "2.93436322440155",
+      "unit": null,
+      "unknownReason": null,
+      "footnote": "",
+      "regionClassification": "not-verified",
+      "availableAt": "2026-10-15T12:45:36.187273+00:00"
+    },
+    {
+      "indicatorId": "NY.GDP.MKTP.KD.ZG",
+      "indicatorName": "GDP growth (annual %)",
+      "regionCode": "USA",
+      "regionName": "United States",
+      "period": "2022",
+      "value": "2.52421385073222",
+      "unit": null,
+      "unknownReason": null,
+      "footnote": "",
+      "regionClassification": "not-verified",
+      "availableAt": "2026-10-15T12:45:36.187273+00:00"
+    }
+  ],
+  "limitations": [
+    "WDI来源2年度序列，不等于国内发布口径",
+    "单位字段为空时保留未知，需核对指标元数据",
+    "地区码可能是聚合地区；不自动认定为国家",
+    "冻结版本不代表历史首次发布版本；源数据权利单独核对"
+  ]
+}

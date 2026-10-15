@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "public-validation/1",
+  "repository": "macro-dashboard-engine",
+  "registeredOn": "2026-10-15",
+  "hashFormat": "UTF-8 with LF newlines; BOM ignored; original response hashes remain in original receipts",
+  "coverage": "limited-public-inputs",
+  "sourceAuthenticityCertified": false,
+  "evidence": [
+    {
+      "path": "examples/public-wdi/page-1.json",
+      "kind": "public-facts",
+      "normalizedSha256": "e37c6e62873ddd51910711b8f389972d69d1e345566f737cd9b8aa0b6ba7b5ee",
+      "sourceUrls": [
+        "https://api.worldbank.org/v2/country/CHN;USA;JPN/indicator/NY.GDP.MKTP.KD.ZG"
+      ]
+    }
+  ],
+  "checkFiles": [],
+  "gaps": [
+    "新增公开年度结构样本，不当作当前月度景气",
+    "31行业真实连续序列尚不齐；旧sample_data权利未明不用于默认验收"
+  ],
+  "limits": "registry and selected counterexamples; no new original-document authentication or investment-effect certification"
+}

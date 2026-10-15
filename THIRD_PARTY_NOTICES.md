@@ -15,3 +15,5 @@
 生成结果包含研究假设与代理口径，测试通过不证明经济判断成立，不构成投资指令或收益保证。
 
 本轮新增研究复查、报告说明及合成教学为作者原创MIT；同作者随包通用I/O代码独立保留，不要求其他仓库安装。规则有限事实和来源链接不改变原文权利；未捆绑实际公告/研报PDF或私人账户资料。
+
+新增 examples/public-wdi 中9条2022—2024年中国、美国、日本GDP增速观察，来源 The World Bank: World Development Indicators (NY.GDP.MKTP.KD.ZG)，2026-10-15取得。按[世界银行数据条款](https://www.worldbank.org/ext/en/legal/terms-conditions/datasets)及指标底层提供方条件使用，通常为CC BY 4.0及附加条款；不由代码MIT覆盖，不代表世界银行背书。原始响应与摘要保留于案例，中文选择/解释为本项目整理，不声称历史首次发布版本。

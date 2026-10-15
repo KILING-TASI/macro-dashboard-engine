@@ -2,13 +2,13 @@
 
 Inspect supplied growth, inflation, money and credit series, and retain gaps in bounded industry evidence. Statistical scope and publication dates remain explicit.
 
-[中文说明](README.md) · [Release v1.7.8](https://github.com/KILING-TASI/macro-dashboard-engine/releases/tag/v1.7.8) · [Skill instructions](SKILL.md) · [Input preparation](BEGINNER.md)
+[中文说明](README.md) · [Release v1.7.9](https://github.com/KILING-TASI/macro-dashboard-engine/releases/tag/v1.7.9) · [Skill instructions](SKILL.md) · [Input preparation](BEGINNER.md)
 
-Current release: **v1.7.8 · regular release**. Python **3.10+**. Base runtime dependencies: none.
+Current release: **v1.7.9 · regular release**. Python **3.10+**. Base runtime dependencies: none.
 
 ## First run
 
-Download the [complete source ZIP](https://github.com/KILING-TASI/macro-dashboard-engine/releases/download/v1.7.8/macro-dashboard-engine-v1.7.8-source.zip), extract it and enter the directory containing `try_demo.py`:
+Download the [complete source ZIP](https://github.com/KILING-TASI/macro-dashboard-engine/releases/download/v1.7.9/macro-dashboard-engine-v1.7.9-source.zip), extract it and enter the directory containing `try_demo.py`:
 
 ```console
 python try_demo.py --no-open --out-dir reports/first-demo
